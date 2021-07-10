@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\res\Minecraft.Resources.Vanilla.VillageAndPillage\Minecraft.Resources.Vanilla.VillageAndPillage.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Resources\Minecraft.Resources.csproj" />
+  </ItemGroup>
+</Project>

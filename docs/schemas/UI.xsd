@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://minecraft.yts233.tk/schemas/UI.xsd">
+    <xs:element name="Page" type="PageType"/>
+    <xs:complexType name="PageType">
+        <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="Background" type="xs:element"/>
+    </xs:complexType>
+    <xs:complexType name="Components">
+        <xs:all>
+            
+        </xs:all>
+    </xs:complexType>
+</xs:schema>
