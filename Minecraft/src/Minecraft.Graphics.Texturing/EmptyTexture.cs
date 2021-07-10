@@ -13,6 +13,10 @@ namespace Minecraft.Graphics.Texturing
             var image = new Image(width, height);
             image.InitializeEmptyImage();
             GL.BindTexture(TextureTarget.Texture2D, _handle);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                (int) TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                (int) TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
                 (int) TextureMinFilter.NearestMipmapNearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,

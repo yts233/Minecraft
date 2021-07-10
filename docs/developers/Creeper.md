@@ -5,23 +5,36 @@
 ### 项目
 
 - Minecraft
+- Minecraft.Data
 - Minecraft.Graphics
-- Minecraft.Graphics.UI
+- Minecraft.Graphics.Engines
+- Minecraft.Graphics.Texturing
+- Minecraft.Graphics.Windowing
+- Minecraft.Input
 - Minecraft.Protocol
 - Minecraft.Resources
-- Minecraft.Text
 
 #### 测试项目
 
+- Test.Data.Blocks.Test
+- Test.Data.Nbt.Test
+- Test.Graphics.Test
 - Test.OpenGL.Test
+- Test.OpenGL.Test2
 - Test.Protocol.Data.Test
 - Test.Protocol.Test
+- Test.Resources.FilePaths.Test
 - Test.Resources.Test
 - Test.Text.Test
 
+
 #### 工具
 
-- Tools.PacketRedirector
+- Tool.AssetResolver
+- Tool.Graphics.Windowing
+- Tool.NetworkDataRedirector
+- Tool.PacketRedirector
+- Tool.ResourceGenerator
 
 ## 留言
 
@@ -29,8 +42,4 @@
 
 #### Minecraft.Graphics
 
-我tm再也不用CubeMap了，太nm坑了。
-
-#### Minecraft.Graphics.UI
-
-CodeGenerator根本就没有用，写nm。
+我tm再也不用CubeMap了，太坑了。

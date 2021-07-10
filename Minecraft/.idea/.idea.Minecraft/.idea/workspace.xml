@@ -40,20 +40,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="adf3fd11-98b9-46ec-8545-8982ba8c57a1" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Texture.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/ICompletedRenderer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvAnimation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvAnimation.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/BindRenderInvoker.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/BindRenderInvoker.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/ShaderBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/ShaderBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/Minecraft.Resources.Vanilla.VillageAndPillage/Resources.resources" beforeDir="false" afterPath="$PROJECT_DIR$/res/Minecraft.Resources.Vanilla.VillageAndPillage/Resources.resources" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/developers/Creeper.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/developers/Creeper.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +108,6 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/Minecraft.Graphics.Windowing.csproj" />
       <option value="$PROJECT_DIR$/test/Test.Graphics.Test/Test.Graphics.Test.csproj" />
       <option value="$PROJECT_DIR$/test/Test.Data.Blocks.Test/Test.Data.Blocks.Test.csproj" />
       <option value="$PROJECT_DIR$/test/Test.Data.Nbt.Test/Test.Data.Nbt.Test.csproj" />
@@ -158,14 +149,16 @@
       <option value="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/ICompletedRenderer.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/Extensions.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/ICompletedRenderer.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" />
-      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvAnimation.cs" />
+      <option value="$PROJECT_DIR$/../docs/developers/Creeper.md" />
+      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" />
+      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" />
     </changedPaths>
   </component>
   <component name="JsFlowSettings">
@@ -192,7 +185,7 @@
     <property name="full.screen.before.presentation.mode" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/test/Test.Data.Nbt.Test/bin/Debug/net5.0" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="Inspections-C#" />
+    <property name="settings.editor.selected.configurable" value="terminal" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected=".NET Project.Test.OpenGL.Test">
@@ -651,6 +644,7 @@
       <workItem from="1625755937666" duration="1043000" />
       <workItem from="1625816229362" duration="1960000" />
       <workItem from="1625818671080" duration="22083000" />
+      <workItem from="1625883999947" duration="3327000" />
     </task>
     <task id="LOCAL-00001" summary="backup">
       <created>1611669733490</created>

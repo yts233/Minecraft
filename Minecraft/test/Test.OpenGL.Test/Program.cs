@@ -211,16 +211,16 @@ namespace Test.OpenGL.Test
                     testShader.Use();
                     animation.Bind();
                     animation.Render();
+                })
+                .AddUpdater(() =>
+                {
+                    cloudRenderer.Update();
+                })
+                .AddRenderer(() =>
+                {
+                    cloudRenderer.Bind();
+                    cloudRenderer.Render();
                 });
-                //.AddUpdater(() =>
-                //{
-                //    cloudRenderer.Update();
-                //});
-                //.AddRenderer(() =>
-                //{
-                //    cloudRenderer.Bind();
-                //    cloudRenderer.Render();
-                //});
 
             window.AddTicker(() => ticks++)
                 .AddTicker(() => animation.Tick());
