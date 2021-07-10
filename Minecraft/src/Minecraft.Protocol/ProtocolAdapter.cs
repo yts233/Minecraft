@@ -122,7 +122,7 @@ namespace Minecraft.Protocol
                 _sendStream = new BufferedStream(_receiveStream);
             }
 
-            Logger.Info<ProtocolAdapter>("Adapter started");
+            await Logger.Info<ProtocolAdapter>("Adapter started");
             State = ProtocolState.Handshaking;
 
             void HandleHandshake(HandshakePacket packet)

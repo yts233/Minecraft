@@ -88,9 +88,9 @@ namespace Minecraft
                 $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB");
         }
 
-        private static void HandleException(Exception exception)
+        private static async void HandleException(Exception exception)
         {
-            Exception<ExceptionHandler>(exception);
+            await Exception<ExceptionHandler>(exception);
 #if !DEBUG
             Environment.Exit(1);
 #endif
