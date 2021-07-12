@@ -29,9 +29,10 @@ namespace Minecraft.Graphics.Texturing
             }
         }
 
-        public Image(byte[] data, int width, int height)
+        public Image(byte[] data, int width, int height, bool force = false)
         {
-            CheckSize(width, height);
+            if (!force)
+                CheckSize(width, height);
             Data = data;
             Width = width;
             Height = height;
@@ -39,9 +40,10 @@ namespace Minecraft.Graphics.Texturing
             FrameSize = (width * width) << 2;
         }
 
-        public Image(int width, int height)
+        public Image(int width, int height, bool force = false)
         {
-            CheckSize(width, height);
+            if (!force)
+                CheckSize(width, height);
             /*
              * data struct
              * [Location] [Color]
@@ -58,11 +60,11 @@ namespace Minecraft.Graphics.Texturing
             FrameSize = (width * width) << 2;
         }
 
-        public Image(Stream stream) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream))
+        public Image(Stream stream, bool force = false) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream), force)
         {
         }
 
-        public Image(SixLabors.ImageSharp.Image<Rgba32> image)
+        public Image(SixLabors.ImageSharp.Image<Rgba32> image, bool force = false)
         {
             //ImageSharp loads from the top-left pixel, whereas OpenGL loads from the bottom-left.
             image.Mutate(context => context.Flip(FlipMode.Vertical));

@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Minecraft.Graphics.Arraying
 {
-    public interface IVertexArrayHandle : IHandle, IBindable, IRenderable, IDisposable
+    public interface IVertexArrayHandle : IHandle, IRenderable, IDisposable
     {
         int Count { get; }
         int VertexBufferObjectHandle { get; }
@@ -25,12 +25,22 @@ namespace Minecraft.Graphics.Arraying
 
         void IRenderable.Render()
         {
-            Render(0, Count);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, Count);
+        }
+
+        void Render(PrimitiveType primitiveType)
+        {
+            GL.DrawArrays(primitiveType, 0, Count);
         }
 
         void Render(int index, int count)
         {
             GL.DrawArrays(PrimitiveType.Triangles, index, count);
+        }
+
+        void Render(int index, int count, PrimitiveType primitiveType)
+        {
+            GL.DrawArrays(primitiveType, index, count);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Minecraft.Graphics.Shading
     /// <summary>
     ///     着色器
     /// </summary>
-    public interface IShader : IHandle,IDisposable
+    public interface IShader : IHandle, IDisposable
     {
         void IBindable.Bind()
         {

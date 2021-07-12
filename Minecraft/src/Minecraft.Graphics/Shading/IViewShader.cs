@@ -2,7 +2,7 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Shading
 {
-    internal interface IViewShader : IShader
+    public interface IViewShader : IShader
     {
         Matrix4 View { get; set; }
     }

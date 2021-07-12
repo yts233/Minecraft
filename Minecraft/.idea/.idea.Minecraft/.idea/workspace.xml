@@ -40,12 +40,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="adf3fd11-98b9-46ec-8545-8982ba8c57a1" name="默认的" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisRenderer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisShader.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisVertexProvider.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/res/Minecraft.Resources.Vanilla.VillageAndPillage/Resources.resources" beforeDir="false" afterPath="$PROJECT_DIR$/res/Minecraft.Resources.Vanilla.VillageAndPillage/Resources.resources" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IVertexArrayHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IVertexArrayHandle.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IViewShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IViewShader.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docs/developers/Creeper.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/developers/Creeper.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,15 +118,6 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/test/Test.Graphics.Test/Test.Graphics.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Data.Blocks.Test/Test.Data.Blocks.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Data.Nbt.Test/Test.Data.Nbt.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test2/Test.OpenGL.Test2.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Protocol.Data.Test/Test.Protocol.Data.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Protocol.Test/Test.Protocol.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Text.Test/Test.Text.Test.csproj" />
-      <option value="$PROJECT_DIR$/test/Test.Resources.Test/Test.Resources.Test.csproj" />
-      <option value="$PROJECT_DIR$/tool/Tool.AssetResolver/Tool.AssetResolver.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.Graphics.Windowing/Tool.Graphics.Windowing.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.NetworkDataRedirector/Tool.NetworkDataRedirector.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.PacketRedirector/Tool.PacketRedirector.csproj" />
@@ -143,22 +144,31 @@
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/vertex.glsl" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/fragment.glsl" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/ShaderBase.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/BindRenderInvoker.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/ICompletedRenderer.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/Extensions.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Rendering/ICompletedRenderer.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvAnimation.cs" />
       <option value="$PROJECT_DIR$/../docs/developers/Creeper.md" />
-      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" />
-      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/ImageTexture.cs" />
+      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debugers/Axis/AxisRenderer.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisVertexProvider.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisShader.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IVertexArrayHandle.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisRenderer.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" />
+      <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" />
     </changedPaths>
   </component>
   <component name="JsFlowSettings">
@@ -178,14 +188,14 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.35042736" />
+    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.35035306" />
     <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.0" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="full.screen.before.presentation.mode" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/test/Test.Data.Nbt.Test/bin/Debug/net5.0" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="terminal" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected=".NET Project.Test.OpenGL.Test">
@@ -644,7 +654,9 @@
       <workItem from="1625755937666" duration="1043000" />
       <workItem from="1625816229362" duration="1960000" />
       <workItem from="1625818671080" duration="22083000" />
-      <workItem from="1625883999947" duration="3327000" />
+      <workItem from="1625883999947" duration="5376000" />
+      <workItem from="1625921774602" duration="7517000" />
+      <workItem from="1625981620087" duration="11531000" />
     </task>
     <task id="LOCAL-00001" summary="backup">
       <created>1611669733490</created>
@@ -777,43 +789,17 @@
           <option name="timeStamp" value="54" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs</url>
-          <line>20</line>
-          <properties documentPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" initialLine="20" containingFunctionPresentation="constructor 'CloudRenderer'">
-            <startOffsets>
-              <option value="722" />
-            </startOffsets>
-            <endOffsets>
-              <option value="723" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="74" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs</url>
-          <line>50</line>
+          <line>61</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" initialLine="50" containingFunctionPresentation="property 'Color'">
             <startOffsets>
-              <option value="1538" />
+              <option value="2073" />
             </startOffsets>
             <endOffsets>
-              <option value="1579" />
+              <option value="2114" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="78" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs</url>
-          <line>39</line>
-          <properties documentPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" initialLine="39" containingFunctionPresentation="constructor 'CloudShader'">
-            <startOffsets>
-              <option value="1156" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1157" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="79" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

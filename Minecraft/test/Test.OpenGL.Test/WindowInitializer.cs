@@ -12,6 +12,7 @@ namespace Test.OpenGL.Test
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha,BlendingFactor.OneMinusSrcAlpha);
+            //GL.Enable(EnableCap.CullFace);
             GL.ClearColor(Color.CornflowerBlue);
         }
     }

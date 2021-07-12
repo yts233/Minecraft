@@ -3,6 +3,7 @@ using System.Linq;
 using System.Timers;
 using Minecraft;
 using Minecraft.Graphics.Arraying;
+using Minecraft.Graphics.Renderers.Debuggers.Axis;
 using Minecraft.Graphics.Renderers.Environments.Clouding;
 using Minecraft.Graphics.Rendering;
 using Minecraft.Graphics.Texturing;
@@ -11,6 +12,7 @@ using Minecraft.Graphics.Windowing;
 using Minecraft.Input;
 using Minecraft.Resources;
 using Minecraft.Resources.Vanilla.VillageAndPillage;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using static OpenTK.Mathematics.MathHelper;
 
@@ -18,6 +20,8 @@ namespace Test.OpenGL.Test
 {
     internal class Program
     {
+        private delegate void RenderMonitor();
+        private delegate void TickMonitor();
         private static void Main(string[] args)
         {
             // 设置记录器
@@ -31,19 +35,20 @@ namespace Test.OpenGL.Test
             var resource = new VanillaResource();
             var window = new RenderWindow
             {
-                //IsFullScreen = true,
-                //PointerGrabbed = true
+                IsFullScreen = true,
+                PointerGrabbed = true
             };
             var windowViewportInvoker = new WindowViewportInvoker(window);
             IEye eye = new Eye
             {
-                Position = (-1, 0, -1)
+                Position = (-1, 0, -1),
+                DepthFar = 512F
             };
             eye.LookAt((0F, 0F, 0F));
             var viewProvider = new ViewTransformProvider(eye);
             var projectionProvider = new PerspectiveTransformProvider(eye);
             var cloudRenderer = new CloudRenderer(eye, viewProvider, projectionProvider, resource);
-
+            var axisRenderer = new AxisRenderer(viewProvider, projectionProvider);
 
             // 设置视图
             windowViewportInvoker.SizeChanged += e =>
@@ -74,8 +79,8 @@ namespace Test.OpenGL.Test
                 ticks = 0;
                 window.Title = $"Render Window - FPS: {fps} ({ups})  TPS: {tps}";
                 Logger.SetThreadName("RenderInfoThread");
-                //Logger.Info<RenderMonitor>($"FPS: {fps} ({ups})");
-                //Logger.Info<TickMonitor>($"TPS: {tps}");
+                Logger.Info<RenderMonitor>($"FPS: {fps} ({ups})");
+                Logger.Info<TickMonitor>($"TPS: {tps}");
             };
             renderTimer.Start();
             var memTimer = new Timer(5000);
@@ -119,7 +124,7 @@ namespace Test.OpenGL.Test
                         asset.Type == AssetType.Texture &&
                         asset.Name.StartsWith("block/") &&
                         asset.Name.EndsWith(".png"));
-                    var texture = new UvMap();
+                    var texture = new TextureAtlas();
                     var i = 0;
                     foreach (var asset in assets)
                     {
@@ -158,7 +163,8 @@ namespace Test.OpenGL.Test
                             30 * sizeof(float)));
                     Logger.Info<Program>($"Textures loaded {(DateTime.Now - time1).TotalMilliseconds} ms");
                 })
-                .AddInitializer(cloudRenderer);
+                .AddInitializer(cloudRenderer)
+                .AddInitializer(axisRenderer);
 
             // 更新输入设备状态
             window.AddUpdater(() =>
@@ -181,7 +187,7 @@ namespace Test.OpenGL.Test
                 })
                 .AddUpdater(() =>
                 {
-                    const int movementSpeedDiv = 10;
+                    const int movementSpeedDiv = 1;
                     /* Keyboard */
                     if (window.KeyboardState[Keys.W]) eye.Position += eye.Front / movementSpeedDiv;
                     if (window.KeyboardState[Keys.S]) eye.Position -= eye.Front / movementSpeedDiv;
@@ -212,14 +218,17 @@ namespace Test.OpenGL.Test
                     animation.Bind();
                     animation.Render();
                 })
-                .AddUpdater(() =>
-                {
-                    cloudRenderer.Update();
-                })
+                .AddUpdater(() => { cloudRenderer.Update(); })
                 .AddRenderer(() =>
                 {
                     cloudRenderer.Bind();
                     cloudRenderer.Render();
+                })
+                .AddRenderer(() =>
+                {
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
+                    axisRenderer.Bind();
+                    axisRenderer.Render();
                 });
 
             window.AddTicker(() => ticks++)

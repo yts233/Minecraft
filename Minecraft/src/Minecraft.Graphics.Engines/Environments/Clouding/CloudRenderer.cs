@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Minecraft.Graphics.Arraying;
 using Minecraft.Graphics.Rendering;
 using Minecraft.Graphics.Texturing;
 using Minecraft.Graphics.Transforming;
 using Minecraft.Resources;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Renderers.Environments.Clouding
@@ -16,10 +18,10 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         private CloudShader _shader;
         private IElementArrayHandle _cloudVertexArray;
 
-        public CloudRenderer(ICamera camera, IMatrixProvider viewMatrix, IMatrixProvider projectionMatrix,
+        public CloudRenderer(IEye eye, IMatrixProvider viewMatrix, IMatrixProvider projectionMatrix,
             Resource resource)
         {
-            _camera = camera;
+            _eye = eye;
             _viewMatrix = viewMatrix;
             _projectionMatrix = projectionMatrix;
             using var stream = resource.GetAsset(AssetType.Texture, "minecraft:environment/clouds.png").OpenRead();
@@ -41,7 +43,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
             }
         }
 
-        private readonly ICamera _camera;
+        private readonly IEye _eye;
         private readonly IMatrixProvider _projectionMatrix;
         private readonly IMatrixProvider _viewMatrix;
 
@@ -54,23 +56,25 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
 
         private int _minOffsetZ;
         private int _offsetZ;
-
+        private int _cloudDistance = 10;
 
         public void Render()
         {
+            //GL.Enable(EnableCap.CullFace);
+
+            // clouds
+            var centerX = (int) _eye.Position.X / 12;
+            var centerZ = (int) _eye.Position.Z / 12 + _offsetZ;
+            //var inCloudZ = ;
+            var minX = centerX - _cloudDistance;
+            var minZ = centerZ - _cloudDistance;
+            var maxX = centerX + _cloudDistance;
+            var maxZ = centerZ + _cloudDistance;
+
             // shader
             _shader.Offset = _offsetZ * 12 + _minOffsetZ / 120F;
             _shader.View = _viewMatrix.GetMatrix();
             _shader.Projection = _projectionMatrix.GetMatrix();
-
-            // clouds
-            const int cloudDistance = 10;
-            var centerX = (int) _camera.Position.X % 12;
-            var centerZ = (int) _camera.Position.Z % 12 + _offsetZ;
-            var minX = centerX - cloudDistance;
-            var minZ = centerZ - cloudDistance;
-            var maxX = centerX + cloudDistance;
-            var maxZ = centerZ + cloudDistance;
 
             for (var z = minZ; z < maxZ; z++)
             {
@@ -83,9 +87,23 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
                         continue;
                     _shader.Color = _cloudColorMap[cz, cx];
                     _shader.Position = (x, z);
-                    _cloudVertexArray.Render();
+
+                    if (!_cloudLayoutMap[cz, (cx - 1) & 0xFF])
+                        _cloudVertexArray.Render(12, 6);
+                    if (!_cloudLayoutMap[cz, (cx + 1) & 0xFF])
+                        _cloudVertexArray.Render(18, 6);
+                    if (!_cloudLayoutMap[(cz - 1) & 0xFF, cx])
+                        _cloudVertexArray.Render(24, 6);
+                    if (!_cloudLayoutMap[(cz + 1) & 0xFF, cx])
+                        _cloudVertexArray.Render(30, 6);
+                    _cloudVertexArray.Render(0, 12);
+
+
+                    //GL.CullFace(CullFaceMode.Back);
                 }
             }
+
+            GL.Disable(EnableCap.CullFace);
         }
 
         public void Update()
@@ -96,20 +114,20 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
             _offsetZ++;
             if (_offsetZ == 256)
                 _offsetZ = 0;
+            _cloudDistance = (int) _eye.DepthFar / 12 + 2;
         }
 
         public void Bind()
         {
             _shader.Use();
-
             _cloudVertexArray.Bind();
         }
 
         public void Dispose()
         {
             (_shader as IDisposable)?.Dispose();
-            _cloudVertexArray.Dispose();
             _shader = null;
+            _cloudVertexArray?.Dispose();
             _cloudVertexArray = null;
         }
 

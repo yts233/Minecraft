@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Texturing
 {
-    public class UvMap : EmptyTexture, IReadOnlyDictionary<object, Box2>
+    public class TextureAtlas : EmptyTexture, IReadOnlyDictionary<object, Box2>
     {
         private readonly bool[,] _spaceMap = new bool[64, 64];
         private readonly Dictionary<object, Box2i> _uvDictionary = new Dictionary<object, Box2i>();
@@ -19,7 +19,16 @@ namespace Minecraft.Graphics.Texturing
                 (value.Max.Y) / 1024F);
         }
 
-        public UvMap() : base(1024, 1024)
+        public TextureAtlas() : base(1024, 1024)
+        {
+        }
+
+        /// <summary>
+        /// 创建一个<see cref="TextureAtlas"/>
+        /// </summary>
+        /// <param name="widthInUnits">Width in 16 pixel unit.</param>
+        /// <param name="heightInUnits">Height in 16 pixel unit.</param>
+        public TextureAtlas(int widthInUnits, int heightInUnits) : base(widthInUnits * 16, heightInUnits * 16)
         {
         }
 
@@ -84,6 +93,16 @@ namespace Minecraft.Graphics.Texturing
             }
 
             throw new TextureException("this map is full");
+        }
+
+        public void Add(object baseKey, object key, int xInUnits, int yInUnits, int widthInUnits, int heightInUnits)
+        {
+            var uv = _uvDictionary[baseKey];
+            var x = xInUnits * 16 + uv.Min.X;
+            var y = yInUnits * 16 + uv.Min.Y;
+            var mx = x + widthInUnits * 16 - 1;
+            var my = y + heightInUnits * 16 - 1;
+            _uvDictionary.Add(key, new Box2i(x, y, mx, my));
         }
 
         public void Remove(object key)

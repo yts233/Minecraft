@@ -15,20 +15,51 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
                 Size = 3,
                 Type = VertexAttribePointerType.Float
             };
+            yield return new VertexAttributePointer
+            {
+                Index = 1,
+                Normalized = true,
+                Offset = 3 * sizeof(float),
+                Size = 3,
+                Type = VertexAttribePointerType.Float
+            };
         }
 
         public IEnumerable<float> GetVertices()
         {
-            return new[]
+            return new float[]
             {
-                0F, 0F, 0F,
-                12F, 0F, 0F,
-                12F, 1F, 0F,
-                0F, 1F, 0F,
-                0F, 0F, 12F,
-                12F, 0F, 12F,
-                12F, 1F, 12F,
-                0F, 1F, 12F
+                /* Position // Normal */
+                // bottom 0 - 3
+                0, 0, 0, /**/ 0, -1, 0,
+                1, 0, 0, /**/ 0, -1, 0,
+                1, 0, 1, /**/ 0, -1, 0,
+                0, 0, 1, /**/ 0, -1, 0,
+                // top 4 - 7
+                0, 1, 0, /**/ 0, 1, 0,
+                1, 1, 0, /**/ 0, 1, 0,
+                1, 1, 1, /**/ 0, 1, 0,
+                0, 1, 1, /**/ 0, 1, 0,
+                // left 8 - 11
+                0, 0, 0, /**/ -1, 0, 0,
+                0, 0, 1, /**/ -1, 0, 0,
+                0, 1, 1, /**/ -1, 0, 0,
+                0, 1, 0, /**/ -1, 0, 0,
+                // right 12 - 15
+                1, 0, 0, /**/ 1, 0, 0,
+                1, 0, 1, /**/ 1, 0, 0,
+                1, 1, 1, /**/ 1, 0, 0,
+                1, 1, 0, /**/ 1, 0, 0,
+                // front 16 - 19
+                0, 0, 0, /**/0, 0, -1,
+                1, 0, 0, /**/0, 0, -1,
+                1, 1, 0, /**/0, 0, -1,
+                0, 1, 0, /**/0, 0, -1,
+                // back 20 - 23
+                0, 0, 1, /**/0, 0, 1,
+                1, 0, 1, /**/0, 0, 1,
+                1, 1, 1, /**/0, 0, 1,
+                0, 1, 1, /**/0, 0, 1
             };
         }
 
@@ -36,29 +67,24 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         {
             return new uint[]
             {
-                // back
-                0, 3, 1,
-                1, 3, 2,
-
-                // front
-                4, 5, 6,
-                4, 6, 7,
-
-                // left
-                0, 4, 7,
-                0, 7, 3,
-
-                // right
-                1, 2, 5,
-                2, 6, 5,
-
-                // bottom
-                0, 1, 5,
-                0, 5, 4,
-
-                // top
-                3, 7, 6,
-                3, 6, 2
+                // bottom 0 - 5
+                0, 1, 2,
+                0, 2, 3,
+                // top 6 - 11
+                6, 5, 4,
+                7, 6, 4,
+                // left 12 - 17
+                8, 9, 10,
+                8, 10, 11,
+                // right 18 - 23
+                14, 13, 12,
+                15, 14, 12,
+                // front 24 - 29
+                19, 17, 16,
+                19, 18, 17,
+                // back 30 - 36
+                20, 21, 23,
+                21, 22, 23,
             };
         }
     }

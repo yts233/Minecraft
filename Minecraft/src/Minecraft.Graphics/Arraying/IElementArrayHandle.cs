@@ -26,9 +26,19 @@ namespace Minecraft.Graphics.Arraying
             GL.DrawElements(PrimitiveType.Triangles, Count, DrawElementsType.UnsignedInt, 0);
         }
 
+        new void Render(PrimitiveType primitiveType)
+        {
+            GL.DrawElements(primitiveType, Count, DrawElementsType.UnsignedInt, 0);
+        }
+
         new void Render(int index, int count)
         {
             GL.DrawElements(PrimitiveType.Triangles, count, DrawElementsType.UnsignedInt, index * sizeof(uint));
+        }
+
+        new void Render(int index, int count, PrimitiveType primitiveType)
+        {
+            GL.DrawElements(primitiveType, count, DrawElementsType.UnsignedInt, index * sizeof(uint));
         }
 
         void DisposeAll()
