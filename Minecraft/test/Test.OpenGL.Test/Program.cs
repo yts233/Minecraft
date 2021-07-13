@@ -36,13 +36,14 @@ namespace Test.OpenGL.Test
             var window = new RenderWindow
             {
                 IsFullScreen = true,
-                PointerGrabbed = true
+                PointerGrabbed = true,
+                RenderFrequency = 30
             };
             var windowViewportInvoker = new WindowViewportInvoker(window);
             IEye eye = new Eye
             {
                 Position = (-1, 0, -1),
-                DepthFar = 512F
+                DepthFar = 2048F
             };
             eye.LookAt((0F, 0F, 0F));
             var viewProvider = new ViewTransformProvider(eye);
@@ -54,7 +55,7 @@ namespace Test.OpenGL.Test
             windowViewportInvoker.SizeChanged += e =>
             {
                 var (width, height) = e;
-                eye.Aspect = (float) width / height;
+                eye.Aspect = (float)width / height;
                 projectionProvider.CalculateMatrix();
             };
             var mouseDelta = Vector2.Zero;
@@ -175,14 +176,11 @@ namespace Test.OpenGL.Test
                         mouseDelta += delta * .1F;
                     if (mouseDelta == Vector2.Zero)
                         return;
-                    var delta2 = mouseDelta * .5F;
-                    delta2.X = mouseDelta.X >= 0 ? Max(delta2.X, .1F) : Min(delta2.X, -.1F);
-                    delta2.Y = mouseDelta.Y >= 0 ? Max(delta2.Y, .1F) : Min(delta2.Y, -.1F);
-                    eye.Rotation += (delta2.X, -delta2.Y);
-                    mouseDelta -= delta2;
-                    if (Abs(mouseDelta.X) <= .1)
+                    mouseDelta *= .5F;
+                    eye.Rotation += (mouseDelta.X, -mouseDelta.Y);
+                    if (Abs(mouseDelta.X) <= .5)
                         mouseDelta.X = 0;
-                    if (Abs(mouseDelta.Y) <= .1)
+                    if (Abs(mouseDelta.Y) <= .5)
                         mouseDelta.Y = 0;
                 })
                 .AddUpdater(() =>
@@ -223,13 +221,13 @@ namespace Test.OpenGL.Test
                 {
                     cloudRenderer.Bind();
                     cloudRenderer.Render();
-                })
-                .AddRenderer(() =>
-                {
-                    GL.Clear(ClearBufferMask.DepthBufferBit);
-                    axisRenderer.Bind();
-                    axisRenderer.Render();
                 });
+                //.AddRenderer(() =>
+                //{
+                //    GL.Clear(ClearBufferMask.DepthBufferBit);
+                //    axisRenderer.Bind();
+                //    axisRenderer.Render();
+                //});
 
             window.AddTicker(() => ticks++)
                 .AddTicker(() => animation.Tick());

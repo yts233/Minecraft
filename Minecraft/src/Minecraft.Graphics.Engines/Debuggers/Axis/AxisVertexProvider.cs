@@ -4,7 +4,7 @@ using Minecraft.Graphics.Rendering;
 
 namespace Minecraft.Graphics.Renderers.Debuggers.Axis
 {
-    public class AxisVertexProvider : IVertexArrayProvider<float>
+    internal class AxisVertexProvider : IVertexArrayProvider<float>
     {
         public IEnumerable<VertexAttributePointer> GetPointers()
         {

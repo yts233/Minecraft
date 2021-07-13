@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\res\Minecraft.Data.Vanilla\Minecraft.Data.Vanilla.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Data.Vanilla\Minecraft.Data.Vanilla.csproj" />
     <ProjectReference Include="..\..\src\Minecraft.Data\Minecraft.Data.csproj" />
     <ProjectReference Include="..\..\src\Minecraft\Minecraft.csproj" />
   </ItemGroup>

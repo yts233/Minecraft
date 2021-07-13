@@ -3,7 +3,7 @@ using Minecraft.Graphics.Arraying;
 
 namespace Minecraft.Graphics.Renderers.Environments.Clouding
 {
-    public class CloudVertexArrayProvider : IVertexArrayProvider<float>
+    internal class CloudVertexArrayProvider : IVertexArrayProvider<float>
     {
         public IEnumerable<VertexAttributePointer> GetPointers()
         {

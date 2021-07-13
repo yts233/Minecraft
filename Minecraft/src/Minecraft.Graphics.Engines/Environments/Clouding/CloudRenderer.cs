@@ -56,12 +56,10 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
 
         private int _minOffsetZ;
         private int _offsetZ;
-        private int _cloudDistance = 10;
+        private int _cloudDistance;
 
         public void Render()
         {
-            //GL.Enable(EnableCap.CullFace);
-
             // clouds
             var centerX = (int) _eye.Position.X / 12;
             var centerZ = (int) _eye.Position.Z / 12 + _offsetZ;
@@ -75,14 +73,17 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
             _shader.Offset = _offsetZ * 12 + _minOffsetZ / 120F;
             _shader.View = _viewMatrix.GetMatrix();
             _shader.Projection = _projectionMatrix.GetMatrix();
+            _shader.CenterPosition = _eye.Position;
 
             for (var z = minZ; z < maxZ; z++)
             {
                 for (var x = minX; x < maxX; x++)
                 {
+                    /*
+                     * 尽量优化此处代码
+                     */
                     var cx = x & 0xFF;
                     var cz = z & 0xFF;
-                    //Logger.Debug<CloudRenderer>((cx, cz, x, z));
                     if (!_cloudLayoutMap[cz, cx])
                         continue;
                     _shader.Color = _cloudColorMap[cz, cx];
@@ -97,24 +98,19 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
                     if (!_cloudLayoutMap[(cz + 1) & 0xFF, cx])
                         _cloudVertexArray.Render(30, 6);
                     _cloudVertexArray.Render(0, 12);
-
-
-                    //GL.CullFace(CullFaceMode.Back);
                 }
             }
-
-            GL.Disable(EnableCap.CullFace);
         }
 
         public void Update()
         {
+            _cloudDistance = (int) _eye.DepthFar / 12 + 2;
             _minOffsetZ++;
             if (_minOffsetZ != 1440) return;
             _minOffsetZ = 0;
             _offsetZ++;
             if (_offsetZ == 256)
                 _offsetZ = 0;
-            _cloudDistance = (int) _eye.DepthFar / 12 + 2;
         }
 
         public void Bind()
