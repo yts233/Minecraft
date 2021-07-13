@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tool.Graphics.Windowing", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minecraft.Data", "src\Minecraft.Data\Minecraft.Data.csproj", "{27D52686-12D1-4CF5-8E50-F1569336ABAD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minecraft.Data.Vanilla", "res\Minecraft.Data.Vanilla\Minecraft.Data.Vanilla.csproj", "{8950FDF2-FB05-47F5-8A43-618429C5FDC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minecraft.Data.Vanilla", "src\Minecraft.Data.Vanilla\Minecraft.Data.Vanilla.csproj", "{8950FDF2-FB05-47F5-8A43-618429C5FDC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "res", "res", "{57A65D3C-B7FB-4864-94CB-B8FFC194FADA}"
 EndProject

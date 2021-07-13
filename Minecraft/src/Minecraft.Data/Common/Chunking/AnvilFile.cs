@@ -40,7 +40,7 @@ namespace Minecraft.Data.Common.Chunking
         {
             if (index < 0 || index >= 1024)
                 throw new IndexOutOfRangeException();
-            
+            throw new NotImplementedException();
         }
     }
 }
