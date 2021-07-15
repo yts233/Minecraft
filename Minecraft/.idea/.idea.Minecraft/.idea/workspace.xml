@@ -40,22 +40,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="adf3fd11-98b9-46ec-8545-8982ba8c57a1" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisRenderer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisShader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisVertexProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudVertexProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/UvMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IElementArrayHandle.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IVertexArrayHandle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Arraying/IVertexArrayHandle.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IViewShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Shading/IViewShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/WindowInitializer.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,35 +75,34 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/f8/35609a7e/Span`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Resources/Language.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/ClearRenderer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tool/Tool.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/c5/32998638/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.Data.Nbt.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/e2/42a6b8fc/Box2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8677C9A0-487E-4D8C-862C-F4F0C2588D22/04/9f262805/Box2i.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/50527278-9035-4B33-827A-CCA22235E2DE/2c/0869f88e/GLFW.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/0a/4897d166/Box2i.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/36BEC807-2F51-442D-8C22-39945495608D/cf/d12991a7/JsonDocument.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/0b/0f7a7c56/String.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.Resources.FilePaths.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/IL/E65CF972-2277-41F4-BEE2-1CF45757F629/16/4b3fc3a0/0200015C.il" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.Data.Nbt.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft/Logger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/0b/0f7a7c56/String.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/IL/E65CF972-2277-41F4-BEE2-1CF45757F629/16/4b3fc3a0/0200015C.il" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/bc/29f2d3c8/ICollection`1.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/49/9cb40aeb/IList`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/49/9cb40aeb/IList`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/7d/b47e7e42/CastHelpers.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Shading/EmptyShader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.Resources.FilePaths.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/50527278-9035-4B33-827A-CCA22235E2DE/02/6e36c9fd/GLFWNative.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/ClearRenderer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/ce/3415a210/ICollection`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/FA85E39B-AC06-4360-9CC0-25FDBE7EE233/45/bff7037f/GameWindow.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Shading/EmptyShader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/4f/fc533f22/Byte.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/tool/Tool.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/21/c0111ce9/Array.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/8b/bdeba216/Environment.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/tool/Tool.Graphics.Windowing/Tool.Graphics.Windowing.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.NetworkDataRedirector/Tool.NetworkDataRedirector.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.PacketRedirector/Tool.PacketRedirector.csproj" />
       <option value="$PROJECT_DIR$/tool/Tool.ResourceGenerator/Tool.ResourceGenerator.csproj" />
@@ -169,6 +153,7 @@
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" />
       <option value="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Shaders.resx" />
     </changedPaths>
   </component>
   <component name="JsFlowSettings">
@@ -657,6 +642,7 @@
       <workItem from="1625883999947" duration="5376000" />
       <workItem from="1625921774602" duration="7517000" />
       <workItem from="1625981620087" duration="11531000" />
+      <workItem from="1626188632989" duration="877000" />
     </task>
     <task id="LOCAL-00001" summary="backup">
       <created>1611669733490</created>
@@ -793,10 +779,10 @@
           <line>61</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudShader.cs" initialLine="50" containingFunctionPresentation="property 'Color'">
             <startOffsets>
-              <option value="2073" />
+              <option value="-1" />
             </startOffsets>
             <endOffsets>
-              <option value="2114" />
+              <option value="-1" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="78" />
