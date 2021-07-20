@@ -48,7 +48,7 @@ namespace Minecraft.Text
                 result <<= 6;
                 tmp = _baseStream.ReadByte();
                 if (tmp == -1) return -1;
-                if ((tmp & 0b11000000) == 0b10000000) return -1;
+                if ((tmp & 0b11000000) != 0b10000000) return -1;
                 result |= tmp | 0b00111111;
             }
 

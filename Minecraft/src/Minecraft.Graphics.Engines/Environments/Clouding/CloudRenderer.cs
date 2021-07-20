@@ -18,7 +18,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         private CloudShader _shader;
         private IElementArrayHandle _cloudVertexArray;
 
-        public CloudRenderer(IEye eye, IMatrixProvider viewMatrix, IMatrixProvider projectionMatrix,
+        public CloudRenderer(IEye eye, IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix,
             Resource resource)
         {
             _eye = eye;
@@ -44,8 +44,8 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         }
 
         private readonly IEye _eye;
-        private readonly IMatrixProvider _projectionMatrix;
-        private readonly IMatrixProvider _viewMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _projectionMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _viewMatrix;
 
         public void Initialize()
         {
@@ -80,7 +80,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
                 for (var x = minX; x < maxX; x++)
                 {
                     /*
-                     * ¾¡Á¿ÓÅ»¯´Ë´¦´úÂë
+                     * ï¿½ï¿½ï¿½ï¿½ï¿½Å»ï¿½ï¿½Ë´ï¿½ï¿½ï¿½ï¿½ï¿½
                      */
                     var cx = x & 0xFF;
                     var cz = z & 0xFF;

@@ -1,14 +1,14 @@
 using Minecraft.Protocol.Data;
 
-namespace Minecraft.Protocol.Packets.Server
+namespace Minecraft.Protocol.Packets.Client
 {
     /// <summary>
-    ///     状态Pong包
+    ///     状态Ping包
     /// </summary>
-    public class StatePongPacket : Packet
+    public class StatusPingPacket : Packet
     {
         public override int PacketId => 0x01;
-        public override PacketOrigin Origin => PacketOrigin.Server;
+        public override PacketBoundTo BoundTo => PacketBoundTo.Server;
         public override ProtocolState State => ProtocolState.Status;
 
         /// <summary>
@@ -18,12 +18,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _ReadFromStream(ByteArray content)
         {
-            Payload = content.Read<Long>();
+            Payload = content.ReadLong();
         }
 
         protected override void _WriteToStream(ByteArray content)
         {
-            content.Write((Long) Payload);
+            content.Write(Payload);
         }
     }
 }

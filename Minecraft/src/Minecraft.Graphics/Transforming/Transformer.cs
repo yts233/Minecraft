@@ -1,29 +1,30 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Transforming
 {
-    public class Transformer : ITransformable
+    public class Transformer<TVector> : ITransformable<TVector> where TVector : struct
     {
         public Transformer()
         {
         }
 
-        public Transformer(ITransformable transformer)
+        public Transformer(ITransformable<TVector> transformer)
         {
             BaseTransformer = transformer;
         }
 
-        private ITransformable BaseTransformer { get; }
+        private ITransformable<TVector> BaseTransformer { get; }
 
-        public Vector4 Transform(Vector4 vector)
+        public TVector Transform(TVector vector)
         {
             return BaseTransformer?.Transform(vector) ?? vector;
         }
 
-        public IEnumerable<Vector4> Transform(IEnumerable<Vector4> vectors)
+        public IEnumerable<TVector> Transform(IEnumerable<TVector> vectors)
         {
-            foreach (var vector in vectors) yield return Transform(vector);
+            return vectors.Select(Transform);
         }
     }
 }

@@ -5,14 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Packets\Client\" />
-    <Folder Include="Packets\Server\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Minecraft.Text\Minecraft.Text.csproj" />
     <ProjectReference Include="..\Minecraft\Minecraft.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>

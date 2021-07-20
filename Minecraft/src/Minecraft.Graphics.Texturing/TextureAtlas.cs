@@ -1,77 +1,62 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Minecraft.Extensions;
 using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Texturing
 {
-    public class TextureAtlas : EmptyTexture, IReadOnlyDictionary<object, Box2>
+    public class TextureAtlasBuilder
     {
         private readonly bool[,] _spaceMap = new bool[64, 64];
-        private readonly Dictionary<object, Box2i> _uvDictionary = new Dictionary<object, Box2i>();
 
-        private static Box2 TranslateBox(Box2i value)
+        private readonly Dictionary<object, (Box2i space, byte[]data, int width, int height)> _imageDictionary =
+            new Dictionary<object, (Box2i space, byte[]data, int width, int height)>();
+
+        private readonly Dictionary<object, (object baseKey, Box2i space)> _extraDictionary =
+            new Dictionary<object, (object baseKey, Box2i space)>();
+
+        private int _maxHeight = 1;
+
+        public TextureAtlasBuilder Add(object key, Image image)
         {
-            return new Box2(
-                value.Min.X / 1024F,
-                value.Min.Y / 1024F,
-                (value.Max.X) / 1024F,
-                (value.Max.Y) / 1024F);
-        }
+            if (ContainsKey(key))
+                throw new InvalidOperationException("the key is already exist");
+            var w = image.Width; // width of the image
+            var h = image.Height; // height of the image
+            var bw = (w + 15) >> 4; // width in blocks
+            var bh = (h + 15) >> 4; // height in blocks
 
-        public TextureAtlas() : base(1024, 1024)
-        {
-        }
-
-        /// <summary>
-        /// 创建一个<see cref="TextureAtlas"/>
-        /// </summary>
-        /// <param name="widthInUnits">Width in 16 pixel unit.</param>
-        /// <param name="heightInUnits">Height in 16 pixel unit.</param>
-        public TextureAtlas(int widthInUnits, int heightInUnits) : base(widthInUnits * 16, heightInUnits * 16)
-        {
-        }
-
-        public void Add(Image image, object key)
-        {
-            var w = image.Width;
-            var h = image.Height;
-            var bw = w >> 4;
-            var bh = h >> 4;
-            if (bw == 0) bw = 1;
-            if (bh == 0) bh = 1;
-
-            for (var y = 0; y < 64; y++)
+            for (var y = 0; y < 64; y++) // find the space
             {
                 for (var x = 0; x < 64; x++)
                 {
                     if (_spaceMap[y, x])
                         continue;
 
-                    var ex = x + bw;
-                    var ey = y + bh;
-                    if (ex > 64)
-                    {
-                        x = 64;
-                        continue;
-                    }
+                    var ex = x + bw; // end x of block
+                    var ey = y + bh; // end y of block
 
                     if (ey > 64)
-                        throw new TextureException("this map is unable to contain this image");
+                        throw new TextureException("the map is unable to contain the image");
+                    if (ex > 64) break;
 
-                    var next = false;
-                    for (var dy = y; dy < ey; dy++)
+                    var noSpace = false;
+                    for (var dy = y; dy < ey; dy++) // check if the space is valid
                     {
-                        if (next) break;
+                        if (noSpace) break;
                         for (var dx = x; dx < ex; dx++)
                         {
                             if (!_spaceMap[dy, dx]) continue;
-                            next = true;
+                            noSpace = true;
                             break;
                         }
                     }
 
-                    for (var dy = y; dy < ey; dy++)
+                    if (noSpace) continue;
+
+                    for (var dy = y; dy < ey; dy++) // fill the space map
                     {
                         for (var dx = x; dx < ex; dx++)
                         {
@@ -79,55 +64,121 @@ namespace Minecraft.Graphics.Texturing
                         }
                     }
 
-                    if (next)
-                        continue;
 
-                    var bx = x << 4;
-                    var by = y << 4;
-                    var b = new Box2i(bx, by, bx + w, by + h);
-                    _uvDictionary.Add(key, b);
-                    this.SubImage(image, bx, by);
+                    var px = x << 4; // x in pixels
+                    var py = y << 4; // y in pixels
+                    var b = new Box2i(px, py, px + w, py + h);
+                    _imageDictionary.Add(key, (b, image.Data, image.Width, image.Height));
+                    if (_maxHeight < ey) _maxHeight = ey;
                     //Logger.Debug<UvMap>($"Added UvMap: {b} {key}");
-                    return;
+                    return this;
                 }
             }
 
-            throw new TextureException("this map is full");
+            throw new TextureException("the map is full");
         }
 
         public void Add(object baseKey, object key, int xInUnits, int yInUnits, int widthInUnits, int heightInUnits)
         {
-            var uv = _uvDictionary[baseKey];
-            var x = xInUnits * 16 + uv.Min.X;
-            var y = yInUnits * 16 + uv.Min.Y;
-            var mx = x + widthInUnits * 16 - 1;
-            var my = y + heightInUnits * 16 - 1;
-            _uvDictionary.Add(key, new Box2i(x, y, mx, my));
+            var uv = _imageDictionary[baseKey].space;
+            var x = (xInUnits << 4) + uv.Min.X;
+            var y = (yInUnits << 4) + uv.Min.Y;
+            var mx = x + (widthInUnits << 4);
+            var my = y + (heightInUnits << 4);
+            _extraDictionary.Add(key, (baseKey, new Box2i(x, y, mx, my)));
         }
 
         public void Remove(object key)
         {
-            var b = _uvDictionary[key];
-            var x = b.Min.X;
-            var y = b.Min.Y;
-            var ex = b.Max.X;
-            var ey = b.Max.Y;
-            for (var dy = y; dy < ey; dy++)
+            Box2i b;
+            bool useExtraDictionary;
+            if (_imageDictionary.TryGetValue(key, out var imageInfo))
             {
-                for (var dx = x; dx < ex; dx++)
+                b = imageInfo.space;
+                useExtraDictionary = false;
+            }
+            else if (_extraDictionary.TryGetValue(key, out var extraInfo))
+            {
+                b = extraInfo.space;
+                useExtraDictionary = true;
+            }
+            else throw new KeyNotFoundException();
+
+            if (useExtraDictionary)
+                _extraDictionary.Remove(key);
+            else
+            {
+                _imageDictionary.Remove(key);
+                var x = b.Min.X;
+                var y = b.Min.Y;
+                var ex = b.Max.X;
+                var ey = b.Max.Y;
+                for (var dy = y; dy < ey; dy++)
                 {
-                    _spaceMap[dy, dx] = false;
+                    for (var dx = x; dx < ex; dx++)
+                    {
+                        _spaceMap[dy, dx] = false;
+                    }
+                }
+
+                foreach (var key1 in _extraDictionary
+                    .Where(kvp => kvp.Value.baseKey == key)
+                    .Select(kvp => kvp.Key))
+                {
+                    _extraDictionary.Remove(key1);
                 }
             }
+        }
 
-            _uvDictionary.Remove(key);
+        public bool ContainsKey(object key)
+        {
+            return _imageDictionary.ContainsKey(key) || _extraDictionary.ContainsKey(key);
+        }
+
+        public TextureAtlas Build()
+        {
+            var textureAtlas = new TextureAtlas(_imageDictionary, _extraDictionary, 1 << _maxHeight.GetBitsCount());
+            textureAtlas.GenerateMipmaps();
+            return textureAtlas;
+        }
+    }
+
+    public class TextureAtlas : EmptyTexture, IReadOnlyDictionary<object, Box2>
+    {
+        private readonly IReadOnlyDictionary<object, Box2> _spaces;
+
+        public TextureAtlas(IDictionary<object, (Box2i space, byte[]data, int width, int height)> images,
+            IDictionary<object, (object baseKey, Box2i space)> extraImages, int heightInBlocks) : base(1024,
+            heightInBlocks << 4)
+        {
+            var spaces = new Dictionary<object, Box2>();
+            float height = heightInBlocks << 4;
+            Box2 TranslateBox(Box2i value)
+            {
+                return new Box2(
+                    value.Min.X / 1024F,
+                    value.Min.Y / height,
+                    value.Max.X / 1024F,
+                    value.Max.Y / height);
+            }
+
+            foreach (var (key, value) in images)
+            {
+                this.SubImage(value.data, value.space.Min.X, value.space.Min.Y, value.width, value.height);
+                spaces.Add(key, TranslateBox(value.space));
+            }
+
+            foreach (var (key, value) in extraImages)
+            {
+                spaces.Add(key, TranslateBox(value.space));
+            }
+
+            _spaces = spaces;
         }
 
         public IEnumerator<KeyValuePair<object, Box2>> GetEnumerator()
         {
-            return _uvDictionary.Select(kvp =>
-                    new KeyValuePair<object, Box2>(kvp.Key, TranslateBox(kvp.Value)))
-                .GetEnumerator();
+            return _spaces.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -135,40 +186,22 @@ namespace Minecraft.Graphics.Texturing
             return GetEnumerator();
         }
 
-        public int Count => _uvDictionary.Count;
+        public int Count => _spaces.Count;
 
         public bool ContainsKey(object key)
         {
-            return _uvDictionary.ContainsKey(key);
+            return _spaces.ContainsKey(key);
         }
 
         public bool TryGetValue(object key, out Box2 value)
         {
-            var returnValue = _uvDictionary.TryGetValue(key, out var tmpValue);
-            value = returnValue ? TranslateBox(tmpValue) : new Box2();
-            return returnValue;
+            return _spaces.TryGetValue(key, out value);
         }
 
-        public Box2 this[object key]
-        {
-            get
-            {
-                var value = _uvDictionary[key];
-                return new Box2(
-                    value.Min.X / 1024F,
-                    value.Min.Y / 1024F,
-                    value.Max.X / 1024F,
-                    value.Max.Y / 1024F);
-            }
-        }
+        public Box2 this[object key] => _spaces[key];
 
-        public IEnumerable<object> Keys => _uvDictionary.Keys;
+        public IEnumerable<object> Keys => _spaces.Keys;
 
-        public IEnumerable<Box2> Values => _uvDictionary.Select(kvp =>
-            new Box2(
-                kvp.Value.Min.X / 1024F,
-                kvp.Value.Min.Y / 1024F,
-                kvp.Value.Max.X / 1024F,
-                kvp.Value.Max.Y / 1024F));
+        public IEnumerable<Box2> Values => _spaces.Values;
     }
 }

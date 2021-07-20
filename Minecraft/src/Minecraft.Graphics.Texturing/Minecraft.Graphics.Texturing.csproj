@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTK.Graphics" Version="4.6.4" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Minecraft\Minecraft.csproj" />
     <ProjectReference Include="..\Minecraft.Graphics\Minecraft.Graphics.csproj" />
   </ItemGroup>
 

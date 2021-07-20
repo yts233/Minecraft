@@ -6,11 +6,11 @@ namespace Minecraft.Protocol.Packets.Server
     /// <summary>
     ///     状态响应包
     /// </summary>
-    public class StateResponsePacket : Packet
+    public class StatusResponsePacket : Packet
     {
         public override int PacketId => 0x00;
 
-        public override PacketOrigin Origin => PacketOrigin.Server;
+        public override PacketBoundTo BoundTo => PacketBoundTo.Client;
         public override ProtocolState State => ProtocolState.Handshaking;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _WriteToStream(ByteArray content)
         {
-            throw new NotImplementedException();
+            content.WriteVar(Content);
         }
     }
 }

@@ -9,8 +9,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Minecraft.Graphics\Minecraft.Graphics.csproj" />
-      <ProjectReference Include="..\Minecraft.Input\Minecraft.Input.csproj" />
+        <ProjectReference Include="..\Minecraft.Graphics\Minecraft.Graphics.csproj" />
+        <ProjectReference Include="..\Minecraft.Input\Minecraft.Input.csproj" />
+        <ProjectReference Include="..\Minecraft\Minecraft.csproj" />
     </ItemGroup>
 
 </Project>

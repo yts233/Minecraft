@@ -19,13 +19,13 @@ namespace Minecraft.Protocol.Packets
         internal static Packet Parse(this DataPacket dataPacket)
         {
             return Packet
-                .CreatePacket(dataPacket.PacketId, dataPacket.Origin, dataPacket.State)
+                .CreatePacket(dataPacket.PacketId, dataPacket.BoundTo, dataPacket.State)
                 .ReadFromStream(dataPacket.Content);
         }
 
         internal static T Parse<T>(this DataPacket dataPacket) where T : Packet, new()
         {
-            return new T().ReadFromStream<T>(dataPacket.Content);
+            return (T) new T().ReadFromStream(dataPacket.Content);
         }
     }
 }

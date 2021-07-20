@@ -1,6 +1,8 @@
-﻿namespace Minecraft.Graphics.Transforming
+﻿using OpenTK.Mathematics;
+
+namespace Minecraft.Graphics.Transforming
 {
-    public interface IProjectionTransformProvider : IMatrixProvider
+    public interface IProjectionTransformProvider : IMatrixProvider<Matrix4, Vector4>
     {
     }
 }

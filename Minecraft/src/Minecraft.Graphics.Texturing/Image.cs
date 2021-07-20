@@ -10,8 +10,6 @@ namespace Minecraft.Graphics.Texturing
     {
         private static void CheckSize(int width, int height)
         {
-            if (width != height || height % width != 0)
-                throw new TextureException("test: (height == width || height % width == 0)");
             switch (width)
             {
                 case 8:
@@ -25,14 +23,32 @@ namespace Minecraft.Graphics.Texturing
                 case 1024:
                     break;
                 default:
-                    throw new TextureException("valid width: 8, 16, 18, 32, 64, 128, 256, 512, 1024");
+                    throw new TextureException(
+                        $"valid width: 8, 16, 18, 32, 64, 128, 256, 512, 1024. current width: {width}");
+            }
+
+            if (height % width == 0) return;
+            switch (height)
+            {
+                case 8:
+                case 16:
+                case 18:
+                case 32:
+                case 64:
+                case 128:
+                case 256:
+                case 512:
+                case 1024:
+                    break;
+                default:
+                    throw new TextureException(
+                        $"valid height: 8, 16, 18, 32, 64, 128, 256, 512, 1024 or times of width. current height: {height}");
             }
         }
 
-        public Image(byte[] data, int width, int height, bool force = false)
+        public Image(byte[] data, int width, int height)
         {
-            if (!force)
-                CheckSize(width, height);
+            CheckSize(width, height);
             Data = data;
             Width = width;
             Height = height;
@@ -40,10 +56,9 @@ namespace Minecraft.Graphics.Texturing
             FrameSize = (width * width) << 2;
         }
 
-        public Image(int width, int height, bool force = false)
+        public Image(int width, int height)
         {
-            if (!force)
-                CheckSize(width, height);
+            CheckSize(width, height);
             /*
              * data struct
              * [Location] [Color]
@@ -60,15 +75,16 @@ namespace Minecraft.Graphics.Texturing
             FrameSize = (width * width) << 2;
         }
 
-        public Image(Stream stream, bool force = false) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream), force)
+        public Image(Stream stream) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream))
         {
         }
 
-        public Image(SixLabors.ImageSharp.Image<Rgba32> image, bool force = false)
+        public Image(SixLabors.ImageSharp.Image<Rgba32> image)
         {
             //ImageSharp loads from the top-left pixel, whereas OpenGL loads from the bottom-left.
             image.Mutate(context => context.Flip(FlipMode.Vertical));
             image.TryGetSinglePixelSpan(out var span);
+            CheckSize(image.Width, image.Height);
             var pixels = new byte[(image.Width * image.Height) << 2];
             for (var i = 0; i < span.Length; i++)
             {

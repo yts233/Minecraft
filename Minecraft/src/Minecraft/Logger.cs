@@ -9,6 +9,7 @@ namespace Minecraft
     /// <summary>
     ///     日志记录器
     /// </summary>
+    /// <remarks>异步记录日志，请在程序结束前调用<see cref="WaitForLogging"/></remarks>
     public class Logger
     {
         /// <summary>
@@ -82,17 +83,17 @@ namespace Minecraft
             AppDomain.MonitoringIsEnabled = true;
         }
 
-        public static async void LogMemory()
+        public static void LogMemory()
         {
-            await Task.Run(() => Info<MemoryMonitor>(
-                $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB"));
+            Info<MemoryMonitor>(
+                $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB");
         }
 
         private static void HandleException(Exception exception)
         {
             Exception<ExceptionHandler>(exception);
+            WaitForLogging();
 #if !DEBUG
-            lock (Current.Output) { } // wait for logging.
             Environment.Exit(1);
 #endif
         }
@@ -102,6 +103,12 @@ namespace Minecraft
             Thread.CurrentThread.Name = name;
         }
 
+        public static void WaitForLogging()
+        {
+            lock (Current.Output)
+            {
+            }
+        }
 
         private delegate void ExceptionHandler();
 
@@ -115,12 +122,12 @@ namespace Minecraft
         /// <param name="log">日志</param>
         /// <param name="level">等级</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Log<T>(object log, LogLevel level)
+        public static void Log<T>(object log, LogLevel level)
         {
             if (Current == null)
                 return;
-            var threadName = Thread.CurrentThread.Name;
-            await Task.Run(() =>
+            var threadName = Thread.CurrentThread.Name; 
+            Task.Run(() =>
             {
                 lock (Current.Output)
                 {
@@ -134,9 +141,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async void Info<T>(object log)
+        public static void Info<T>(object log)
         {
-            await Log<T>(log, LogLevel.Info);
+            Log<T>(log, LogLevel.Info);
         }
 
         /// <summary>
@@ -144,9 +151,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async void Warn<T>(object log)
-        {
-            await Log<T>(log, LogLevel.Warn);
+        public static void Warn<T>(object log)
+        { 
+            Log<T>(log, LogLevel.Warn);
         }
 
         /// <summary>
@@ -154,9 +161,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async void Error<T>(object log)
+        public static void Error<T>(object log)
         {
-            await Log<T>(log, LogLevel.Error);
+            Log<T>(log, LogLevel.Error);
         }
 
         /// <summary>
@@ -164,9 +171,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async void Fatal<T>(object log)
+        public static void Fatal<T>(object log)
         {
-            await Log<T>(log, LogLevel.Fatal);
+            Log<T>(log, LogLevel.Fatal);
         }
 
         /// <summary>
@@ -174,9 +181,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async void Debug<T>(object log)
+        public static void Debug<T>(object log)
         {
-            await Log<T>(log, LogLevel.Debug);
+            Log<T>(log, LogLevel.Debug);
         }
 
         #endregion

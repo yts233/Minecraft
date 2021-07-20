@@ -10,12 +10,15 @@ namespace Test.Graphics.Test
             Console.WriteLine("Hello World!");
             var transformProvider = new ModelTransformProvider
             {
-                Translation = (1, 0, 0),
-                Rotation = (90, 90, 90),
-                Scale = (2, 2, 2)
+                Model = new Model
+                {
+                    Translation = (1, 0, 0),
+                    Rotation = (90, 90, 90),
+                    Scale = (2, 2, 2)
+                }
             };
             transformProvider.CalculateMatrix();
-            Console.WriteLine(((ITransformable) transformProvider).Transform((0F, 1F, 0F, 1F)));
+            Console.WriteLine(transformProvider.Transform((0F, 1F, 0F, 1F)));
         }
     }
 }

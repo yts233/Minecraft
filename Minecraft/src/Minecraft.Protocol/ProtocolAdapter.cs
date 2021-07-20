@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using Minecraft.Protocol.Data;
 using Minecraft.Protocol.Packets;
@@ -14,57 +12,51 @@ namespace Minecraft.Protocol
     /// </summary>
     public class ProtocolAdapter
     {
-        private readonly IPEndPoint _remoteEndPoint;
-        private Stream _receiveStream;
-        private BufferedStream _sendStream;
-
-        /// <summary>
-        ///     创建协议适配器
-        /// </summary>
-        /// <param name="remoteEndPoint">远程地址</param>
-        /// <param name="streamOrigin">远程类型</param>
-        public ProtocolAdapter(IPEndPoint remoteEndPoint, PacketOrigin streamOrigin)
-        {
-            _remoteEndPoint = remoteEndPoint;
-            ReceiveOrigin = streamOrigin;
-        }
+        private readonly Stream _receiveStream;
+        private readonly BufferedStream _sendStream;
 
         /// <summary>
         ///     创建协议适配器
         /// </summary>
         /// <param name="stream">流</param>
-        /// <param name="origin">流类型</param>
-        public ProtocolAdapter(Stream stream, PacketOrigin origin)
+        /// <param name="boundTo">绑定至</param>
+        public ProtocolAdapter(Stream stream, PacketBoundTo boundTo)
         {
             _receiveStream = stream;
             _sendStream = new BufferedStream(stream);
-            ReceiveOrigin = origin;
+            BoundTo = boundTo;
         }
 
         /// <summary>
-        ///     从流读取数据包的类型
+        ///     写入到流的数据包绑定
         /// </summary>
-        public PacketOrigin ReceiveOrigin { get; }
+        public PacketBoundTo BoundTo { get; }
 
         /// <summary>
-        ///     写入到流的数据包类型
+        /// 从流读出的数据包绑定
         /// </summary>
-        public PacketOrigin SendOrigin => ReceiveOrigin switch
+        public PacketBoundTo RemoteBoundTo
         {
-            PacketOrigin.Client => PacketOrigin.Server,
-            PacketOrigin.Server => PacketOrigin.Client,
-            _ => PacketOrigin.Client
-        };
+            get
+            {
+                return BoundTo switch
+                {
+                    PacketBoundTo.Client => PacketBoundTo.Server,
+                    PacketBoundTo.Server => PacketBoundTo.Client,
+                    _ => default
+                };
+            }
+        }
 
         /// <summary>
         ///     当前的协议状态
         /// </summary>
-        public ProtocolState State { get; set; } = ProtocolState.Any;
+        public ProtocolState State { get; private set; } = ProtocolState.Any;
 
         /// <summary>
         ///     启用压缩
         /// </summary>
-        public bool Compressing { get; } = false;
+        public bool Compressing { get; private set; }
 
         /// <summary>
         ///     适配器是否在运行
@@ -72,86 +64,90 @@ namespace Minecraft.Protocol
         public bool Running { get; private set; }
 
         /// <summary>
-        ///     清除缓冲区，立即把数据包写入到流
-        /// </summary>
-        public void Flush()
-        {
-            _sendStream.Flush();
-        }
-
-        /// <summary>
-        ///     异步清除缓冲区
-        /// </summary>
-        /// <returns></returns>
-        public async Task FlushAsync()
-        {
-            await _sendStream.FlushAsync();
-        }
-
-        /// <summary>
-        ///     发送数据包，别忘了用 <see cref="Flush" /> 或 <see cref="FlushAsync" /> 清除缓冲区
+        ///     发送数据包
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
-        /// <exception cref="ProtocolException">包类型与写入流的类型不匹配</exception>
-        public ProtocolAdapter SendPacket(Packet packet)
+        /// <exception cref="ProtocolException">包类型与写入流的Bound不匹配</exception>
+        public async Task SendPacket(Packet packet)
         {
-            if (packet.Origin != SendOrigin)
-                throw new ProtocolException("packet origin incorrect");
-            var content = new ByteArray(0);
-            packet.WriteToStream(content);
-            content.Position = 0;
-            new DataPacket(packet.PacketId, packet.Origin, content, State).WriteToStream(_sendStream);
-            PacketSent?.Invoke(this, packet);
-            return this;
+            if (packet.BoundTo != BoundTo)
+                throw new ProtocolException("packet boundTo incorrect");
+            if (packet.State != State && State != ProtocolState.Any)
+                throw new ProtocolException($"packet state incorrect, current state: {State}");
+            await Task.Run(() =>
+            {
+                var content = new ByteArray(0);
+                packet.WriteToStream(content);
+                content.Position = 0;
+                lock (_sendStream)
+                {
+                    new DataPacket(packet.PacketId, packet.BoundTo, content, State).WriteToStream(_sendStream);
+                    _sendStream.Flush();
+                }
+
+                Task.Run(() =>
+                {
+                    PrivatePacketSent?.Invoke(this, packet);
+                    PacketSent?.Invoke(this, packet);
+                });
+            });
         }
+
+        private event EventHandler<Packet> PrivatePacketSent;
+        private event EventHandler<Packet> PrivatePacketReceived;
 
         /// <summary>
         ///     启动适配器
         /// </summary>
         public async Task Run()
         {
-            Logger.SetExceptionHandler();
-            if (Running) throw new ProtocolException("Adapter has already running");
-            Running = true;
-            if (_remoteEndPoint != null)
+            await Task.Run(async () =>
             {
-                var client = new TcpClient();
-                client.Connect(_remoteEndPoint);
-                _receiveStream = client.GetStream();
-                _sendStream = new BufferedStream(_receiveStream);
-            }
+                Logger.SetExceptionHandler();
+                Logger.SetThreadName("ProtocolAdapterThread");
+                if (Running) throw new ProtocolException("Adapter has already running");
+                Running = true;
+                Logger.Info<ProtocolAdapter>("Adapter started");
+                State = ProtocolState.Handshaking;
 
-            Logger.Info<ProtocolAdapter>("Adapter started");
-            State = ProtocolState.Handshaking;
+                void HandleHandshake(object sender, Packet e)
+                {
+                    if (e is HandshakePacket handshakePacket)
+                        State = handshakePacket.NextState;
+                }
 
-            void HandleHandshake(HandshakePacket packet)
-            {
-                State = packet.NextState;
-            }
+                PrivatePacketReceived += HandleHandshake;
+                PrivatePacketSent += HandleHandshake;
 
-            HandlePacket((Action<HandshakePacket>) HandleHandshake);
-            HandleSendPacket((Action<HandshakePacket>) HandleHandshake);
-            var handleTask = Task.Run(HandleTask);
-            await handleTask;
-            handleTask.Exception?.Handle(exception =>
-            {
-                Logger.Fatal<ProtocolAdapter>(exception.ToString());
-                return true;
+                var handleTask = Task.Run(HandleTask);
+                await handleTask;
+                handleTask.Exception?.Handle(exception =>
+                {
+                    Logger.Fatal<ProtocolAdapter>(exception);
+                    return true;
+                });
+                Running = false;
             });
-            Running = false;
         }
 
         /// <summary>
         ///     停止适配器
         /// </summary>
-        public void Stop()
+        public async void Stop()
         {
-            _receiveStream.Close();
+            await Task.Run(() =>
+            {
+                lock (_receiveStream)
+                {
+                    _receiveStream.Close();
+                }
+            });
         }
 
         private void HandleTask()
         {
+            Task.Run(() => Started?.Invoke(this, EventArgs.Empty));
             while (true)
             {
                 Packet packet;
@@ -161,17 +157,23 @@ namespace Minecraft.Protocol
                 }
                 catch (EndOfStreamException)
                 {
+                    Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty));
                     Logger.Info<ProtocolAdapter>("Adapter has been stopped.");
                     return;
                 }
 
-                new Task(() => PacketReceived?.Invoke(this, packet)).Start();
+                Task.Run(() =>
+                {
+                    PrivatePacketReceived?.Invoke(this, packet);
+                    PacketReceived?.Invoke(this, packet);
+                });
             }
         }
 
         private Packet ReceivePacket()
         {
-            return Packet.ReadPacket(_receiveStream, ReceiveOrigin, State, Compressing);
+            lock (_receiveStream)
+                return Packet.ReadPacket(_receiveStream, RemoteBoundTo, State, Compressing);
         }
 
         /// <summary>
@@ -183,6 +185,9 @@ namespace Minecraft.Protocol
         ///     发送了数据包
         /// </summary>
         public event EventHandler<Packet> PacketSent;
+
+        public event EventHandler Started;
+        public event EventHandler Stopped;
 
         /// <summary>
         ///     处理指定数据包

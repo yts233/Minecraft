@@ -135,7 +135,7 @@ namespace Minecraft.Graphics.Windowing
 
         private void GameTickTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
-            Logger.SetThreadName("GameTickThread");
+            Logger.SetThreadName("ClientTickThread");
             foreach (var ticker in Tickers)
                 ticker.Tick();
         }
@@ -179,18 +179,6 @@ namespace Minecraft.Graphics.Windowing
 
         private void GameWindow_Unload()
         {
-            static void DisposeObject(object obj)
-            {
-                if (obj is IDisposable disposable)
-                    disposable.Dispose();
-            }
-
-            foreach (var obj in Initializers.Cast<object>().Concat(Renderers).Concat(Updaters))
-                DisposeObject(obj);
-
-            _pointerState = null;
-            KeyboardState = null;
-
             _gameWindow.Load -= GameWindow_Load;
             _gameWindow.RenderThreadStarted -= GameWindow_RenderThreadStarted;
             _gameWindow.RenderFrame -= GameWindow_RenderFrame;
@@ -203,6 +191,18 @@ namespace Minecraft.Graphics.Windowing
             _gameWindow.KeyUp -= GameWindow_KeyUp;
             _gameTickTimer.Elapsed -= GameTickTimerOnElapsed;
             _gameTickTimer.Stop();
+
+            _pointerState = null;
+            KeyboardState = null;
+            
+            static void DisposeObject(object obj)
+            {
+                if (obj is IDisposable disposable)
+                    disposable.Dispose();
+            }
+
+            foreach (var obj in Initializers.Cast<object>().Concat(Renderers).Concat(Updaters))
+                DisposeObject(obj);
         }
 
         private void GameWindow_UpdateFrame(FrameEventArgs obj)
@@ -228,7 +228,7 @@ namespace Minecraft.Graphics.Windowing
             KeyboardState = new WindowKeyboardState(_gameWindow.KeyboardState);
             _gameWindow.WindowState = _isFullscreen ? WindowState.Fullscreen : WindowState.Normal;
             foreach (var initializer in Initializers) initializer.Initialize();
-            
+
             _gameTickTimer.Start();
         }
 

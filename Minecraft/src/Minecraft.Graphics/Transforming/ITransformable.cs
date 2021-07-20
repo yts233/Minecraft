@@ -2,8 +2,8 @@
 
 namespace Minecraft.Graphics.Transforming
 {
-    public interface ITransformable
+    public interface ITransformable<TVector> where TVector : struct
     {
-        Vector4 Transform(Vector4 vector);
+        TVector Transform(TVector vector);
     }
 }

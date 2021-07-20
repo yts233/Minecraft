@@ -9,12 +9,12 @@ namespace Minecraft.Graphics.Renderers.Debuggers.Axis
 {
     public class AxisRenderer : ICompletedRenderer
     {
-        private readonly IMatrixProvider _viewMatrix;
-        private readonly IMatrixProvider _projectionMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _viewMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _projectionMatrix;
         private AxisShader _shader;
         private IVertexArrayHandle _vertexArray;
 
-        public AxisRenderer(IMatrixProvider viewMatrix,IMatrixProvider projectionMatrix)
+        public AxisRenderer(IMatrixProvider<Matrix4,Vector4> viewMatrix,IMatrixProvider<Matrix4,Vector4> projectionMatrix)
         {
             _viewMatrix = viewMatrix;
             _projectionMatrix = projectionMatrix;
@@ -31,7 +31,7 @@ namespace Minecraft.Graphics.Renderers.Debuggers.Axis
             var matrix = _viewMatrix.GetMatrix();
             matrix.Column3 = Vector4.UnitW;
             _shader.View = matrix;
-            _shader.Projection = Matrix4.Identity;
+            _shader.Projection = _projectionMatrix.GetMatrix();
             _vertexArray.Render(PrimitiveType.Lines);
         }
 

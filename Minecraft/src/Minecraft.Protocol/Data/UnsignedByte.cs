@@ -11,13 +11,13 @@ namespace Minecraft.Protocol.Data
         {
             this.CheckStreamReadable(stream);
             var read = this.ReadByte(stream);
-            _value = (byte) (0b00000000 | read);
+            _value = read;
         }
 
         void IDataType.WriteToStream(Stream stream)
         {
             this.CheckStreamWritable(stream);
-            stream.WriteByte((byte) (0b00000000 | _value));
+            stream.WriteByte(  _value);
         }
 
         private UnsignedByte(byte value)

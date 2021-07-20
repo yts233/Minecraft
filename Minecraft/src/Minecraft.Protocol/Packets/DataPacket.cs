@@ -10,17 +10,17 @@ namespace Minecraft.Protocol.Packets
     {
         private int _packetId;
 
-        internal DataPacket(PacketOrigin origin, ProtocolState state = ProtocolState.Any)
+        internal DataPacket(PacketBoundTo origin, ProtocolState state = ProtocolState.Any)
         {
-            Origin = origin;
+            BoundTo = origin;
             State = state;
         }
 
-        internal DataPacket(int packetId, PacketOrigin origin, ByteArray content,
+        internal DataPacket(int packetId, PacketBoundTo origin, ByteArray content,
             ProtocolState state = ProtocolState.Any)
         {
             _packetId = packetId;
-            Origin = origin;
+            BoundTo = origin;
             State = state;
             Content = content;
         }
@@ -31,7 +31,7 @@ namespace Minecraft.Protocol.Packets
         public ByteArray Content { get; private set; }
 
         public override int PacketId => _packetId;
-        public override PacketOrigin Origin { get; }
+        public override PacketBoundTo BoundTo { get; }
         public override ProtocolState State { get; }
 
         /// <summary>
@@ -44,16 +44,16 @@ namespace Minecraft.Protocol.Packets
 
         protected override void _ReadFromStream(ByteArray content)
         {
-            _packetId = content.Read<VarInt>();
+            _packetId = content.ReadVarInt();
             Content = content.Read<ByteArray>();
         }
 
         protected override void _WriteToStream(ByteArray content)
         {
             using var buffer = new ByteArray(0);
-            buffer.Write((VarInt) _packetId).Write(Content);
+            buffer.WriteVar(_packetId).Write(Content);
             buffer.Position = 0;
-            content.Write((VarInt) buffer.Length).Write(buffer);
+            content.WriteVar((int) buffer.Length).Write(buffer);
         }
     }
 }

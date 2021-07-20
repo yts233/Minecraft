@@ -125,17 +125,18 @@ namespace Test.OpenGL.Test
                         asset.Type == AssetType.Texture &&
                         asset.Name.StartsWith("block/") &&
                         asset.Name.EndsWith(".png"));
-                    var texture = new TextureAtlas();
+                    var textureBuilder = new TextureAtlasBuilder();
                     var i = 0;
                     foreach (var asset in assets)
                     {
                         using var stream = asset.OpenRead();
+                        Logger.Info<Program>(asset.FullName);
                         var bImg = new Image(stream);
                         var isSingle = bImg.FrameCount == 1;
                         var q = 0;
                         foreach (var image in bImg)
                         {
-                            texture.Add(image, isSingle ? asset.FullName : $"{asset.FullName}{{{q}}}");
+                            textureBuilder.Add(isSingle ? asset.FullName : $"{asset.FullName}{{{q}}}", image);
                             i++;
                             q++;
                             if (i == 4096)
@@ -146,7 +147,7 @@ namespace Test.OpenGL.Test
                             break;
                     }
 
-                    texture.GenerateMipmaps();
+                    var texture = textureBuilder.Build();
 
                     var provider = new TestVertexArrayProvider();
 
@@ -233,6 +234,8 @@ namespace Test.OpenGL.Test
                 .AddTicker(() => animation.Tick());
 
             window.ReloadWindow();
+            
+            Logger.WaitForLogging();
         }
     }
 }

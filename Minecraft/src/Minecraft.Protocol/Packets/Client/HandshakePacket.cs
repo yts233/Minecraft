@@ -8,7 +8,7 @@ namespace Minecraft.Protocol.Packets.Client
     public class HandshakePacket : Packet
     {
         public override int PacketId => 0x00;
-        public override PacketOrigin Origin => PacketOrigin.Client;
+        public override PacketBoundTo BoundTo => PacketBoundTo.Server;
 
         public override ProtocolState State => ProtocolState.Handshaking;
 
@@ -28,25 +28,26 @@ namespace Minecraft.Protocol.Packets.Client
         public ushort ServerPort { get; set; }
 
         /// <summary>
-        ///     下一协议状态（只能是<see cref="ProtocolState.Status" />或<see cref="ProtocolState.Login" />）
+        ///     下一协议状态
         /// </summary>
+        /// <remarks>只能是<see cref="ProtocolState.Status" />或<see cref="ProtocolState.Login" /></remarks>
         public ProtocolState NextState { get; set; }
 
         protected override void _ReadFromStream(ByteArray content)
         {
-            ProtocolVersion = content.Read<VarInt>();
-            ServerAddress = content.Read<VarChar>();
-            ServerPort = content.Read<UnsignedShort>();
-            NextState = content.Read<VarIntEnum<ProtocolState>>();
+            ProtocolVersion = content.ReadVarInt();
+            ServerAddress = content.ReadVarChar();
+            ServerPort = content.ReadUnsignedShort();
+            NextState = content.ReadVarIntEnum<ProtocolState>();
         }
 
         protected override void _WriteToStream(ByteArray content)
         {
             content
-                .Write((VarInt) ProtocolVersion)
-                .Write((VarChar) ServerAddress)
-                .Write((UnsignedShort) ServerPort)
-                .Write((VarIntEnum<ProtocolState>) NextState);
+                .WriteVar(ProtocolVersion)
+                .WriteVar(ServerAddress)
+                .Write(ServerPort)
+                .WriteVar(NextState);
         }
     }
 }

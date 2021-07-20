@@ -1,9 +1,11 @@
 ﻿namespace Minecraft.Protocol.Packets
 {
     /// <summary>
-    ///     包源
+    ///     数据包绑定
     /// </summary>
-    public enum PacketOrigin
+    /// <remarks>数据包发送到的位置</remarks>
+    /// <example>客户端发送一个数据包至服务器，则<see cref="PacketBoundTo"/>为<see cref="Server"/></example>
+    public enum PacketBoundTo
     {
         /// <summary>
         ///     客户端

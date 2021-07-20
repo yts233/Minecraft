@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+
+//test server: bgp.polarstar.cc:11201
+
 namespace Tool.NetworkDataRedirector
 {
     internal class Program
@@ -15,7 +18,8 @@ namespace Tool.NetworkDataRedirector
         private static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            Action<byte[], int, bool> logPacket = (data, length, isServer) =>
+
+            void LogPacket(byte[] data, int length, bool isServer)
             {
                 var @string = new StringBuilder();
                 Stream buff = new MemoryStream(data, 0, length, false);
@@ -49,7 +53,8 @@ namespace Tool.NetworkDataRedirector
                 }
 
                 Console.WriteLine(@string);
-            };
+            }
+
             mainThread = Thread.CurrentThread;
             mainThread.IsBackground = true;
             var listener = new TcpListener(new IPEndPoint(IPAddress.Any, 25565));
@@ -62,7 +67,8 @@ namespace Tool.NetworkDataRedirector
                 var server = new TcpClient();
                 try
                 {
-                    server.Connect(new IPEndPoint(IPAddress.Parse(args.Length == 1 ? args[0] : "127.0.0.1"), 25577));
+                    //server.Connect(new IPEndPoint(IPAddress.Parse(args.Length == 1 ? args[0] : "127.0.0.1"), 25577));
+                    server.Connect(Dns.GetHostAddresses("bgp.polarstar.cc"), 11201);
                     Console.Write(" <-> [/" + server.Client.RemoteEndPoint + "]\n");
                     NetworkStream clientStream = client.GetStream(), serverStream = server.GetStream();
                     Task serverTask = new Task(() =>
@@ -74,7 +80,7 @@ namespace Tool.NetworkDataRedirector
                                 int s;
                                 while ((s = serverStream.Read(buffer, 0, 1048576)) != 0)
                                 {
-                                    logPacket(buffer, s, true);
+                                    LogPacket(buffer, s, true);
                                     clientStream.WriteAsync(buffer, 0, s);
                                 }
 
@@ -103,7 +109,7 @@ namespace Tool.NetworkDataRedirector
                                 int s;
                                 while ((s = clientStream.Read(buffer, 0, 1048576)) != 0)
                                 {
-                                    logPacket(buffer, s, false);
+                                    LogPacket(buffer, s, false);
                                     serverStream.WriteAsync(buffer, 0, s);
                                 }
 

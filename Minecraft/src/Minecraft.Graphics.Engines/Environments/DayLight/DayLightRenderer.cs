@@ -2,18 +2,19 @@ using Minecraft.Graphics.Rendering;
 using Minecraft.Graphics.Texturing;
 using Minecraft.Graphics.Transforming;
 using Minecraft.Resources;
+using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Renderers.Environments.DayLight
 {
     public class DayLightRenderer : ICompletedRenderer
     {
-        private readonly IMatrixProvider _viewMatrix;
-        private readonly IMatrixProvider _projectionMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _viewMatrix;
+        private readonly IMatrixProvider<Matrix4,Vector4> _projectionMatrix;
         private readonly Resource _resource;
         private TextureAtlas _textureAtlas;
         private int _dayTime;
 
-        public DayLightRenderer(IMatrixProvider viewMatrix, IMatrixProvider projectionMatrix, Resource resource)
+        public DayLightRenderer(IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix, Resource resource)
         {
             _viewMatrix = viewMatrix;
             _projectionMatrix = projectionMatrix;
@@ -28,16 +29,18 @@ namespace Minecraft.Graphics.Renderers.Environments.DayLight
 
         public void Initialize()
         {
-            _textureAtlas = new TextureAtlas(9, 4);
+            var textureAtlasBuilder = new TextureAtlasBuilder();
             using var moonStream = _resource.GetAsset(AssetType.Texture, "minecraft:environment/moon_phases.png")
                 .OpenRead();
             using var sunStream = _resource.GetAsset(AssetType.Texture, "minecraft:environment/sun.png").OpenRead();
-            _textureAtlas.Add(new Image(moonStream), "moon");
-            _textureAtlas.Add(new Image(sunStream), "sun");
+            textureAtlasBuilder.Add("moon", new Image(moonStream));
+            textureAtlasBuilder.Add("sun", new Image(sunStream));
             for (var i = 0; i < 8; i++)
             {
-                _textureAtlas.Add("moon", $"moon_{i}", (i & 0b11) << 1, i >> 0x01, 2, 2);
+                textureAtlasBuilder.Add("moon", $"moon_{i}", (i & 0b11) << 1, i >> 0x01, 2, 2);
             }
+
+            _textureAtlas = textureAtlasBuilder.Build();
         }
 
         public void Render()

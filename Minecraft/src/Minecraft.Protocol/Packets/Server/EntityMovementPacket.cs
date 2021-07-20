@@ -8,7 +8,7 @@ namespace Minecraft.Protocol.Packets.Server
     public class EntityMovementPacket : Packet
     {
         public override int PacketId => 0x28;
-        public override PacketOrigin Origin => PacketOrigin.Server;
+        public override PacketBoundTo BoundTo => PacketBoundTo.Client;
         public override ProtocolState State => ProtocolState.Play;
 
         public int EntityId { get; private set; }
@@ -35,21 +35,21 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _ReadFromStream(ByteArray content)
         {
-            EntityId = content.Read<VarInt>();
-            DeltaX = content.Read<Short>();
-            DeltaY = content.Read<Short>();
-            DeltaZ = content.Read<Short>();
-            OnGround = content.Read<Boolean>();
+            EntityId = content.ReadVarInt();
+            DeltaX = content.ReadShort();
+            DeltaY = content.ReadShort();
+            DeltaZ = content.ReadShort();
+            OnGround = content.ReadBoolean();
         }
 
         protected override void _WriteToStream(ByteArray content)
         {
             content
-                .Write((VarInt) EntityId)
-                .Write((Short) DeltaX)
-                .Write((Short) DeltaY)
-                .Write((Short) DeltaZ)
-                .Write((Boolean) OnGround);
+                .WriteVar(EntityId)
+                .Write(DeltaX)
+                .Write(DeltaY)
+                .Write(DeltaZ)
+                .Write(OnGround);
         }
     }
 }

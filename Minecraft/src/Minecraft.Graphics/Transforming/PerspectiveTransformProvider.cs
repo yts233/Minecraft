@@ -3,7 +3,8 @@ using static OpenTK.Mathematics.MathHelper;
 
 namespace Minecraft.Graphics.Transforming
 {
-    public class PerspectiveTransformProvider : MatrixProvider, IProjectionTransformProvider, IMatrixCalculator
+    public class PerspectiveTransformProvider : Matrix4Provider, IProjectionTransformProvider,
+        IMatrixCalculator<Matrix4, Vector4>
     {
         public PerspectiveTransformProvider()
         {

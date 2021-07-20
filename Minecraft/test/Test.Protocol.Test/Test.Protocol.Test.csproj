@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Minecraft\Minecraft.csproj" />
     <ProjectReference Include="..\..\src\Minecraft.Protocol\Minecraft.Protocol.csproj" />
     <ProjectReference Include="..\..\tool\Tool.PacketRedirector\Tool.PacketRedirector.csproj" />
   </ItemGroup>

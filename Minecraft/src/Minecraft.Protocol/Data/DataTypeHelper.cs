@@ -79,5 +79,147 @@ namespace Minecraft.Protocol.Data
             dataType.WriteToStream(stream);
             return dataType;
         }
+
+        public static ByteArray Write(this ByteArray byteArray, sbyte value)
+        {
+            byteArray.Write((Byte) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, byte value)
+        {
+            byteArray.Write((UnsignedByte) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, bool value)
+        {
+            byteArray.Write((Boolean) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, byte[] value)
+        {
+            byteArray.Write(new ByteArray(value));
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, int value)
+        {
+            byteArray.Write((Int) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, long value)
+        {
+            byteArray.Write((Long) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, short value)
+        {
+            byteArray.Write((Short) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, uint value)
+        {
+            byteArray.Write((UnsignedInt) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, ushort value)
+        {
+            byteArray.Write((UnsignedShort) value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, Minecraft.Uuid value)
+        {
+            byteArray.Write((Uuid) value);
+            return byteArray;
+        }
+
+        public static ByteArray WriteVar(this ByteArray byteArray, string value)
+        {
+            byteArray.Write((VarChar) value);
+            return byteArray;
+        }
+
+        public static ByteArray WriteVar(this ByteArray byteArray, int value)
+        {
+            byteArray.Write((VarInt) value);
+            return byteArray;
+        }
+
+        private enum EmptyEnum
+        {
+        }
+
+        public static ByteArray WriteVar(this ByteArray byteArray, Enum value)
+        {
+            byteArray.Write((VarInt) (int) (EmptyEnum) value);
+            return byteArray;
+        }
+
+        public static bool ReadBoolean(this ByteArray byteArray)
+        {
+            return byteArray.Read<Boolean>();
+        }
+
+        public static sbyte ReadByte(this ByteArray byteArray)
+        {
+            return byteArray.Read<Byte>();
+        }
+
+        public static int ReadInt(this ByteArray byteArray)
+        {
+            return byteArray.Read<Int>();
+        }
+
+        public static long ReadLong(this ByteArray byteArray)
+        {
+            return byteArray.Read<Long>();
+        }
+
+        public static short ReadShort(this ByteArray byteArray)
+        {
+            return byteArray.Read<Short>();
+        }
+
+        public static byte ReadUnsignedByte(this ByteArray byteArray)
+        {
+            return byteArray.Read<UnsignedByte>();
+        }
+
+        public static uint ReadUnsignedInt(this ByteArray byteArray)
+        {
+            return byteArray.Read<UnsignedInt>();
+        }
+
+        public static ushort ReadUnsignedShort(this ByteArray byteArray)
+        {
+            return byteArray.Read<UnsignedShort>();
+        }
+
+        public static Minecraft.Uuid ReadUuid(this ByteArray byteArray)
+        {
+            return (Minecraft.Uuid) byteArray.Read<Uuid>();
+        }
+
+        public static string ReadVarChar(this ByteArray byteArray)
+        {
+            return byteArray.Read<VarChar>();
+        }
+
+        public static int ReadVarInt(this ByteArray byteArray)
+        {
+            return byteArray.Read<VarInt>();
+        }
+
+        public static T ReadVarIntEnum<T>(this ByteArray byteArray) where T : Enum
+        {
+            return byteArray.Read<VarIntEnum<T>>();
+        }
     }
 }

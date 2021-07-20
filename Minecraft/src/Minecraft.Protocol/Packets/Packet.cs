@@ -4,8 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using Minecraft.Protocol.Data;
-using Minecraft.Protocol.Packets.Client;
-using Minecraft.Protocol.Packets.Server;
 
 namespace Minecraft.Protocol.Packets
 {
@@ -19,15 +17,15 @@ namespace Minecraft.Protocol.Packets
 
         static Packet()
         {
-            //Server side
-            Register<StateResponsePacket>();
-            Register<StatePongPacket>();
-            Register<EntityMovementPacket>();
+            //bound to client
+            Register<Server.StatusResponsePacket>();
+            Register<Server.StatusPongPacket>();
+            Register<Server.EntityMovementPacket>();
 
-            //Client side
-            Register<HandshakePacket>();
-            Register<StateRequestPacket>();
-            Register<StatePingPacket>();
+            //bound to server
+            Register<Client.HandshakePacket>();
+            Register<Client.StatusRequestPacket>();
+            Register<Client.StatusPingPacket>();
         }
 
         /// <summary>
@@ -36,9 +34,9 @@ namespace Minecraft.Protocol.Packets
         public abstract int PacketId { get; }
 
         /// <summary>
-        ///     包源
+        ///     包绑定至
         /// </summary>
-        public abstract PacketOrigin Origin { get; }
+        public abstract PacketBoundTo BoundTo { get; }
 
         /// <summary>
         ///     协议状态
@@ -53,7 +51,7 @@ namespace Minecraft.Protocol.Packets
         {
             var packet = constructor();
             //Logger.Debug<Packet>("register packet " + packet.GetType().FullName);
-            RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.Origin, packet.State, constructor));
+            RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.BoundTo, packet.State, constructor));
         }
 
         /// <summary>
@@ -69,22 +67,20 @@ namespace Minecraft.Protocol.Packets
         ///     创建数据包
         /// </summary>
         /// <param name="packetId">包Id</param>
-        /// <param name="origin">包源</param>
+        /// <param name="boundTo">绑定至</param>
         /// <param name="state">协议状态</param>
         /// <returns></returns>
         /// <exception cref="PacketParseException">指定数据包没有注册</exception>
-        public static Packet CreatePacket(int packetId, PacketOrigin origin, ProtocolState state)
+        public static Packet CreatePacket(int packetId, PacketBoundTo boundTo, ProtocolState state)
         {
             //Logger.Debug<Packet>(
             //    $"CreatePacket: packetId: 0x{packetId.ToString("X").PadLeft(2, '0')}, origin: {origin}, state: {state}");
             Packet result;
             try
             {
-                result = (from packet in RegisteredPackets
-                    where packet.PacketId == packetId
-                    where packet.Origin == origin
-                    where packet.State == state
-                    select packet).First().CreateInstance();
+                result = RegisteredPackets.First(packet => packet.PacketId == packetId
+                                                           && packet.BoundTo == boundTo
+                                                           && packet.State == state).CreateInstance();
             }
             catch (InvalidOperationException)
             {
@@ -103,7 +99,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="state"></param>
         /// <param name="compressed"></param>
         /// <returns></returns>
-        private static DataPacket ReadDataPacket(Stream stream, PacketOrigin origin,
+        private static DataPacket ReadDataPacket(Stream stream, PacketBoundTo origin,
             ProtocolState state = ProtocolState.Any,
             bool compressed = false)
         {
@@ -116,7 +112,7 @@ namespace Minecraft.Protocol.Packets
                         : (Stream) content, length));
         }
 
-        public static Packet ReadPacket(Stream stream, PacketOrigin origin, ProtocolState state = ProtocolState.Any,
+        public static Packet ReadPacket(Stream stream, PacketBoundTo origin, ProtocolState state = ProtocolState.Any,
             bool compressed = false)
         {
             return ReadDataPacket(stream, origin, state, compressed).Parse();
@@ -131,7 +127,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="state"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T ReadPacket<T>(Stream stream, PacketOrigin origin, ProtocolState state = ProtocolState.Any,
+        public static T ReadPacket<T>(Stream stream, PacketBoundTo origin, ProtocolState state = ProtocolState.Any,
             bool compressed = false) where T : Packet, new()
         {
             return ReadDataPacket(stream, origin, state, compressed).Parse<T>();
@@ -155,13 +151,13 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     写入到流
+        ///     将此数据包写入到流
         /// </summary>
         /// <param name="content">流</param>
         protected abstract void _WriteToStream(ByteArray content);
 
         /// <summary>
-        ///     写入到流
+        ///     将此数据包写入到流
         /// </summary>
         /// <returns>The to stream.</returns>
         /// <param name="stream">Stream.</param>
@@ -171,31 +167,20 @@ namespace Minecraft.Protocol.Packets
             return this;
         }
 
-        /// <summary>
-        ///     从流读入
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T ReadFromStream<T>(Stream stream) where T : Packet
-        {
-            return (T) ReadFromStream(stream);
-        }
-
         private class RegisteredPacket
         {
             private readonly Func<Packet> _constructor;
 
-            public RegisteredPacket(int packetId, PacketOrigin origin, ProtocolState state, Func<Packet> constructor)
+            public RegisteredPacket(int packetId, PacketBoundTo boundTo, ProtocolState state, Func<Packet> constructor)
             {
                 PacketId = packetId;
-                Origin = origin;
+                BoundTo = boundTo;
                 State = state;
                 _constructor = constructor;
             }
 
             public int PacketId { get; }
-            public PacketOrigin Origin { get; }
+            public PacketBoundTo BoundTo { get; }
             public ProtocolState State { get; }
 
             public Packet CreateInstance()

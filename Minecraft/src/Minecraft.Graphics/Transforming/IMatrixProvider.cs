@@ -2,13 +2,10 @@
 
 namespace Minecraft.Graphics.Transforming
 {
-    public interface IMatrixProvider : ITransformable
+    public interface IMatrixProvider<out TMatrix, TVector> : ITransformable<TVector>
+        where TMatrix : struct
+        where TVector : struct
     {
-        Vector4 ITransformable.Transform(Vector4 vector)
-        {
-            return vector * GetMatrix();
-        }
-
-        Matrix4 GetMatrix();
+        TMatrix GetMatrix();
     }
 }

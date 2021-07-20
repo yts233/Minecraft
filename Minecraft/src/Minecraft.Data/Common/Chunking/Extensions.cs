@@ -60,8 +60,7 @@ namespace Minecraft.Data.Common.Chunking
         public static ChuckSection GetSectionOrNull(this ChuckData chuckData, sbyte sectionY)
         {
             return chuckData.Sections
-                .Where(section => section.Y == sectionY)
-                .FirstOrDefault();
+                .FirstOrDefault(section => section.Y == sectionY);
         }
 
         public static ChuckSection GetSectionOrCreate(this ChuckData chuckData, sbyte sectionY)
@@ -104,7 +103,7 @@ namespace Minecraft.Data.Common.Chunking
                 {
                     var tmp2 = tmp1 + 4096;
                     for (var i = tmp1; i < tmp2; i++)
-                        yield return (i, new BlockState("minecraft", "air"));
+                        yield return (i, new BlockState("void_air"));
                     continue;
                 }
 
@@ -129,7 +128,7 @@ namespace Minecraft.Data.Common.Chunking
             var inSectionY = y & 0x0F;
             return chuckData.GetSectionOrNull(sectionY)?
                        .GetBlock(x, inSectionY, z)
-                   ?? new BlockState("minecraft", "air");
+                   ?? new BlockState("void_air");
         }
 
         public static void SetBlock(this ChuckSection chuckSection, BlockState blockState, int blockPosition)
