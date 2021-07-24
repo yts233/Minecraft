@@ -97,7 +97,7 @@ namespace Minecraft.Protocol.Packets
         /// <exception cref="PacketParseException">指定数据包没有注册</exception>
         public static Packet CreatePacket(int packetId, PacketBoundTo boundTo, ProtocolState state)
         {
-            _ = Logger.Debug<Packet>($"CreatePacket: packetId: 0x{packetId.ToString("X").PadLeft(2, '0')}, boundTo: {boundTo}, state: {state}");
+            //_ = Logger.Debug<Packet>($"CreatePacket: packetId: 0x{packetId.ToString("X").PadLeft(2, '0')}, boundTo: {boundTo}, state: {state}");
             Packet result;
             result = RegisteredPackets.FirstOrDefault(packet => packet.PacketId == packetId
                                                        && packet.BoundTo == boundTo
@@ -106,7 +106,7 @@ namespace Minecraft.Protocol.Packets
                 throw new PacketParseException(
                         $"packet 0x{packetId.ToString("X").PadLeft(2, '0')} hadn't been registered.");
 
-            _ = Logger.Debug<Packet>(result.GetType().FullName);
+            //_ = Logger.Debug<Packet>(result.GetType().FullName);
 
             return result;
         }

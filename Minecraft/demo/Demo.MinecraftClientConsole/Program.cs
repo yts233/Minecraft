@@ -7,7 +7,7 @@ using Minecraft.Extensions;
 using Minecraft.Client;
 using static Demo.MinecraftClientConsole.Shared;
 //test server: bgp.polarstar.cc:11201
-
+// connect bgp.polarstar.cc 11201
 namespace Demo.MinecraftClientConsole
 {
     static class Shared
@@ -176,7 +176,7 @@ namespace Demo.MinecraftClientConsole
 
                 var hostname = args[0];
                 var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
-                await _client.Connect(hostname, port);
+                _ = _client.Connect(hostname, port);
                 await new InServer(_client).Main();
             }, "连接到服务器，并切换到 InServer");
             AddCommand("logger", async args =>
@@ -219,7 +219,7 @@ namespace Demo.MinecraftClientConsole
                 Logger.SetLogLevel(level, enable);
 
                 await Task.CompletedTask;
-            }, "<enable|disable> <level:{0:fatal|1:error|2:warn|3:info}> 启用或禁用记录器记录指定等级的日志");
+            }, "<enable|disable> <level:{0:fatal|1:error|2:warn|3:info|4:debug}> 启用或禁用记录器记录指定等级的日志");
             AddCommand("clear", async _ =>
             {
                 Console.Clear();
@@ -243,7 +243,16 @@ namespace Demo.MinecraftClientConsole
 
         public async Task Main()
         {
-
+            while (_client.IsConnected)
+            {
+                var input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input)) continue;
+                input = input.Trim();
+                if (input == "#exit")
+                    break;
+                await _client.Chat(input);
+            }
+            await _client.Disconnect();
         }
     }
 }

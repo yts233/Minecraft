@@ -23,6 +23,7 @@ namespace Minecraft.Client
         public MinecraftClientState State { get; private set; } = MinecraftClientState.InTitle;
 
         public string Server { get; private set; }
+        public bool IsConnected => _adapter.IsConnected;
 
         public MinecraftClient(string playerName)
         {
@@ -129,6 +130,16 @@ namespace Minecraft.Client
             _ = Logger.Info<MinecraftClient>($"Connecting {hostname}, {port}");
             _adapter = new MinecraftClientAdapter(hostname, port, this);
             await _adapter.Connect();
+        }
+
+        public async Task Disconnect()
+        {
+            await _adapter.Disconnect();
+        }
+
+        public async Task Chat(string message)
+        {
+            await _adapter.SendChatPacket(message);
         }
     }
 }

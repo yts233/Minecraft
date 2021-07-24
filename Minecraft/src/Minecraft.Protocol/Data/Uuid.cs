@@ -19,7 +19,8 @@ namespace Minecraft.Protocol.Data
         {
             this.CheckStreamReadable(stream);
             var buffer = new byte[16];
-            if (stream.Read(buffer, 0, 16) != 16) throw new EndOfStreamException();
+            var s = stream.Read(buffer, 0, 16);
+            if (s != 16) throw new EndOfStreamException();
             _value = new Minecraft.Uuid(buffer);
         }
 

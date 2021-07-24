@@ -15,14 +15,15 @@ namespace Minecraft.Protocol.Data
         void IDataType.ReadFromStream(Stream stream)
         {
             this.CheckStreamReadable(stream);
-            var numRead = 0;
             var result = 0;
+            var bitOffset = 0;
             byte read;
             do
             {
                 read = this.ReadByte(stream);
-                result |= (read & 0b01111111) << (7 * numRead);
-                if (++numRead > 5) throw new InvalidDataException("Invalid data");
+                result |= (read & 0b01111111) << bitOffset;
+                if (bitOffset == 35) throw new InvalidDataException("Invalid data");
+                bitOffset += 7;
             } while ((read & 0b10000000) != 0);
 
             _value = result;

@@ -1,4 +1,5 @@
-﻿using Minecraft.Protocol.Data;
+﻿#define FixEndOfStream
+using Minecraft.Protocol.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,7 @@ namespace Minecraft.Protocol.Packets.Server
 {
     public class ChatMessagePacket : Packet
     {
-        public override int PacketId => 0xFF0F;
+        public override int PacketId => 0x0F;
 
         public override PacketBoundTo BoundTo => PacketBoundTo.Client;
 
@@ -25,9 +26,23 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _ReadFromStream(ByteArray content)
         {
+
+#if FixEndOfStream
+            try
+            {
+                JsonData = content.ReadString();
+                Position = (ChatMessagePosition)content.ReadByte();
+                Sender = content.ReadUuid();
+            }
+            catch
+            {
+                // ignore
+            }
+#else
             JsonData = content.ReadString();
             Position = (ChatMessagePosition)content.ReadByte();
             Sender = content.ReadUuid();
+#endif
         }
 
         protected override void _WriteToStream(ByteArray content)

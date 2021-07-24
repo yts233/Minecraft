@@ -189,7 +189,7 @@ namespace Minecraft.Protocol
                 }
                 catch (PacketParseException ex)
                 {
-                    _ = Logger.Warn<ProtocolAdapter>(ex.Message);
+                    //_ = Logger.Warn<ProtocolAdapter>(ex.Message);
                     // ignore
                     continue;
                 }
@@ -202,7 +202,11 @@ namespace Minecraft.Protocol
                 {
                     _ = Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
                     _ = Logger.Info<ProtocolAdapter>("Adapter has been stopped. EOF");
+#if DEBUG
+                    throw;
+#else
                     return;
+#endif
                 }
                 catch
                 {

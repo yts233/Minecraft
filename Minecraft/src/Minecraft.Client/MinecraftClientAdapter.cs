@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Minecraft.Extensions;
 using Minecraft.Data.Nbt.Tags;
 using Minecraft.Data.Numerics;
+using ClientChatMessagePacket = Minecraft.Protocol.Packets.Client.ChatMessagePacket;
+using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePacket;
 
 namespace Minecraft.Client
 {
@@ -66,6 +68,15 @@ namespace Minecraft.Client
 
         #endregion
 
+        #region Send Packets
+        
+        public async Task SendChatPacket(string message)
+        {
+            await _protocolAdapter.SendPacket(new ClientChatMessagePacket { Message = message });
+        }
+
+        #endregion
+
         #region Connection
 
         public bool IsConnected { get; private set; }
@@ -119,8 +130,9 @@ namespace Minecraft.Client
         private delegate void Chat();
         private async Task Start()
         {
-            _protocolAdapter.PacketReceived += (_, p) => _ = Logger.Info<Chat>($"Packet S->C\n{p.GetPropertyInfoString()}");
+            // _protocolAdapter.PacketReceived += (_, p) => _ = Logger.Info<Chat>($"Packet S->C\n{p.GetPropertyInfoString()}");
             _protocolAdapter.PacketSent += (_, p) => _ = Logger.Info<Chat>($"Packet C->S\n{p.GetPropertyInfoString()}");
+            _protocolAdapter.HandlePacket<ServerChatMessagePacket>(p => _ = Logger.Info<Chat>(p.JsonData));
             await Login();
             await Join();
         }

@@ -5,7 +5,7 @@ using Minecraft.Text;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     可变字符串
+    ///     字符串
     /// </summary>
     public struct String : IDataType<string>
     {
@@ -24,7 +24,7 @@ namespace Minecraft.Protocol.Data
         {
             this.CheckStreamReadable(stream);
             var content = this.GetContent(stream);
-            var length = content.Read<VarInt>();
+            var length = content.ReadVarInt();
             //if (length > 32767) throw new InvalidDataException("String out of range!");
             var reader = new Utf8Reader(stream);
             var buffer = new char[length];
