@@ -1,6 +1,6 @@
 namespace Minecraft.Data.Nbt
 {
-    public enum NbtTagType
+    public enum NbtTagType : byte
     {
         /// <summary>
         ///     表明<see cref="Compound" />的结尾。

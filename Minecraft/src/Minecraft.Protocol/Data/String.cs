@@ -7,9 +7,9 @@ namespace Minecraft.Protocol.Data
     /// <summary>
     ///     可变字符串
     /// </summary>
-    public struct VarChar : IDataType<string>
+    public struct String : IDataType<string>
     {
-        private VarChar(string value)
+        private String(string value)
         {
             if (value.Length > 32767)
                 throw new ArgumentOutOfRangeException(nameof(value), "Length of the value cannot be larger than 32767");
@@ -25,7 +25,7 @@ namespace Minecraft.Protocol.Data
             this.CheckStreamReadable(stream);
             var content = this.GetContent(stream);
             var length = content.Read<VarInt>();
-            if (length > 32767) throw new InvalidDataException("String out of range!");
+            //if (length > 32767) throw new InvalidDataException("String out of range!");
             var reader = new Utf8Reader(stream);
             var buffer = new char[length];
             var s = reader.ReadBlock(buffer, 0, length);
@@ -40,12 +40,12 @@ namespace Minecraft.Protocol.Data
             new Utf8Writer(content).Write(_value);
         }
 
-        public static implicit operator VarChar(string value)
+        public static implicit operator String(string value)
         {
-            return new VarChar(value);
+            return new String(value);
         }
 
-        public static implicit operator string(VarChar value)
+        public static implicit operator string(String value)
         {
             return value._value;
         }

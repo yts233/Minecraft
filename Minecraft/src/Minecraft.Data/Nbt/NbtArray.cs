@@ -1,12 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Minecraft.Data.Nbt
 {
     public abstract class NbtArray<T> : NbtTag, IList<T>, IEquatable<NbtArray<T>>
     {
-        private readonly IList<T> _value = new List<T>();
+        private readonly T[] _value;
+
+        public T[] Value => _value;
+
+        public NbtArray(T[] value)
+        {
+            _value = value;
+        }
 
         protected bool ArrayReadOnly { get; set; }
 
@@ -15,20 +23,18 @@ namespace Minecraft.Data.Nbt
             return other != null && _value.Equals(other._value);
         }
 
-        public override int Count => _value.Count;
+        public override int Count => _value.Length;
 
         public override bool IsReadOnly => ArrayReadOnly;
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _value.GetEnumerator();
+            return _value.Cast<T>().GetEnumerator();
         }
 
         public void Add(T item)
         {
-            if (IsReadOnly)
-                throw new ReadOnlyException();
-            _value.Add(item);
+            throw new ReadOnlyException();
         }
 
         public bool Contains(T item)
@@ -43,26 +49,22 @@ namespace Minecraft.Data.Nbt
 
         public bool Remove(T item)
         {
-            return !IsReadOnly && _value.Remove(item);
+            return false;
         }
 
         public int IndexOf(T item)
         {
-            return _value.IndexOf(item);
+            return Array.IndexOf(_value, item);
         }
 
         public void Insert(int index, T item)
         {
-            if (IsReadOnly)
-                throw new ReadOnlyException();
-            _value.Insert(index, item);
+            throw new ReadOnlyException();
         }
 
         public void RemoveAt(int index)
         {
-            if (IsReadOnly)
-                throw new ReadOnlyException();
-            _value.RemoveAt(index);
+            throw new ReadOnlyException();
         }
 
         public T this[int index]
@@ -88,25 +90,17 @@ namespace Minecraft.Data.Nbt
 
         protected override bool _Add(NbtTag item)
         {
-            if (IsReadOnly)
-                return false;
-            _value.Add(EnsureValue(item));
-            return true;
+            return false;
         }
 
         protected override void _Clear()
         {
-            if (IsReadOnly)
-                throw new ReadOnlyException();
-            _value.Clear();
+            throw new ReadOnlyException();
         }
 
         protected override bool _Remove(NbtTag item)
         {
-            if (IsReadOnly)
-                return false;
-            _value.Add(EnsureValue(item));
-            return true;
+            return false;
         }
 
         public override bool Contains(NbtTag item)

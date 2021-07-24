@@ -75,7 +75,7 @@ namespace Minecraft.Data.Nbt
                 _writer.Write(_format ? ", " : ",");
             if (_node.Count != 0)
                 WriteSpace();
-            if (name != null)
+            if (!string.IsNullOrEmpty(name))
                 _writer.Write(_format ? $"{name}: " : $"{name}:");
             _children.Push(_children.Pop() + 1);
         }

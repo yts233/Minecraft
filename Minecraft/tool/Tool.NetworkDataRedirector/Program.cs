@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 
 //test server: bgp.polarstar.cc:11201
+// connect bgp.polarstar.cc 11201
 
 namespace Tool.NetworkDataRedirector
 {
@@ -19,7 +20,7 @@ namespace Tool.NetworkDataRedirector
         {
             Console.WriteLine("Hello World!");
 
-            void LogPacket(byte[] data, int length, bool isServer)
+            static void LogPacket(byte[] data, int length, bool isServer)
             {
                 var @string = new StringBuilder();
                 Stream buff = new MemoryStream(data, 0, length, false);
@@ -43,7 +44,7 @@ namespace Tool.NetworkDataRedirector
                             continue;
                         }
 
-                        sb.Append(tmp >= 32 ? (char) tmp : '.');
+                        sb.Append(tmp >= 32 ? (char)tmp : '.');
                         @string.Append(tmp.ToString("X").PadLeft(2, '0') + " ");
                     }
 
@@ -52,7 +53,8 @@ namespace Tool.NetworkDataRedirector
                     @string.Append('\n');
                 }
 
-                Console.WriteLine(@string);
+                lock (Console.Out)
+                    Console.WriteLine(@string);
             }
 
             mainThread = Thread.CurrentThread;
@@ -67,40 +69,41 @@ namespace Tool.NetworkDataRedirector
                 var server = new TcpClient();
                 try
                 {
-                    //server.Connect(new IPEndPoint(IPAddress.Parse(args.Length == 1 ? args[0] : "127.0.0.1"), 25577));
-                    server.Connect(Dns.GetHostAddresses("bgp.polarstar.cc"), 11201);
+                    server.Connect(new IPEndPoint(IPAddress.Parse(args.Length == 1 ? args[0] : "127.0.0.1"), 25566));
+                    //server.Connect(Dns.GetHostAddresses("bgp.polarstar.cc"), 11201);
                     Console.Write(" <-> [/" + server.Client.RemoteEndPoint + "]\n");
                     NetworkStream clientStream = client.GetStream(), serverStream = server.GetStream();
-                    Task serverTask = new Task(() =>
+                    Task serverTask = new(() =>
+                    {
+                        try
                         {
+                            Thread.CurrentThread.IsBackground = true;
+                            var buffer = new byte[1048576];
+                            int s;
+                            while ((s = serverStream.Read(buffer, 0, 1048576)) != 0)
+                            {
+                                var buffer1 = new byte[1048576];
+                                buffer.CopyTo(buffer1, 0);
+                                Task.Run(() => LogPacket(buffer1, s, true));
+                                clientStream.WriteAsync(buffer, 0, s);
+                            }
+
                             try
                             {
-                                Thread.CurrentThread.IsBackground = true;
-                                var buffer = new byte[1048576];
-                                int s;
-                                while ((s = serverStream.Read(buffer, 0, 1048576)) != 0)
-                                {
-                                    LogPacket(buffer, s, true);
-                                    clientStream.WriteAsync(buffer, 0, s);
-                                }
-
-                                try
-                                {
-                                    Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
-                                                  server.Client.RemoteEndPoint + "]\n");
-                                }
-                                catch
-                                {
-                                }
-
-                                if (client.Connected) client.Close();
-                                if (server.Connected) server.Close();
+                                Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
+                                              server.Client.RemoteEndPoint + "]\n");
                             }
                             catch
                             {
                             }
-                        }),
-                        clientTask = new Task(() =>
+
+                            if (client.Connected) client.Close();
+                            if (server.Connected) server.Close();
+                        }
+                        catch
+                        {
+                        }
+                    }), clientTask = new(() =>
                         {
                             try
                             {
@@ -120,6 +123,7 @@ namespace Tool.NetworkDataRedirector
                                 }
                                 catch
                                 {
+                                    // ignore
                                 }
 
                                 if (client.Connected) client.Close();

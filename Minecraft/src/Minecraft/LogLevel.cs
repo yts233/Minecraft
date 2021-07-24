@@ -8,26 +8,26 @@
         /// <summary>
         ///     错误，但无法修正
         /// </summary>
-        Fatal,
+        Fatal = 0,
 
         /// <summary>
         ///     错误，但已处理
         /// </summary>
-        Error,
+        Error = 1,
 
         /// <summary>
         ///     警告
         /// </summary>
-        Warn,
+        Warn = 2,
 
         /// <summary>
         ///     信息
         /// </summary>
-        Info,
+        Info = 3,
 
         /// <summary>
         ///     调试
         /// </summary>
-        Debug
+        Debug = 4
     }
 }

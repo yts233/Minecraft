@@ -45,7 +45,7 @@ namespace Minecraft.Protocol.Packets.Server
         protected override void _WriteToStream(ByteArray content)
         {
             content
-                .WriteVar(EntityId)
+                .WriteVarInt(EntityId)
                 .Write(DeltaX)
                 .Write(DeltaY)
                 .Write(DeltaZ)

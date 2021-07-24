@@ -2,6 +2,14 @@
 
 此项目实现协议版本号为755,对应Minecraft版本为1.17.1
 
+### 规范
+
+`Minecraft.Protocol.Packets.Client`为客户端发送给服务器的数据包，`BoundTo`为`Server`
+
+`Minecraft.Protocol.Packets.Server`为服务器发送给客户端的数据包，`BoundTo`为`Client`
+
+类名符合`$PacketName$Packet`，如`JoinGamePacket`，大驼峰，以Packet结尾
+
 ### What's the normal login sequence for a client?
 
 See Authentication for communication with Mojang's servers.

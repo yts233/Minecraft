@@ -21,9 +21,6 @@ namespace Minecraft.Text
 
         public override int Read()
         {
-            if (!_baseStream.CanRead)
-                throw new NotSupportedException("cannot read from stream");
-
             var tmp = _baseStream.ReadByte();
             if (tmp == -1) return -1;
 
@@ -34,13 +31,13 @@ namespace Minecraft.Text
             if ((tmp & 0b11100000) == 0b11000000)
             {
                 extByteCount = 1;
-                result |= tmp | 0b00011111;
+                result |= tmp & 0b00011111;
             }
 
             if ((tmp & 0b11110000) == 0b11100000)
             {
                 extByteCount = 2;
-                result |= tmp | 0b00001111;
+                result |= tmp & 0b00001111;
             }
 
             for (var i = 0; i < extByteCount; i++)
@@ -49,7 +46,7 @@ namespace Minecraft.Text
                 tmp = _baseStream.ReadByte();
                 if (tmp == -1) return -1;
                 if ((tmp & 0b11000000) != 0b10000000) return -1;
-                result |= tmp | 0b00111111;
+                result |= tmp & 0b00111111;
             }
 
             return result;

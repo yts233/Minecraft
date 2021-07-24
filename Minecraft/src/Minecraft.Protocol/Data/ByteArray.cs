@@ -142,6 +142,11 @@ namespace Minecraft.Protocol.Data
             _stream.Write(buffer, offset, count);
         }
 
+        public new sbyte ReadByte()
+        {
+            return Read<Byte>();
+        }
+
         /// <summary>
         ///     写入某个特定的数据
         /// </summary>

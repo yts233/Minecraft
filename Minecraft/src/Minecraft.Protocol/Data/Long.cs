@@ -16,7 +16,7 @@ namespace Minecraft.Protocol.Data
 
         void IDataType.ReadFromStream(Stream stream)
         {
-            var result = 0;
+            var result = 0L;
             for (var i = 0; i < 8; i++)
             {
                 var read = this.ReadByte(stream);
@@ -33,7 +33,7 @@ namespace Minecraft.Protocol.Data
             var value = _value;
             for (var i = 0; i < 8; i++)
             {
-                stream.WriteByte((byte) (value >> 24));
+                stream.WriteByte((byte)(value >> 56));
                 value <<= 8;
             }
         }

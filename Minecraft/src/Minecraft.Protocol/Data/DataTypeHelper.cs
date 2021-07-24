@@ -1,3 +1,4 @@
+using Minecraft.Data.Nbt;
 using System;
 using System.IO;
 
@@ -51,7 +52,7 @@ namespace Minecraft.Protocol.Data
             var read = stream.ReadByte();
             if (read == -1)
                 throw new EndOfStreamException("End of stream!");
-            return (byte) read;
+            return (byte)read;
         }
 
         /// <summary>
@@ -82,19 +83,31 @@ namespace Minecraft.Protocol.Data
 
         public static ByteArray Write(this ByteArray byteArray, sbyte value)
         {
-            byteArray.Write((Byte) value);
+            byteArray.Write((Byte)value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, float value)
+        {
+            byteArray.Write((Float)value);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, double value)
+        {
+            byteArray.Write((Double)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, byte value)
         {
-            byteArray.Write((UnsignedByte) value);
+            byteArray.Write((UnsignedByte)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, bool value)
         {
-            byteArray.Write((Boolean) value);
+            byteArray.Write((Boolean)value);
             return byteArray;
         }
 
@@ -106,49 +119,49 @@ namespace Minecraft.Protocol.Data
 
         public static ByteArray Write(this ByteArray byteArray, int value)
         {
-            byteArray.Write((Int) value);
+            byteArray.Write((Int)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, long value)
         {
-            byteArray.Write((Long) value);
+            byteArray.Write((Long)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, short value)
         {
-            byteArray.Write((Short) value);
+            byteArray.Write((Short)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, uint value)
         {
-            byteArray.Write((UnsignedInt) value);
+            byteArray.Write((UnsignedInt)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, ushort value)
         {
-            byteArray.Write((UnsignedShort) value);
+            byteArray.Write((UnsignedShort)value);
             return byteArray;
         }
 
         public static ByteArray Write(this ByteArray byteArray, Minecraft.Uuid value)
         {
-            byteArray.Write((Uuid) value);
+            byteArray.Write((Uuid)value);
             return byteArray;
         }
 
-        public static ByteArray WriteVar(this ByteArray byteArray, string value)
+        public static ByteArray Write(this ByteArray byteArray, string value)
         {
-            byteArray.Write((VarChar) value);
+            byteArray.Write((String)value);
             return byteArray;
         }
 
-        public static ByteArray WriteVar(this ByteArray byteArray, int value)
+        public static ByteArray WriteVarInt(this ByteArray byteArray, int value)
         {
-            byteArray.Write((VarInt) value);
+            byteArray.Write((VarInt)value);
             return byteArray;
         }
 
@@ -156,20 +169,22 @@ namespace Minecraft.Protocol.Data
         {
         }
 
-        public static ByteArray WriteVar(this ByteArray byteArray, Enum value)
+        public static ByteArray WriteArray<T>(this ByteArray byteArray,T[] array)where T:IDataType,new()
         {
-            byteArray.Write((VarInt) (int) (EmptyEnum) value);
+            var array1 = new Array<T>(array);
+            array1.WriteToStream(byteArray);
+            return byteArray;
+        }
+
+        public static ByteArray WriteVarEnum(this ByteArray byteArray, Enum value)
+        {
+            byteArray.Write((VarInt)(int)(EmptyEnum)value);
             return byteArray;
         }
 
         public static bool ReadBoolean(this ByteArray byteArray)
         {
             return byteArray.Read<Boolean>();
-        }
-
-        public static sbyte ReadByte(this ByteArray byteArray)
-        {
-            return byteArray.Read<Byte>();
         }
 
         public static int ReadInt(this ByteArray byteArray)
@@ -180,6 +195,16 @@ namespace Minecraft.Protocol.Data
         public static long ReadLong(this ByteArray byteArray)
         {
             return byteArray.Read<Long>();
+        }
+
+        public static float ReadFloat(this ByteArray byteArray)
+        {
+            return byteArray.Read<Float>();
+        }
+
+        public static double ReadDouble(this ByteArray byteArray)
+        {
+            return byteArray.Read<Double>();
         }
 
         public static short ReadShort(this ByteArray byteArray)
@@ -204,12 +229,12 @@ namespace Minecraft.Protocol.Data
 
         public static Minecraft.Uuid ReadUuid(this ByteArray byteArray)
         {
-            return (Minecraft.Uuid) byteArray.Read<Uuid>();
+            return (Minecraft.Uuid)byteArray.Read<Uuid>();
         }
 
-        public static string ReadVarChar(this ByteArray byteArray)
+        public static string ReadString(this ByteArray byteArray)
         {
-            return byteArray.Read<VarChar>();
+            return byteArray.Read<String>();
         }
 
         public static int ReadVarInt(this ByteArray byteArray)
@@ -217,9 +242,37 @@ namespace Minecraft.Protocol.Data
             return byteArray.Read<VarInt>();
         }
 
+        public static T[] ReadArray<T>(this ByteArray byteArray, int length) where T : IDataType, new()
+        {
+            var array = new Array<T>
+            {
+                Length = length
+            };
+            array.ReadFromStream(byteArray);
+            return array.Value;
+        }
+
         public static T ReadVarIntEnum<T>(this ByteArray byteArray) where T : Enum
         {
             return byteArray.Read<VarIntEnum<T>>();
+        }
+
+        public static NbtTag ReadNbt(this ByteArray byteArray)
+        {
+            using var reader = new NbtReader(byteArray);
+            return reader.ReadTag();
+        }
+
+        public static T ReadNbt<T>(this ByteArray byteArray) where T : NbtTag
+        {
+            return (T)byteArray.ReadNbt();
+        }
+
+        public static ByteArray WriteNbt(this ByteArray byteArray, NbtTag tag)
+        {
+            using var writer = new NbtWriter(byteArray);
+            writer.WriteTag(tag);
+            return byteArray;
         }
     }
 }

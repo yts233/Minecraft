@@ -72,10 +72,15 @@ namespace Minecraft
         {
             return other != null && (FullName == other || Namespace == "minecraft" && Name == other);
         }
-        
+
         public static implicit operator NamedIdentifier(string id)
         {
             return new NamedIdentifier(id);
+        }
+
+        public static implicit operator string(NamedIdentifier id)
+        {
+            return id.FullName;
         }
     }
 }

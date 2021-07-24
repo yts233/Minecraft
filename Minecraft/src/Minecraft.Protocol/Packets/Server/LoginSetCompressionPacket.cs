@@ -20,7 +20,7 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _WriteToStream(ByteArray content)
         {
-            content.WriteVar(Threshold);
+            content.WriteVarInt(Threshold);
         }
     }
 }

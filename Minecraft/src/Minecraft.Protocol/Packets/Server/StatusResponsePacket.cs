@@ -1,5 +1,4 @@
-﻿using System;
-using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Data;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -11,7 +10,7 @@ namespace Minecraft.Protocol.Packets.Server
         public override int PacketId => 0x00;
 
         public override PacketBoundTo BoundTo => PacketBoundTo.Client;
-        public override ProtocolState State => ProtocolState.Handshaking;
+        public override ProtocolState State => ProtocolState.Status;
 
         /// <summary>
         ///     内容
@@ -20,12 +19,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         protected override void _ReadFromStream(ByteArray content)
         {
-            Content = content.Read<VarChar>();
+            Content = content.Read<String>();
         }
 
         protected override void _WriteToStream(ByteArray content)
         {
-            content.WriteVar(Content);
+            content.Write(Content);
         }
     }
 }

@@ -10,8 +10,8 @@ namespace Minecraft.Data.Numerics
 
         double IList<double>.this[int index]
         {
-            get => ((IVector3<double>) this)[index];
-            set => ((IVector3<double>) this)[index] = value;
+            get => ((IVector3<double>)this)[index];
+            set => ((IVector3<double>)this)[index] = value;
         }
 
         public void Deconstruct(out double x, out double y, out double z)
@@ -19,6 +19,11 @@ namespace Minecraft.Data.Numerics
             x = X;
             y = Y;
             z = Z;
+        }
+
+        public override string ToString()
+        {
+            return $"({X}D, {Y}D, {Z}D)";
         }
     }
 }

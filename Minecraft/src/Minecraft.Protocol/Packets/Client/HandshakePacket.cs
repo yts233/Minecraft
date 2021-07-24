@@ -36,7 +36,7 @@ namespace Minecraft.Protocol.Packets.Client
         protected override void _ReadFromStream(ByteArray content)
         {
             ProtocolVersion = content.ReadVarInt();
-            ServerAddress = content.ReadVarChar();
+            ServerAddress = content.ReadString();
             ServerPort = content.ReadUnsignedShort();
             NextState = content.ReadVarIntEnum<ProtocolState>();
         }
@@ -44,10 +44,10 @@ namespace Minecraft.Protocol.Packets.Client
         protected override void _WriteToStream(ByteArray content)
         {
             content
-                .WriteVar(ProtocolVersion)
-                .WriteVar(ServerAddress)
+                .WriteVarInt(ProtocolVersion)
+                .Write(ServerAddress)
                 .Write(ServerPort)
-                .WriteVar(NextState);
+                .WriteVarEnum(NextState);
         }
     }
 }

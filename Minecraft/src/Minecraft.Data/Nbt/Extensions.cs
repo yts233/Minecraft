@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using Minecraft.Data.Nbt.Tags;
-using Test.Data.Nbt.Test.Nbt.Tags;
 
 namespace Minecraft.Data.Nbt
 {

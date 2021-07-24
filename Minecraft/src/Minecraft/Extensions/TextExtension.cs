@@ -12,7 +12,7 @@ namespace Minecraft.Extensions
             int read;
             while ((read = reader.Read()) != -1)
             {
-                var @char = (char) read;
+                var @char = (char)read;
 
                 builder.Append(@char switch
                 {

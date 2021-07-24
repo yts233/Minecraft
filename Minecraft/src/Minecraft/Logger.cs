@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -62,9 +63,9 @@ namespace Minecraft
             Output.WriteLine(@string);
         }
 
-        public static void Exception<T>(Exception exception)
+        public static async Task Exception<T>(Exception exception)
         {
-            Fatal<T>($"Unhandled exception. {exception}");
+            await Fatal<T>($"Unhandled exception. {exception}");
         }
 
         /// <summary>
@@ -83,15 +84,15 @@ namespace Minecraft
             AppDomain.MonitoringIsEnabled = true;
         }
 
-        public static void LogMemory()
+        public static async Task LogMemory()
         {
-            Info<MemoryMonitor>(
-                $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB");
+            await Info<MemoryMonitor>(
+                 $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB");
         }
 
-        private static void HandleException(Exception exception)
+        private static async void HandleException(Exception exception)
         {
-            Exception<ExceptionHandler>(exception);
+            await Exception<ExceptionHandler>(exception);
             WaitForLogging();
 #if !DEBUG
             Environment.Exit(1);
@@ -122,18 +123,36 @@ namespace Minecraft
         /// <param name="log">日志</param>
         /// <param name="level">等级</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Log<T>(object log, LogLevel level)
+        public static async Task Log<T>(object log, LogLevel level)
         {
+            switch (level)
+            {
+                case LogLevel.Fatal:
+                    if (!_logFatal) return;
+                    break;
+                case LogLevel.Error:
+                    if (!_logError) return;
+                    break;
+                case LogLevel.Warn:
+                    if (!_logWarn) return;
+                    break;
+                case LogLevel.Info:
+                    if (!_logInfo) return;
+                    break;
+                case LogLevel.Debug:
+                    if (!_logDebug) return;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(null, nameof(level));
+            }
             if (Current == null)
                 return;
-            var threadName = Thread.CurrentThread.Name; 
-            Task.Run(() =>
+            var threadName = Thread.CurrentThread.Name;
+            await Task.Yield();
+            lock (Current.Output)
             {
-                lock (Current.Output)
-                {
-                    Current.Log<T>(DateTime.Now, level, log.ToString(), threadName);
-                }
-            });
+                Current.Log<T>(DateTime.Now, level, log.ToString(), threadName);
+            }
         }
 
         /// <summary>
@@ -141,9 +160,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Info<T>(object log)
+        public static async Task Info<T>(object log)
         {
-            Log<T>(log, LogLevel.Info);
+            await Log<T>(log, LogLevel.Info);
         }
 
         /// <summary>
@@ -151,9 +170,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Warn<T>(object log)
-        { 
-            Log<T>(log, LogLevel.Warn);
+        public static async Task Warn<T>(object log)
+        {
+            await Log<T>(log, LogLevel.Warn);
         }
 
         /// <summary>
@@ -161,9 +180,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Error<T>(object log)
+        public static async Task Error<T>(object log)
         {
-            Log<T>(log, LogLevel.Error);
+            await Log<T>(log, LogLevel.Error);
         }
 
         /// <summary>
@@ -171,9 +190,9 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Fatal<T>(object log)
+        public static async Task Fatal<T>(object log)
         {
-            Log<T>(log, LogLevel.Fatal);
+            await Log<T>(log, LogLevel.Fatal);
         }
 
         /// <summary>
@@ -181,11 +200,53 @@ namespace Minecraft
         /// </summary>
         /// <param name="log">日志</param>
         /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static void Debug<T>(object log)
+        public static async Task Debug<T>(object log)
         {
-            Log<T>(log, LogLevel.Debug);
+            await Log<T>(log, LogLevel.Debug);
         }
 
         #endregion
+
+        private static readonly ICollection<string> _disabledLogger = new HashSet<string>();
+
+        public static void DisableLogger(string typeName)
+        {
+            _disabledLogger.Add(typeName);
+        }
+
+        public static void EnableLogger(string typeName)
+        {
+            _disabledLogger.Remove(typeName);
+        }
+
+        private static bool _logDebug = true;
+        private static bool _logInfo = true;
+        private static bool _logWarn = true;
+        private static bool _logError = true;
+        private static bool _logFatal = true;
+
+        public static void SetLogLevel(LogLevel level, bool isLogged)
+        {
+            switch (level)
+            {
+                case LogLevel.Fatal:
+                    _logFatal = isLogged;
+                    return;
+                case LogLevel.Error:
+                    _logError = isLogged;
+                    return;
+                case LogLevel.Warn:
+                    _logWarn = isLogged;
+                    return;
+                case LogLevel.Info:
+                    _logInfo = isLogged;
+                    return;
+                case LogLevel.Debug:
+                    _logDebug = isLogged;
+                    return;
+                default:
+                    throw new ArgumentOutOfRangeException(null, nameof(level));
+            }
+        }
     }
 }

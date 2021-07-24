@@ -104,4 +104,4 @@ namespace Minecraft.Data.Numerics
 
         void Deconstruct(out T x, out T y, out T z);
     }
-}
+    }

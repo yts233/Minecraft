@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Minecraft.Data.Nbt.Tags
 {
@@ -11,6 +12,8 @@ namespace Minecraft.Data.Nbt.Tags
         public override int Count => _list.Count;
 
         public override bool IsReadOnly => _list.IsReadOnly;
+
+        public NbtTagType? ContentType => _list.FirstOrDefault()?.Type;
 
         public bool Equals(NbtList other)
         {
@@ -24,6 +27,8 @@ namespace Minecraft.Data.Nbt.Tags
 
         protected override bool _Add(NbtTag item)
         {
+            if (ContentType != null && item.Type != ContentType)
+                throw new ArgumentException($"item should be {ContentType}", nameof(item));
             _list.Add(item);
             return true;
         }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Minecraft.Data.Nbt.Tags;
-using Test.Data.Nbt.Test.Nbt.Tags;
 
 namespace Minecraft.Data.Nbt.Serialization
 {
@@ -18,18 +17,18 @@ namespace Minecraft.Data.Nbt.Serialization
                 case IDictionary dictionary:
                     return dictionary.ToNbtCompound();
                 case IEnumerable<sbyte> enumerable:
-                    return new NbtByteArray(enumerable);
+                    return new NbtByteArray(enumerable.ToArray());
                 case IEnumerable<int> enumerable:
-                    return new NbtIntArray(enumerable);
+                    return new NbtIntArray(enumerable.ToArray());
                 case IEnumerable<long> enumerable:
-                    return new NbtLongArray(enumerable);
+                    return new NbtLongArray(enumerable.ToArray());
                 case IEnumerable enumerable:
-                {
-                    var list = new NbtList();
-                    foreach (var obj1 in enumerable)
-                        list.Add(Serialize(obj1));
-                    return list;
-                }
+                    {
+                        var list = new NbtList();
+                        foreach (var obj1 in enumerable)
+                            list.Add(Serialize(obj1));
+                        return list;
+                    }
             }
 
             var type = obj.GetType();
@@ -70,7 +69,7 @@ namespace Minecraft.Data.Nbt.Serialization
                         tag.Add(NbtValue.CreateValue(value), name);
                         break;
                     case NbtTagType.ByteArray:
-                        tag.Add(new NbtByteArray((IEnumerable<sbyte>) value), name);
+                        tag.Add(new NbtByteArray(((IEnumerable<sbyte>)value).ToArray()), name);
                         break;
                     case NbtTagType.String:
                         tag.Add(NbtValue.CreateValue(value), name);
@@ -82,10 +81,10 @@ namespace Minecraft.Data.Nbt.Serialization
                         tag.Add(Serialize(value), name);
                         break;
                     case NbtTagType.IntArray:
-                        tag.Add(new NbtIntArray((IEnumerable<int>) value), name);
+                        tag.Add(new NbtIntArray(((IEnumerable<int>)value).ToArray()), name);
                         break;
                     case NbtTagType.LongArray:
-                        tag.Add(new NbtLongArray((IEnumerable<long>) value), name);
+                        tag.Add(new NbtLongArray(((IEnumerable<long>)value).ToArray()), name);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

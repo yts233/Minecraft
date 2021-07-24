@@ -5,7 +5,7 @@ namespace Minecraft.Extensions
 {
     public static class TaskExtension
     {
-        public static async void LogException<T, TTaskResult>(this Task<TTaskResult> runningTask)
+        public static async Task LogException<T, TTaskResult>(this Task<TTaskResult> runningTask)
         {
             try
             {
@@ -13,11 +13,11 @@ namespace Minecraft.Extensions
             }
             catch (Exception exception)
             {
-                Logger.Exception<T>(exception);
+                await Logger.Exception<T>(exception);
             }
         }
 
-        public static async void LogException<T>(this Task runningTask)
+        public static async Task LogException<T>(this Task runningTask)
         {
             try
             {
@@ -25,7 +25,31 @@ namespace Minecraft.Extensions
             }
             catch (Exception exception)
             {
-                Logger.Exception<T>(exception);
+                await Logger.Exception<T>(exception);
+            }
+        }
+
+        public static async Task HandleException(this Task runningTask, Action<Exception> handler = null)
+        {
+            try
+            {
+                await runningTask;
+            }
+            catch (Exception exception)
+            {
+                handler?.Invoke(exception);
+            }
+        }
+
+        public static async Task HandleException<TTaskResult>(this Task<TTaskResult> runningTask, Action<Exception> handler = null)
+        {
+            try
+            {
+                await runningTask;
+            }
+            catch (Exception exception)
+            {
+                handler?.Invoke(exception);
             }
         }
     }

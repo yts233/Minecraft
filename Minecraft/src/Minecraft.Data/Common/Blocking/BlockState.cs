@@ -10,7 +10,7 @@ namespace Minecraft.Data.Common.Blocking
     ///     一个方块状态。
     /// </summary>
     [NbtCompound]
-    public class BlockState : ICloneable, IEquatable<BlockState>, IEquatable<string>
+    public class BlockState : ICloneable, IEquatable<BlockState>,IEquatable<NamedIdentifier>
     {
         public BlockState()
         {
@@ -69,11 +69,6 @@ namespace Minecraft.Data.Common.Blocking
             return other != null && Name.Equals(other);
         }
 
-        public bool Equals(string other)
-        {
-            return other != null && Name.Equals(other);
-        }
-
         public BlockState Copy()
         {
             return new BlockState
@@ -86,8 +81,7 @@ namespace Minecraft.Data.Common.Blocking
         public override bool Equals(object obj)
         {
             return obj is BlockState other && Equals(other)
-                   || obj is NamedIdentifier id && Equals(id)
-                   || obj is string blockNameId && Equals(blockNameId);
+                   || obj is NamedIdentifier id && Equals(id);
         }
 
         public override int GetHashCode()
@@ -108,19 +102,9 @@ namespace Minecraft.Data.Common.Blocking
             return new BlockState(name);
         }
 
-        public static bool operator ==(BlockState left, string right)
-        {
-            return left != null &&left.Equals(right);
-        }
-
-        public static bool operator !=(BlockState left, string right)
-        {
-            return left != null && !left.Equals(right);
-        }
-        
         public static bool operator ==(BlockState left, NamedIdentifier right)
         {
-            return left != null &&left.Equals(right);
+            return left != null && left.Equals(right);
         }
 
         public static bool operator !=(BlockState left, NamedIdentifier right)

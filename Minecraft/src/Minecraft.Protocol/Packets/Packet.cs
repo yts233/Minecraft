@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using Minecraft.Protocol.Data;
 
 namespace Minecraft.Protocol.Packets
@@ -17,17 +19,39 @@ namespace Minecraft.Protocol.Packets
 
         static Packet()
         {
-            //bound to client
-            Register<Server.StatusResponsePacket>();
-            Register<Server.StatusPongPacket>();
-            Register<Server.EntityMovementPacket>();
+            ////bound to client
+            //Register<Server.StatusResponsePacket>();
+            //Register<Server.StatusPongPacket>();
+            //Register<Server.EntityMovementPacket>();
+            //Register<Server.LoginDisconnectPacket>();
+            //Register<Server.LoginSetCompressionPacket>();
+            //Register<Server.LoginSuccessPacket>();
 
-            //bound to server
-            Register<Client.HandshakePacket>();
-            Register<Client.StatusRequestPacket>();
-            Register<Client.StatusPingPacket>();
+            ////bound to server
+            //Register<Client.HandshakePacket>();
+            //Register<Client.StatusRequestPacket>();
+            //Register<Client.StatusPingPacket>();
+            //Register<Client.LoginStartPacket>();
+
+            var assembly = typeof(Packet).Assembly;
+            foreach (var packetConstructor in assembly.GetTypes()
+                .Where(type =>
+                    type.IsClass
+                    && !type.IsAbstract
+                    && (type.FullName.StartsWith("Minecraft.Protocol.Packets.Client")
+                        || type.FullName.StartsWith("Minecraft.Protocol.Packets.Server"))
+                    && type.FullName.EndsWith("Packet"))
+                .Select(type => type.GetConstructors()
+                    .FirstOrDefault(constructor => constructor.GetParameters().Length == 0))
+                .Where(type => type != null))
+            {
+                var constructor = packetConstructor;
+                Register(() =>
+                {
+                    return (Packet)constructor.Invoke(new object[0]);
+                });
+            }
         }
-
         /// <summary>
         ///     包ID
         /// </summary>
@@ -50,7 +74,7 @@ namespace Minecraft.Protocol.Packets
         public static void Register(Func<Packet> constructor) //使用委托提升性能
         {
             var packet = constructor();
-            //Logger.Debug<Packet>("register packet " + packet.GetType().FullName);
+            _ = Logger.Debug<Packet>("register packet " + packet.GetType().FullName);
             RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.BoundTo, packet.State, constructor));
         }
 
@@ -73,47 +97,59 @@ namespace Minecraft.Protocol.Packets
         /// <exception cref="PacketParseException">指定数据包没有注册</exception>
         public static Packet CreatePacket(int packetId, PacketBoundTo boundTo, ProtocolState state)
         {
-            //Logger.Debug<Packet>(
-            //    $"CreatePacket: packetId: 0x{packetId.ToString("X").PadLeft(2, '0')}, origin: {origin}, state: {state}");
+            _ = Logger.Debug<Packet>($"CreatePacket: packetId: 0x{packetId.ToString("X").PadLeft(2, '0')}, boundTo: {boundTo}, state: {state}");
             Packet result;
-            try
-            {
-                result = RegisteredPackets.First(packet => packet.PacketId == packetId
-                                                           && packet.BoundTo == boundTo
-                                                           && packet.State == state).CreateInstance();
-            }
-            catch (InvalidOperationException)
-            {
+            result = RegisteredPackets.FirstOrDefault(packet => packet.PacketId == packetId
+                                                       && packet.BoundTo == boundTo
+                                                       && packet.State == state)?.CreateInstance();
+            if (result == null)
                 throw new PacketParseException(
-                    $"packet 0x{packetId.ToString("X").PadLeft(2, '0')} hadn't been registered.");
-            }
+                        $"packet 0x{packetId.ToString("X").PadLeft(2, '0')} hadn't been registered.");
+
+            _ = Logger.Debug<Packet>(result.GetType().FullName);
 
             return result;
+        }
+
+        public event EventHandler<Packet> SentByAdapter;
+
+        internal void OnSend(object sender)
+        {
+            SentByAdapter?.Invoke(sender, this);
         }
 
         /// <summary>
         ///     读取数据包
         /// </summary>
         /// <param name="stream"></param>
-        /// <param name="origin"></param>
+        /// <param name="boundTo"></param>
         /// <param name="state"></param>
         /// <param name="compressed"></param>
         /// <returns></returns>
-        private static DataPacket ReadDataPacket(Stream stream, PacketBoundTo origin,
-            ProtocolState state = ProtocolState.Any,
-            bool compressed = false)
+        private static DataPacket ReadDataPacket(Stream stream, PacketBoundTo boundTo,
+            Func<ProtocolState> state, Func<bool> compressed)
         {
             var content = PacketHelper.GetContent(null, stream);
-            var length = content.Read<VarInt>();
-            return (DataPacket) new DataPacket(origin, state)
-                .ReadFromStream(new ByteArray(
-                    compressed
-                        ? new DeflateStream(new ByteArray(content, length), CompressionMode.Decompress)
-                        : (Stream) content, length));
+            var packetLength = content.ReadVarInt();
+            var dataStream = new ByteArray(content, packetLength);
+            var state_ = state();
+            var compressed_ = compressed();
+            if (compressed_)
+            {
+                var dataLength = dataStream.ReadVarInt();
+                if (dataLength != 0)
+                {
+                    using var compressedStream = new InflaterInputStream(dataStream);
+                    return (DataPacket)new DataPacket(boundTo, state_)
+                          .ReadFromStream(compressedStream);
+                }
+            }
+            return (DataPacket)new DataPacket(boundTo, state_)
+                .ReadFromStream(dataStream);
         }
 
-        public static Packet ReadPacket(Stream stream, PacketBoundTo origin, ProtocolState state = ProtocolState.Any,
-            bool compressed = false)
+        public static Packet ReadPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
+           Func<bool> compressed)
         {
             return ReadDataPacket(stream, origin, state, compressed).Parse();
         }
@@ -127,8 +163,8 @@ namespace Minecraft.Protocol.Packets
         /// <param name="state"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T ReadPacket<T>(Stream stream, PacketBoundTo origin, ProtocolState state = ProtocolState.Any,
-            bool compressed = false) where T : Packet, new()
+        public static T ReadPacket<T>(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
+           Func<bool> compressed) where T : Packet, new()
         {
             return ReadDataPacket(stream, origin, state, compressed).Parse<T>();
         }
@@ -163,6 +199,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="stream">Stream.</param>
         public Packet WriteToStream(Stream stream)
         {
+            VerifyValues();
             _WriteToStream(this.GetContent(stream));
             return this;
         }
@@ -187,6 +224,10 @@ namespace Minecraft.Protocol.Packets
             {
                 return _constructor();
             }
+        }
+
+        protected virtual void VerifyValues()
+        {
         }
     }
 }

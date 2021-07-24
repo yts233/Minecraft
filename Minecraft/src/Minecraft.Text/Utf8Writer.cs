@@ -23,20 +23,20 @@ namespace Minecraft.Text
 
         public override void Write(char value)
         {
-            if (value <= 0x007f)
+            if (value > 0x07ff)
             {
-                _baseStream.WriteByte((byte) value);
+                _baseStream.WriteByte((byte)((value >> 12) | 0b11100000));
+                _baseStream.WriteByte((byte)(((value >> 6) & 0b00111111) | 0b10000000));
+                _baseStream.WriteByte((byte)((value & 0b00111111) | 0b10000000));
             }
             else if (value > 0x007f)
             {
                 _baseStream.WriteByte((byte) ((value >> 6) | 0b11000000));
                 _baseStream.WriteByte((byte) ((value & 0b00111111) | 0b10000000));
             }
-            else if (value > 0x07ff)
+            else if (value <= 0x007f)
             {
-                _baseStream.WriteByte((byte) ((value >> 12) | 0b11100000));
-                _baseStream.WriteByte((byte) (((value >> 6) & 0b00111111) | 0b10000000));
-                _baseStream.WriteByte((byte) ((value & 0b00111111) | 0b10000000));
+                _baseStream.WriteByte((byte)value);
             }
             else
             {

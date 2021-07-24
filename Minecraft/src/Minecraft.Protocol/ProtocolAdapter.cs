@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Minecraft.Extensions;
 using Minecraft.Protocol.Data;
 using Minecraft.Protocol.Packets;
 using Minecraft.Protocol.Packets.Client;
+using Minecraft.Protocol.Packets.Server;
 
 namespace Minecraft.Protocol
 {
@@ -12,7 +14,8 @@ namespace Minecraft.Protocol
     /// </summary>
     public class ProtocolAdapter
     {
-        private readonly Stream _receiveStream;
+        private readonly Stream _baseStream;
+        private readonly BufferedStream _receiveStream;
         private readonly BufferedStream _sendStream;
 
         /// <summary>
@@ -22,7 +25,8 @@ namespace Minecraft.Protocol
         /// <param name="boundTo">绑定至</param>
         public ProtocolAdapter(Stream stream, PacketBoundTo boundTo)
         {
-            _receiveStream = stream;
+            _baseStream = stream;
+            _receiveStream = new BufferedStream(stream);
             _sendStream = new BufferedStream(stream);
             BoundTo = boundTo;
         }
@@ -56,7 +60,7 @@ namespace Minecraft.Protocol
         /// <summary>
         ///     启用压缩
         /// </summary>
-        public bool Compressing { get; private set; }
+        public bool Compressing { get; private set; } = false;
 
         /// <summary>
         ///     适配器是否在运行
@@ -75,79 +79,107 @@ namespace Minecraft.Protocol
                 throw new ProtocolException("packet boundTo incorrect");
             if (packet.State != State && State != ProtocolState.Any)
                 throw new ProtocolException($"packet state incorrect, current state: {State}");
-            await Task.Run(() =>
-            {
-                var content = new ByteArray(0);
-                packet.WriteToStream(content);
-                content.Position = 0;
-                lock (_sendStream)
-                {
-                    new DataPacket(packet.PacketId, packet.BoundTo, content, State).WriteToStream(_sendStream);
-                    _sendStream.Flush();
-                }
 
-                Task.Run(() =>
-                {
-                    PrivatePacketSent?.Invoke(this, packet);
-                    PacketSent?.Invoke(this, packet);
-                });
-            });
+            await Task.Yield();
+            var content = new ByteArray(0);
+            packet.WriteToStream(content);
+            HandleSpecialPacket(packet);
+            content.Position = 0;
+            lock (_sendStream)
+            {
+                var dataPacket = new DataPacket(packet.PacketId, packet.BoundTo, content, State);
+                if (Compressing) dataPacket.WriteCompressedToStream(_sendStream);
+                else dataPacket.WriteToStream(_sendStream);
+                _sendStream.Flush();
+            }
+
+            if (packet is KeepAliveResponsePacket)
+                _ = Logger.Debug<ProtocolAdapter>("keep alive -> S");
+
+            _ = Task.Run(() =>
+            {
+                packet.OnSend(this);
+                PacketSent?.Invoke(this, packet);
+            }).LogException<ProtocolAdapter>();
         }
 
-        private event EventHandler<Packet> PrivatePacketSent;
-        private event EventHandler<Packet> PrivatePacketReceived;
+        private void HandleSpecialPacket(Packet packet)
+        {
+            // _ = Logger.Debug<ProtocolAdapter>($"received packet: 0x{packet.PacketId.ToString("X").PadLeft(2, '0')} {packet.GetType().Name}");
+            switch (packet)
+            {
+                case LoginSetCompressionPacket loginSetCompressionPacket:
+                    Compressing = loginSetCompressionPacket.Threshold > 0;
+                    _ = Logger.Info<ProtocolAdapter>($"Set compression: {Compressing}");
+                    break;
+                case HandshakePacket handshakePacket:
+                    State = handshakePacket.NextState;
+                    _ = Logger.Debug<ProtocolAdapter>($"Change protocol state: {State}");
+                    break;
+                case LoginSuccessPacket _:
+                    State = ProtocolState.Play;
+                    _ = Logger.Debug<ProtocolAdapter>($"Change protocol state: {State}");
+                    break;
+            }
+        }
 
         /// <summary>
         ///     启动适配器
         /// </summary>
-        public async Task Run()
+        public async Task Start()
         {
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
                 Logger.SetExceptionHandler();
                 Logger.SetThreadName("ProtocolAdapterThread");
                 if (Running) throw new ProtocolException("Adapter has already running");
                 Running = true;
-                Logger.Info<ProtocolAdapter>("Adapter started");
+                _ = Logger.Info<ProtocolAdapter>("Adapter started");
                 State = ProtocolState.Handshaking;
 
-                void HandleHandshake(object sender, Packet e)
+                try
                 {
-                    if (e is HandshakePacket handshakePacket)
-                        State = handshakePacket.NextState;
+                    HandleTask();
                 }
-
-                PrivatePacketReceived += HandleHandshake;
-                PrivatePacketSent += HandleHandshake;
-
-                var handleTask = Task.Run(HandleTask);
-                await handleTask;
-                handleTask.Exception?.Handle(exception =>
+                catch (Exception ex)
                 {
-                    Logger.Fatal<ProtocolAdapter>(exception);
-                    return true;
-                });
-                Running = false;
+                    _ = Logger.Warn<ProtocolAdapter>("Adapter stoped with exception.");
+                    _ = Task.Run(() => Exception?.Invoke(this, ex)).LogException<ProtocolAdapter>();
+                }
+                finally
+                {
+                    Running = false;
+                }
             });
         }
+
+        private bool _stopping = false;
 
         /// <summary>
         ///     停止适配器
         /// </summary>
-        public async void Stop()
+        public async Task Stop()
         {
-            await Task.Run(() =>
+            if (_stopping)
             {
-                lock (_receiveStream)
+                await Task.Yield();
+                lock (_baseStream)
                 {
-                    _receiveStream.Close();
                 }
-            });
+                return;
+            }
+            _stopping = true;
+            await Task.Yield();
+            lock (_baseStream)
+            {
+                _baseStream.Close();
+            }
+            _stopping = false;
         }
 
         private void HandleTask()
         {
-            Task.Run(() => Started?.Invoke(this, EventArgs.Empty));
+            _ = Task.Run(() => Started?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
             while (true)
             {
                 Packet packet;
@@ -155,25 +187,125 @@ namespace Minecraft.Protocol
                 {
                     packet = ReceivePacket();
                 }
+                catch (PacketParseException ex)
+                {
+                    _ = Logger.Warn<ProtocolAdapter>(ex.Message);
+                    // ignore
+                    continue;
+                }
+                catch (ProtocolException ex)
+                {
+                    _ = Logger.Warn<ProtocolAdapter>(ex.Message);
+                    continue;
+                }
                 catch (EndOfStreamException)
                 {
-                    Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty));
-                    Logger.Info<ProtocolAdapter>("Adapter has been stopped.");
+                    _ = Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
+                    _ = Logger.Info<ProtocolAdapter>("Adapter has been stopped. EOF");
+                    return;
+                }
+                catch
+                {
+                    _ = Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
+                    if (!_stopping)
+                    {
+                        throw;
+                    }
+                    _ = Logger.Info<ProtocolAdapter>("Adapter has been stopped.");
                     return;
                 }
 
-                Task.Run(() =>
+                HandleSpecialPacket(packet);
+                HandleKeepAlivePacket(packet);
+
+                _ = Task.Run(() =>
                 {
-                    PrivatePacketReceived?.Invoke(this, packet);
                     PacketReceived?.Invoke(this, packet);
-                });
+                }).LogException<ProtocolAdapter>();
+            }
+        }
+
+        private void HandleKeepAlivePacket(Packet packet)
+        {
+            if (packet is KeepAlivePacket keepAlivePacket)
+            {
+                _ = Logger.Debug<ProtocolAdapter>($"S -> keep alive {keepAlivePacket.KeepAliveId}");
+                _ = SendPacket(new KeepAliveResponsePacket { KeepAliveId = keepAlivePacket.KeepAliveId }).HandleException(ex => Exception?.Invoke(this, ex)).LogException<ProtocolAdapter>();
             }
         }
 
         private Packet ReceivePacket()
         {
             lock (_receiveStream)
-                return Packet.ReadPacket(_receiveStream, RemoteBoundTo, State, Compressing);
+                return Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State, () => Compressing);
+        }
+
+        public async Task<Packet> ReceiveSinglePacket()
+        {
+            var taskCompletionSource = new TaskCompletionSource<Packet>();
+            void StoppedHandler(object sender, EventArgs e)
+            {
+                taskCompletionSource.SetCanceled();
+
+                Stopped -= StoppedHandler;
+                PacketReceived -= Handler;
+            }
+            Stopped += StoppedHandler;
+            void Handler(object sender, Packet packet)
+            {
+                taskCompletionSource.SetResult(packet);
+
+                Stopped -= StoppedHandler;
+                PacketReceived -= Handler;
+            }
+            PacketReceived += Handler;
+            return await taskCompletionSource.Task;
+        }
+
+        public async Task<T> ReceiveSinglePacket<T>() where T : Packet
+        {
+            var taskCompletionSource = new TaskCompletionSource<T>();
+            PacketHandleResult handler = null;
+            void StoppedHandler(object sender, EventArgs e)
+            {
+                taskCompletionSource.TrySetCanceled();
+            }
+            void Handler(T packet)
+            {
+                taskCompletionSource.TrySetResult(packet);
+            }
+            handler = HandlePacket<T>(Handler);
+            Stopped += StoppedHandler;
+            try
+            {
+                var result = await taskCompletionSource.Task;
+                return result;
+            }
+            catch (TaskCanceledException)
+            {
+                throw new ProtocolException("Protocol stopped.");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                UnHandlePacket(handler);
+                Stopped -= StoppedHandler;
+            }
+        }
+
+        public async Task HandleReceiveSinglePacket(Action<Packet> handler)
+        {
+            var packet = await ReceiveSinglePacket();
+            handler(packet);
+        }
+
+        public async Task HandleReceiveSinglePacket<T>(Action<T> handler) where T : Packet
+        {
+            var packet = await ReceiveSinglePacket<T>();
+            handler(packet);
         }
 
         /// <summary>
@@ -188,6 +320,7 @@ namespace Minecraft.Protocol
 
         public event EventHandler Started;
         public event EventHandler Stopped;
+        public event EventHandler<Exception> Exception;
 
         /// <summary>
         ///     处理指定数据包

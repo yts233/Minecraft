@@ -1,5 +1,7 @@
 ﻿using System;
 using Minecraft.Protocol.Data;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using System.IO;
 
 namespace Minecraft.Protocol.Packets
 {
@@ -51,9 +53,23 @@ namespace Minecraft.Protocol.Packets
         protected override void _WriteToStream(ByteArray content)
         {
             using var buffer = new ByteArray(0);
-            buffer.WriteVar(_packetId).Write(Content);
+            buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
-            content.WriteVar((int) buffer.Length).Write(buffer);
+            content.WriteVarInt((int)buffer.Length).Write(buffer);
+        }
+
+        public void WriteCompressedToStream(Stream stream)
+        {
+            var content = this.GetContent(stream);
+            using var buffer = new ByteArray(0);
+            buffer.WriteVarInt(_packetId).Write(Content);
+            buffer.Position = 0;
+            var dataLength = (int)buffer.Length;
+            using var buffer2 = new ByteArray(0);
+            using var compressedStream = new DeflaterOutputStream(buffer);
+            this.GetContent(compressedStream).WriteVarInt(dataLength).Write(buffer);
+            buffer2.Position = 0;
+            content.Write((int)buffer2.Length).Write(buffer2);
         }
     }
 }

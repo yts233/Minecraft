@@ -1,70 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Minecraft;
+using Minecraft.Extensions;
 using Minecraft.Client;
+using static Demo.MinecraftClientConsole.Shared;
+//test server: bgp.polarstar.cc:11201
 
 namespace Demo.MinecraftClientConsole
 {
-    class Program
+    static class Shared
     {
-        private delegate void Command(string[] args);
-
-        private delegate void CmdLet();
-
-        private static readonly Dictionary<string, (Command command, string help)> Commands =
-            new();
-
-        private static MinecraftClient _client;
-
-        public static void Main(string[] args)
+        public static void Print(object obj, ConsoleColor? color = null)
         {
-            Logger.SetThreadName("MainThread");
-            Logger.SetExceptionHandler();
-            Logger.Info<Program>("Hello, Minecraft Client Console!");
-            _client = new MinecraftClient("MCConsoleTest");
-            LoadCommands();
-            Logger.Info<Program>("type /help for commands");
-            while (true)
+            var s = obj.ToString();
+            lock (Console.Out)
             {
-                //Console.Write("CmdLet> ");
-                var input = Console.ReadLine();
-                if (string.IsNullOrEmpty(input))
-                    continue;
-                input = input.Trim();
-                if (input.StartsWith('/'))
-                {
-                    var cmd = input.Split(' ');
-                    var commandName = cmd[0];
-                    var commandParams = cmd.Skip(1).ToArray();
-                    if (!Commands.ContainsKey(commandName))
-                    {
-                        Logger.Error<CmdLet>($"unknown command: {commandName}, type /help for commands");
-                        continue;
-                    }
-
-                    try
-                    {
-                        Commands[commandName].command(commandParams);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Exception<CmdLet>(ex);
-                    }
-
-                    continue;
-                }
-
-                Logger.Info<Program>(input);
+                if (color != null)
+                    Console.ForegroundColor = color.Value;
+                Console.Write(s);
+                Console.ResetColor();
             }
         }
 
-        private static void AddCommand(string commandName, Command command, string help)
-        {
-            Commands.Add(commandName, (command, help));
-        }
-
-        private static void Output(object obj, ConsoleColor? color = null)
+        public static void Println(object obj, ConsoleColor? color = null)
         {
             var s = obj.ToString();
             lock (Console.Out)
@@ -75,20 +35,113 @@ namespace Demo.MinecraftClientConsole
                 Console.ResetColor();
             }
         }
+    }
+
+    class Program
+    {
+        private delegate Task Command(string[] args);
+
+        private delegate void CmdLet();
+
+        private static readonly Dictionary<string, (Command command, string help)> Commands =
+            new();
+
+        private static MinecraftClient _client;
+
+        public static async Task Main(string[] args)
+        {
+            Logger.SetThreadName("MainThread");
+            Logger.SetExceptionHandler();
+            Println("Hello, Minecraft Client Console!");
+            _client = new MinecraftClient("MCConsoleTest");
+            LoadCommands();
+            Println("type help for commands");
+            Logger.WaitForLogging();
+            while (true)
+            {
+                //int cursorTop;
+                lock (Console.Out)
+                {
+                    //cursorTop = Console.CursorTop;
+                    Print("CmdLet> ", ConsoleColor.Green);
+                }
+                var input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                    continue;
+                //Console.CursorTop = cursorTop;
+                //Console.CursorLeft = 8;
+                //Console.Write(string.Empty.PadLeft(input.Length));
+                input = input.Trim();
+                //Console.CursorTop = cursorTop;
+                //Console.CursorLeft = 8;
+                //Println(input, ConsoleColor.Yellow);
+
+                var cmd = input.Split(' ');
+                var commandName = cmd[0];
+                var commandParams = cmd.Skip(1).ToArray();
+                if (!Commands.ContainsKey(commandName))
+                {
+                    Println($"unknown command: {commandName}, type help for commands", ConsoleColor.Red);
+                    continue;
+                }
+
+                try
+                {
+                    await Commands[commandName].command(commandParams);
+                }
+                catch (Exception ex)
+                {
+                    await Logger.Exception<CmdLet>(ex);
+                }
+            }
+        }
+
+        private static void AddCommand(string commandName, Command command, string help)
+        {
+            Commands.Add(commandName, (command, help));
+        }
 
         private static void ShowHelp(string commandName)
         {
             var (_, help) = Commands[commandName];
-            Output($"{commandName} {help}", ConsoleColor.Yellow);
+            Println($"{commandName} {help}", ConsoleColor.Yellow);
         }
 
         private static void LoadCommands()
         {
-            AddCommand("/help", _ =>
+            AddCommand("help", async _ =>
             {
+                Println("Minecraft Client Console 命令", ConsoleColor.Yellow);
                 foreach (var commandName in Commands.Keys) ShowHelp(commandName);
+                await Task.CompletedTask;
             }, "获取帮助");
-            AddCommand("/ping", async args =>
+            AddCommand("echo", async args =>
+            {
+                Println(string.Join(' ', args));
+                await Task.CompletedTask;
+            }, "回声输出");
+            AddCommand("username", async args =>
+            {
+                if (args.Length != 1)
+                {
+                    ShowHelp("username");
+                    return;
+                }
+                _client.ChangeOfflineUserName(args[0]);
+                await Task.CompletedTask;
+            }, "<username> 改变离线用户名");
+            AddCommand("protocol", async args =>
+            {
+                if (args.Length != 1)
+                {
+                    ShowHelp("protocol");
+                    return;
+                }
+                var protocolNumber = int.Parse(args[0]);
+                _client.SwitchProtocolVersion(protocolNumber);
+                await Task.CompletedTask;
+            }, "<version_number> 改变协议版本号");
+            AddCommand("ping", async args =>
             {
                 var defaultPort = false;
                 if (args.Length == 1)
@@ -97,19 +150,100 @@ namespace Demo.MinecraftClientConsole
                 }
                 else if (args.Length != 2)
                 {
-                    ShowHelp("/ping");
+                    ShowHelp("ping");
                     return;
                 }
 
                 var hostname = args[0];
-                var port = defaultPort ? (ushort) 25565 : ushort.Parse(args[1]);
+                var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
 
                 var result = await _client.ServerListPingAsync(hostname, port);
 
-                Logger.Info<CmdLet>($"from {hostname}:{port}, ping: {result.Delay}ms\n{result.Content}");
+                Println($"from {hostname}:{port}, ping: {result.Delay}ms\n游戏版本: {result.VersionName}\n协议版本号: {result.ProtocolVersion}\n在线人数: {result.OnlinePlayerCount}/{result.MaxPlayerCount}\n{result.Description}");
             }, "<hostname> [port=25565] 请求一次服务器列表ping");
-            AddCommand("/clear", _ => Console.Clear(), "清空控制台缓冲区");
-            AddCommand("/exit", _ => { Environment.Exit(0); }, "退出此 Minecraft Client Console");
+            AddCommand("connect", async args =>
+            {
+                var defaultPort = false;
+                if (args.Length == 1)
+                {
+                    defaultPort = true;
+                }
+                else if (args.Length != 2)
+                {
+                    ShowHelp("ping");
+                    return;
+                }
+
+                var hostname = args[0];
+                var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
+                await _client.Connect(hostname, port);
+                await new InServer(_client).Main();
+            }, "连接到服务器，并切换到 InServer");
+            AddCommand("logger", async args =>
+            {
+                if (args.Length != 2)
+                {
+                    ShowHelp("loglevel");
+                    return;
+                }
+
+                switch (args[0])
+                {
+                    case "enable":
+                        Logger.EnableLogger(args[1]);
+                        break;
+                    case "disable":
+                        Logger.DisableLogger(args[1]);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(null, nameof(args));
+                };
+
+            }, "<enable|disable> <loggerName>");
+            AddCommand("loglevel", async args =>
+            {
+                if (args.Length != 2)
+                {
+                    ShowHelp("loglevel");
+                    return;
+                }
+
+                var enable = args[0] switch
+                {
+                    "enable" => true,
+                    "disable" => false,
+                    _ => throw new ArgumentOutOfRangeException(null, nameof(args)),
+                };
+
+                var level = (LogLevel)int.Parse(args[1]);
+                Logger.SetLogLevel(level, enable);
+
+                await Task.CompletedTask;
+            }, "<enable|disable> <level:{0:fatal|1:error|2:warn|3:info}> 启用或禁用记录器记录指定等级的日志");
+            AddCommand("clear", async _ =>
+            {
+                Console.Clear();
+                await Task.CompletedTask;
+            }, "清空控制台缓冲区");
+            AddCommand("exit", async _ =>
+            {
+                Environment.Exit(0);
+                await Task.CompletedTask;
+            }, "退出此 Minecraft Client Console");
+        }
+    }
+    class InServer
+    {
+        private readonly MinecraftClient _client;
+
+        public InServer(MinecraftClient client)
+        {
+            _client = client;
+        }
+
+        public async Task Main()
+        {
+
         }
     }
 }
