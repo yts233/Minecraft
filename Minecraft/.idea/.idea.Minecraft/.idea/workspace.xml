@@ -50,74 +50,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="adf3fd11-98b9-46ec-8545-8982ba8c57a1" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/Demo.MinecraftClientConsole/Demo.MinecraftClientConsole.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/Demo.MinecraftClientConsole/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Client/Minecraft.Client.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Client/MinecraftClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Blocking/Class1.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Blocking/Minecraft.Graphics.Blocking.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ICalculator.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Matrix2Provider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Matrix3Provider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Matrix4Provider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Model.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/LoginSetCompressionPacket.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft/Extensions/DateTimeExtension.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft/Extensions/TaskExtension.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Minecraft/NamedIdentifier.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/Test.Minecraft.Test/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/Test.Minecraft.Test/Test.Minecraft.Test.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Minecraft/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Minecraft.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Minecraft.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Data/Common/Blocking/BlockState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Data/Common/Blocking/BlockState.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Data/Common/Chunking/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Data/Common/Chunking/Extensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Debuggers/Axis/AxisRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/Clouding/CloudRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Worlds/Blocking/CommonBlockVertex.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Extensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Minecraft.Graphics.Texturing.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Minecraft.Graphics.Texturing.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/Minecraft.Graphics.Windowing.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/Minecraft.Graphics.Windowing.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Minecraft.Graphics.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Minecraft.Graphics.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IMatrixCalculator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IMatrixCalculator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IMatrixProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IMatrixProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IProjectionTransformProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/IProjectionTransformProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ITransformable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ITransformable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/MatrixProvider.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ModelTransformProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ModelTransformProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/PerspectiveTransformProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/PerspectiveTransformProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Transformer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Transformer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ViewTransformProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ViewTransformProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/Byte.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/Byte.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/DataTypeHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/DataTypeHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/UnsignedByte.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/UnsignedByte.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Minecraft.Protocol.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Minecraft.Protocol.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/HandshakePacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/HandshakePacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/StatePingPacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/StatusPingPacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/StateRequestPacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Client/StatusRequestPacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/DataPacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/DataPacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Packet.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/PacketHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/PacketHelper.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/PacketOrigin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/PacketOrigin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/EntityMovementPacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/EntityMovementPacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/StatePongPacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/StatusPongPacket.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/StateResponsePacket.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/Packets/Server/StatusResponsePacket.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Minecraft.Protocol/ProtocolAdapter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Protocol/ProtocolAdapter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Resources/Minecraft.Resources.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Resources/Minecraft.Resources.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft.Text/Utf8Reader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft.Text/Utf8Reader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Minecraft/Logger.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Minecraft/Logger.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.Graphics.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.Graphics.Test/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.Graphics.Test/Test.Graphics.Test.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.Graphics.Test/Test.Graphics.Test.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.OpenGL.Test2/Test.OpenGL.Test2.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.OpenGL.Test2/Test.OpenGL.Test2.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.Protocol.Test/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.Protocol.Test/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Test.Protocol.Test/Test.Protocol.Test.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/test/Test.Protocol.Test/Test.Protocol.Test.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tool/Tool.Graphics.Windowing/Tool.Graphics.Windowing.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/tool/Tool.Graphics.Windowing/Tool.Graphics.Windowing.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tool/Tool.NetworkDataRedirector/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/tool/Tool.NetworkDataRedirector/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,12 +86,15 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/f8/35609a7e/Span`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/2e/24a64bac/IReadOnlyDictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.Protocol.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Minecraft.Resources/Language.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/52/eaa6f003/Box2i.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Blocking/Class1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Matrix4Provider.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/ClearRenderer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/EmptyTexture.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Engines/Environments/DayLight/DayLightRenderer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.Graphics.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/c5/32998638/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/e2/42a6b8fc/Box2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8677C9A0-487E-4D8C-862C-F4F0C2588D22/04/9f262805/Box2i.cs" root0="SKIP_HIGHLIGHTING" />
@@ -165,39 +102,33 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/0a/4897d166/Box2i.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/36BEC807-2F51-442D-8C22-39945495608D/cf/d12991a7/JsonDocument.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Test.Resources.FilePaths.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/0b/0f7a7c56/String.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Test.Data.Nbt.Test/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/IL/E65CF972-2277-41F4-BEE2-1CF45757F629/16/4b3fc3a0/0200015C.il" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft/Logger.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/bc/29f2d3c8/ICollection`1.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/49/9cb40aeb/IList`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/187A6DE7-99CE-4E64-88B5-B6D55E8B7D18/7d/b47e7e42/CastHelpers.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Shading/EmptyShader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/50527278-9035-4B33-827A-CCA22235E2DE/02/6e36c9fd/GLFWNative.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC5416C3-A0DE-4933-B2B8-28F92EE4EFC3/00/b2992e53/Vector4.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/ce/3415a210/ICollection`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/TextureAtlas.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Texturing/Image.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/tool/Tool.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/8b/bdeba216/Environment.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.Protocol.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Minecraft.Resources/Language.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.Graphics.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/0b/0f7a7c56/String.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Test.OpenGL.Test/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Shading/EmptyShader.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/ce/3415a210/ICollection`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/FA85E39B-AC06-4360-9CC0-25FDBE7EE233/45/bff7037f/GameWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3FF0A888-0B2C-4B38-BA57-9138786CF89E/0f/acdfbe24/DictionaryBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ModelTransformProvider.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics.Windowing/RenderWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/b0/ae2f4b6d/Task.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/4f/fc533f22/Byte.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/a4/ebfabf6f/IDictionaryEnumerator.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tool/Tool.Graphics.Windowing/RenderWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/ITransformable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/E65CF972-2277-41F4-BEE2-1CF45757F629/21/c0111ce9/Array.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Minecraft.Graphics/Transforming/Model.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/735E84C3-457A-4CEB-8F18-E9435090DA17/8b/bdeba216/Environment.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
@@ -249,9 +180,9 @@
       <option value="$PROJECT_DIR$/tool/Tool.NetworkDataRedirector/Program.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft/Extensions/TaskExtension.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Client/MinecraftClient.cs" />
-      <option value="$PROJECT_DIR$/src/Minecraft.Protocol/ProtocolAdapter.cs" />
-      <option value="$PROJECT_DIR$/demo/Demo.MinecraftClientConsole/Program.cs" />
       <option value="$PROJECT_DIR$/src/Minecraft.Text/Utf8Reader.cs" />
+      <option value="$PROJECT_DIR$/demo/Demo.MinecraftClientConsole/Program.cs" />
+      <option value="$PROJECT_DIR$/src/Minecraft.Protocol/ProtocolAdapter.cs" />
     </changedPaths>
   </component>
   <component name="JsFlowSettings">
@@ -583,6 +514,8 @@
       <workItem from="1626582513359" duration="1695000" />
       <workItem from="1626584387600" duration="2245000" />
       <workItem from="1626709142252" duration="34973000" />
+      <workItem from="1627182238765" duration="1724000" />
+      <workItem from="1627184535274" duration="8015000" />
     </task>
     <task id="LOCAL-00001" summary="backup">
       <created>1611669733490</created>
@@ -667,17 +600,17 @@
           <line>88</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Data/Nbt/SNbtWriter.cs" initialLine="77">
             <startOffsets>
-              <option value="2669" />
+              <option value="2684" />
             </startOffsets>
             <endOffsets>
-              <option value="2670" />
+              <option value="2685" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/src/Minecraft.Data/Nbt/Tags/NbtLongArray.cs</url>
-          <line>11</line>
+          <line>8</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Data/Nbt/Tags/NbtLongArray.cs" initialLine="13">
             <startOffsets>
               <option value="241" />
@@ -690,7 +623,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/src/Minecraft.Data/Nbt/Serialization/NbtSerializer.cs</url>
-          <line>49</line>
+          <line>48</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Data/Nbt/Serialization/NbtSerializer.cs" initialLine="47">
             <startOffsets>
               <option value="1773" />
@@ -729,7 +662,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/src/Minecraft.Client/MinecraftClient.cs</url>
-          <line>27</line>
+          <line>47</line>
           <properties documentPath="$PROJECT_DIR$/src/Minecraft.Client/MinecraftClient.cs" initialLine="26" containingFunctionPresentation="method 'SwitchProtocolVersion'">
             <startOffsets>
               <option value="798" />
@@ -739,32 +672,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="82" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Minecraft.Protocol/Data/VarChar.cs</url>
-          <line>23</line>
-          <properties documentPath="$PROJECT_DIR$/src/Minecraft.Protocol/Data/VarChar.cs" initialLine="23" containingFunctionPresentation="method 'ReadFromStream'">
-            <startOffsets>
-              <option value="638" />
-            </startOffsets>
-            <endOffsets>
-              <option value="639" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="91" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Minecraft.Text/Utf8Reader.cs</url>
-          <line>23</line>
-          <properties documentPath="$PROJECT_DIR$/src/Minecraft.Text/Utf8Reader.cs" initialLine="23" containingFunctionPresentation="method 'Read'">
-            <startOffsets>
-              <option value="495" />
-            </startOffsets>
-            <endOffsets>
-              <option value="520" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="96" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -187,7 +187,7 @@ namespace Minecraft.Protocol
                 {
                     packet = ReceivePacket();
                 }
-                catch (PacketParseException ex)
+                catch (PacketParseException)
                 {
                     //_ = Logger.Warn<ProtocolAdapter>(ex.Message);
                     // ignore

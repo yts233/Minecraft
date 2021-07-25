@@ -310,7 +310,10 @@ namespace Minecraft.Client
             });
 
             // C→S: Client Status (sent either before or while receiving chunks, further testing needed, server handles correctly if not sent)
-            // ????
+            _=_protocolAdapter.SendPacket(new ClientStatusPacket
+            {
+
+            });
 
             // S→C: inventory, entities, etc
 
