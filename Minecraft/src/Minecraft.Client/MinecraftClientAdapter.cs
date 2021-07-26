@@ -69,7 +69,7 @@ namespace Minecraft.Client
         #endregion
 
         #region Send Packets
-        
+
         public async Task SendChatPacket(string message)
         {
             await _protocolAdapter.SendPacket(new ClientChatMessagePacket { Message = message });
@@ -130,7 +130,7 @@ namespace Minecraft.Client
         private delegate void Chat();
         private async Task Start()
         {
-            // _protocolAdapter.PacketReceived += (_, p) => _ = Logger.Info<Chat>($"Packet S->C\n{p.GetPropertyInfoString()}");
+            _protocolAdapter.PacketReceived += (_, p) => _ = Logger.Info<Chat>($"Packet S->C\n{p.GetPropertyInfoString()}");
             _protocolAdapter.PacketSent += (_, p) => _ = Logger.Info<Chat>($"Packet C->S\n{p.GetPropertyInfoString()}");
             _protocolAdapter.HandlePacket<ServerChatMessagePacket>(p => _ = Logger.Info<Chat>(p.JsonData));
             await Login();
@@ -293,15 +293,16 @@ namespace Minecraft.Client
             // S→C: Player Position And Look (Required, tells the client they're ready to spawn)
             // C→S: Teleport Confirm
             // C→S: Player Position And Rotation (to confirm the spawn position)
+            // C→S: Client Status (sent either before or while receiving chunks, further testing needed, server handles correctly if not sent)
             _ = _protocolAdapter.HandlePacket<PlayerPositionAndLookPacket>(p =>
             {
                 _ = _protocolAdapter.SendPacket(new TeleportConfirmPacket { TeleportId = p.TeleportId }).LogException<MinecraftClientAdapter>();
                 PlayerPositionAndLook?.Invoke(this, (p.Position, p.Rotation, p.XKind, p.YKind, p.ZKind, p.YRotKind, p.XRotKind, p.TeleportId, p.DismountVehicle));
             });
-            _ = _protocolAdapter.HandleReceiveSinglePacket<PlayerPositionAndLookPacket>(p =>
+            _ = _protocolAdapter.HandleReceiveSinglePacket<PlayerPositionAndLookPacket>(async p =>
             {
                 IsJoined = true;
-                _ = _protocolAdapter.SendPacket(new PlayerPositionAndRotationPacket
+                await _protocolAdapter.SendPacket(new PlayerPositionAndRotationPacket
                 {
                     Position = p.Position,
                     Rotation = p.Rotation,
@@ -309,10 +310,10 @@ namespace Minecraft.Client
                 });
             });
 
-            // C→S: Client Status (sent either before or while receiving chunks, further testing needed, server handles correctly if not sent)
-            _=_protocolAdapter.SendPacket(new ClientStatusPacket
-            {
 
+            await _protocolAdapter.SendPacket(new ClientStatusPacket
+            {
+                ActionId = ClientStatusAction.PerformRespawn
             });
 
             // S→C: inventory, entities, etc

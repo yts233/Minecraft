@@ -4,4 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Minecraft.Protocol\Minecraft.Protocol.csproj" />
+  </ItemGroup>
 </Project>

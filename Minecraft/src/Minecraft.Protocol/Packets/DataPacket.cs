@@ -8,7 +8,7 @@ namespace Minecraft.Protocol.Packets
     /// <summary>
     ///     数据包的传输介质
     /// </summary>
-    internal class DataPacket : Packet, IDisposable
+    public class DataPacket : Packet, IDisposable
     {
         private int _packetId;
 

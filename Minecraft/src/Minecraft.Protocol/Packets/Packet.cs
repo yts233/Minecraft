@@ -126,7 +126,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="state"></param>
         /// <param name="compressed"></param>
         /// <returns></returns>
-        private static DataPacket ReadDataPacket(Stream stream, PacketBoundTo boundTo,
+        public static DataPacket ReadDataPacket(Stream stream, PacketBoundTo boundTo,
             Func<ProtocolState> state, Func<bool> compressed)
         {
             var content = PacketHelper.GetContent(null, stream);
@@ -149,9 +149,23 @@ namespace Minecraft.Protocol.Packets
         }
 
         public static Packet ReadPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
-           Func<bool> compressed)
+           Func<bool> compressed, Action<DataPacket> unregisteredPacketReceivedHandler = null)
         {
-            return ReadDataPacket(stream, origin, state, compressed).Parse();
+            if (unregisteredPacketReceivedHandler == null)
+                return ReadDataPacket(stream, origin, state, compressed).Parse();
+            else
+            {
+                var dataPacket = ReadDataPacket(stream, origin, state, compressed);
+                try
+                {
+                    return dataPacket.Parse();
+                }
+                catch (PacketParseException)
+                {
+                    unregisteredPacketReceivedHandler.Invoke(dataPacket);
+                    throw;
+                }
+            }
         }
 
         /// <summary>

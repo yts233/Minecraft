@@ -36,12 +36,12 @@ namespace Minecraft.Protocol.Data
             return _value.ToString();
         }
 
-        public static explicit operator Minecraft.Uuid(Uuid value)
+        public static implicit operator Minecraft.Uuid(Uuid value)
         {
             return value._value;
         }
 
-        public static explicit operator Uuid(Minecraft.Uuid value)
+        public static implicit operator Uuid(Minecraft.Uuid value)
         {
             return new Uuid(value);
         }

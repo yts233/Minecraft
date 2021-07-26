@@ -111,6 +111,11 @@ namespace Minecraft
             }
         }
 
+        public static async Task HelloWorld<T>(string programName)
+        {
+            await Info<T>($"Hello {programName}");
+        }
+
         private delegate void ExceptionHandler();
 
         private delegate void MemoryMonitor();

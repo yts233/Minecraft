@@ -14,7 +14,8 @@ namespace Minecraft.Protocol.Data
             for (var i = 0; i < 2; i++)
             {
                 var read = this.ReadByte(stream);
-                result |= (ushort) (read << (8 * i));
+                result <<= 8;
+                result |= read;
             }
 
             _value = result;

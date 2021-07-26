@@ -22,7 +22,7 @@ namespace Minecraft.Protocol
         ///     创建协议适配器
         /// </summary>
         /// <param name="stream">流</param>
-        /// <param name="boundTo">绑定至</param>
+        /// <param name="boundTo">写入流绑定至</param>
         public ProtocolAdapter(Stream stream, PacketBoundTo boundTo)
         {
             _baseStream = stream;
@@ -79,28 +79,30 @@ namespace Minecraft.Protocol
                 throw new ProtocolException("packet boundTo incorrect");
             if (packet.State != State && State != ProtocolState.Any)
                 throw new ProtocolException($"packet state incorrect, current state: {State}");
-
             await Task.Yield();
             var content = new ByteArray(0);
-            packet.WriteToStream(content);
             HandleSpecialPacket(packet);
+            packet.WriteToStream(content);
             content.Position = 0;
-            lock (_sendStream)
-            {
-                var dataPacket = new DataPacket(packet.PacketId, packet.BoundTo, content, State);
-                if (Compressing) dataPacket.WriteCompressedToStream(_sendStream);
-                else dataPacket.WriteToStream(_sendStream);
-                _sendStream.Flush();
-            }
+            var dataPacket = new DataPacket(packet.PacketId, packet.BoundTo, content, State);
+            await SendDataPacket(dataPacket);
 
             if (packet is KeepAliveResponsePacket)
                 _ = Logger.Debug<ProtocolAdapter>("keep alive -> S");
 
-            _ = Task.Run(() =>
-            {
                 packet.OnSend(this);
                 PacketSent?.Invoke(this, packet);
-            }).LogException<ProtocolAdapter>();
+        }
+
+        public async Task SendDataPacket(DataPacket dataPacket)
+        {
+            await Task.Yield();
+            lock (_sendStream)
+            {
+                if (Compressing) dataPacket.WriteCompressedToStream(_sendStream);
+                else dataPacket.WriteToStream(_sendStream);
+                _sendStream.Flush();
+            }
         }
 
         private void HandleSpecialPacket(Packet packet)
@@ -130,7 +132,6 @@ namespace Minecraft.Protocol
         {
             await Task.Run(() =>
             {
-                Logger.SetExceptionHandler();
                 Logger.SetThreadName("ProtocolAdapterThread");
                 if (Running) throw new ProtocolException("Adapter has already running");
                 Running = true;
@@ -144,7 +145,7 @@ namespace Minecraft.Protocol
                 catch (Exception ex)
                 {
                     _ = Logger.Warn<ProtocolAdapter>("Adapter stoped with exception.");
-                    _ = Task.Run(() => Exception?.Invoke(this, ex)).LogException<ProtocolAdapter>();
+                    Exception?.Invoke(this, ex);
                 }
                 finally
                 {
@@ -179,7 +180,7 @@ namespace Minecraft.Protocol
 
         private void HandleTask()
         {
-            _ = Task.Run(() => Started?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
+            Started?.Invoke(this, EventArgs.Empty);
             while (true)
             {
                 Packet packet;
@@ -200,7 +201,7 @@ namespace Minecraft.Protocol
                 }
                 catch (EndOfStreamException)
                 {
-                    _ = Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
+                    Stopped?.Invoke(this, EventArgs.Empty);
                     _ = Logger.Info<ProtocolAdapter>("Adapter has been stopped. EOF");
 #if DEBUG
                     throw;
@@ -210,7 +211,7 @@ namespace Minecraft.Protocol
                 }
                 catch
                 {
-                    _ = Task.Run(() => Stopped?.Invoke(this, EventArgs.Empty)).LogException<ProtocolAdapter>();
+                    Stopped?.Invoke(this, EventArgs.Empty);
                     if (!_stopping)
                     {
                         throw;
@@ -222,10 +223,10 @@ namespace Minecraft.Protocol
                 HandleSpecialPacket(packet);
                 HandleKeepAlivePacket(packet);
 
-                _ = Task.Run(() =>
-                {
-                    PacketReceived?.Invoke(this, packet);
-                }).LogException<ProtocolAdapter>();
+                //_ = Task.Run(() =>
+                //{
+                PacketReceived?.Invoke(this, packet);
+                //}).LogException<ProtocolAdapter>();
             }
         }
 
@@ -240,8 +241,27 @@ namespace Minecraft.Protocol
 
         private Packet ReceivePacket()
         {
-            lock (_receiveStream)
-                return Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State, () => Compressing);
+            Packet packet = null;
+            try
+            {
+                lock (_receiveStream)
+                {
+                    packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State, () => Compressing, dataPacket =>
+                    {
+                        UnregisteredPacketReceived?.Invoke(this, (dataPacket, p =>
+                        {
+                            packet = p;
+                        }
+                        ));
+                    });
+                }
+            }
+            catch (PacketParseException)
+            {
+                if (packet == null)
+                    throw;
+            }
+            return packet;
         }
 
         public async Task<Packet> ReceiveSinglePacket()
@@ -325,6 +345,7 @@ namespace Minecraft.Protocol
         public event EventHandler Started;
         public event EventHandler Stopped;
         public event EventHandler<Exception> Exception;
+        public event EventHandler<(DataPacket dataPacket, Action<Packet> handlePacket)> UnregisteredPacketReceived;
 
         /// <summary>
         ///     处理指定数据包
