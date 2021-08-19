@@ -6,7 +6,7 @@ using System.IO;
 namespace Minecraft.Protocol.Packets
 {
     /// <summary>
-    ///     数据包的传输介质
+    /// 数据包的传输介质
     /// </summary>
     public class DataPacket : Packet, IDisposable
     {
@@ -28,7 +28,7 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     数据包的内容
+        /// 数据包的内容
         /// </summary>
         public ByteArray Content { get; private set; }
 
@@ -37,7 +37,7 @@ namespace Minecraft.Protocol.Packets
         public override ProtocolState State { get; }
 
         /// <summary>
-        ///     释放内容
+        /// 释放内容
         /// </summary>
         public void Dispose()
         {
@@ -53,6 +53,7 @@ namespace Minecraft.Protocol.Packets
         protected override void _WriteToStream(ByteArray content)
         {
             using var buffer = new ByteArray(0);
+            Content.Position = 0;
             buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
             content.WriteVarInt((int)buffer.Length).Write(buffer);
@@ -62,6 +63,7 @@ namespace Minecraft.Protocol.Packets
         {
             var content = this.GetContent(stream);
             using var buffer = new ByteArray(0);
+            Content.Position = 0;
             buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
             var dataLength = (int)buffer.Length;

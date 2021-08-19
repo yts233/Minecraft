@@ -3,7 +3,7 @@
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     可变长度整数
+    /// 可变长度整数
     /// </summary>
     public struct VarInt : IDataType<int>
     {

@@ -1,23 +1,28 @@
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     有名字的资源
+    /// 有名字的资源
     /// </summary>
-    public interface INamedResource
+    public interface INamedObject
     {
         /// <summary>
-        ///     命名空间
+        /// 命名Id
         /// </summary>
-        string Namespace { get; }
+        NamedIdentifier NamedIdentifier { get; }
 
         /// <summary>
-        ///     名称
+        /// 命名空间
         /// </summary>
-        string Name { get; }
+        string Namespace => NamedIdentifier.Namespace;
 
         /// <summary>
-        ///     全名
+        /// 名称
         /// </summary>
-        string Fullname => $"{Namespace}:{Name}";
+        string Name => NamedIdentifier.Name;
+
+        /// <summary>
+        /// 全名
+        /// </summary>
+        string Fullname => NamedIdentifier.FullName;
     }
 }

@@ -8,7 +8,7 @@ namespace Minecraft
         private readonly Guid _value;
 
         /// <summary>
-        ///     <see cref="T:System.Uuid" /> 结构的只读实例，其值均为零。
+        /// <see cref="T:System.Uuid" /> 结构的只读实例，其值均为零。
         /// </summary>
         public static readonly Uuid Empty;
 
@@ -20,10 +20,10 @@ namespace Minecraft
         /// <summary>使用指定的字节数组初始化 <see cref="T:System.Uuid" /> 类的新实例。</summary>
         /// <param name="b">包含用于初始化 UUID 的值的 16 元素字节数组。</param>
         /// <exception cref="T:System.ArgumentNullException">
-        ///     <paramref name="b" /> 为 <see langword="null" />。
+        /// <paramref name="b" /> 为 <see langword="null" />。
         /// </exception>
         /// <exception cref="T:System.ArgumentException">
-        ///     <paramref name="b" /> 的长度不是 16 个字节。
+        /// <paramref name="b" /> 的长度不是 16 个字节。
         /// </exception>
         public Uuid(byte[] b)
         {
@@ -53,10 +53,10 @@ namespace Minecraft
         /// <param name="c">UUID 的下两个字节。</param>
         /// <param name="d">UUID 的其余 8 个字节。</param>
         /// <exception cref="T:System.ArgumentNullException">
-        ///     <paramref name="d" /> 为 <see langword="null" />。
+        /// <paramref name="d" /> 为 <see langword="null" />。
         /// </exception>
         /// <exception cref="T:System.ArgumentException">
-        ///     <paramref name="d" /> 的长度不是 8 个字节。
+        /// <paramref name="d" /> 的长度不是 8 个字节。
         /// </exception>
         public Uuid(int a, short b, short c, byte[] d)
         {
@@ -73,30 +73,30 @@ namespace Minecraft
 
         /// <summary>使用指定字符串所表示的值初始化 <see cref="T:System.Uuid" /> 类的新实例。</summary>
         /// <param name="g">
-        ///     包含下面任一格式的 UUID 的字符串（“d”表示忽略大小写的十六进制数字）：
-        ///     32 个连续的数字：
-        ///     dddddddddddddddddddddddddddddddd
-        ///     或
-        ///     8、4、4、4 和 12 位数字的分组，各组之间有连线符。 也可以用一对大括号或者圆括号将整个 UUID 括起来：
-        ///     dddddddd-dddd-dddd-dddd-dddddddddddd
-        ///     或
-        ///     {dddddddd-dddd-dddd-dddd-dddddddddddd}
-        ///     或
-        ///     (dddddddd-dddd-dddd-dddd-dddddddddddd)
-        ///     或
-        ///     8、4 和 4 位数字的分组，和一个 8 组 2 位数字的子集，每组都带有前缀“0x”或“0X”，以逗号分隔。 整个 UUID 和子集用大括号括起来：
-        ///     {0xdddddddd, 0xdddd, 0xdddd,{0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd}}
-        ///     所有大括号、逗号和“0x”前缀都是必需的。 所有内置的空格都将被忽略。 组中的所有前导零都将被忽略。
-        ///     组中显示的数字为可在该组显示的有意义数字的最大数目。 你可以指定从 1 到为组显示的位数。 指定的位数被认为是该组低序位的位数。
+        /// 包含下面任一格式的 UUID 的字符串（“d”表示忽略大小写的十六进制数字）：
+        /// 32 个连续的数字：
+        /// dddddddddddddddddddddddddddddddd
+        /// 或
+        /// 8、4、4、4 和 12 位数字的分组，各组之间有连线符。 也可以用一对大括号或者圆括号将整个 UUID 括起来：
+        /// dddddddd-dddd-dddd-dddd-dddddddddddd
+        /// 或
+        /// {dddddddd-dddd-dddd-dddd-dddddddddddd}
+        /// 或
+        /// (dddddddd-dddd-dddd-dddd-dddddddddddd)
+        /// 或
+        /// 8、4 和 4 位数字的分组，和一个 8 组 2 位数字的子集，每组都带有前缀“0x”或“0X”，以逗号分隔。 整个 UUID 和子集用大括号括起来：
+        /// {0xdddddddd, 0xdddd, 0xdddd,{0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd,0xdd}}
+        /// 所有大括号、逗号和“0x”前缀都是必需的。 所有内置的空格都将被忽略。 组中的所有前导零都将被忽略。
+        /// 组中显示的数字为可在该组显示的有意义数字的最大数目。 你可以指定从 1 到为组显示的位数。 指定的位数被认为是该组低序位的位数。
         /// </param>
         /// <exception cref="T:System.ArgumentNullException">
-        ///     <paramref name="g" /> 为 <see langword="null" />。
+        /// <paramref name="g" /> 为 <see langword="null" />。
         /// </exception>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="g" /> 的格式无效。
+        /// <paramref name="g" /> 的格式无效。
         /// </exception>
         /// <exception cref="T:System.OverflowException">
-        ///     <paramref name="g" /> 的格式无效。
+        /// <paramref name="g" /> 的格式无效。
         /// </exception>
         public Uuid(string g)
         {
@@ -111,15 +111,15 @@ namespace Minecraft
         /// <summary>将此实例与指定 <see cref="T:System.Uuid" /> 对象进行比较并返回它们的相对值。</summary>
         /// <param name="value">要与此实例进行比较的对象。</param>
         /// <returns>
-        ///     一个带符号数字，指示此实例和 <paramref name="value" /> 的相对值。
-        ///     返回值
-        ///     说明
-        ///     负整数
-        ///     此实例小于 <paramref name="value" />。
-        ///     零
-        ///     此实例等于 <paramref name="value" />。
-        ///     正整数
-        ///     此实例大于 <paramref name="value" />。
+        /// 一个带符号数字，指示此实例和 <paramref name="value" /> 的相对值。
+        /// 返回值
+        /// 说明
+        /// 负整数
+        /// 此实例小于 <paramref name="value" />。
+        /// 零
+        /// 此实例等于 <paramref name="value" />。
+        /// 正整数
+        /// 此实例大于 <paramref name="value" />。
         /// </returns>
         public int CompareTo(Uuid value)
         {
@@ -129,18 +129,18 @@ namespace Minecraft
         /// <summary>将此实例与指定对象进行比较并返回一个对二者的相对值的指示。</summary>
         /// <param name="value">要比较的对象，或为 <see langword="null" />。</param>
         /// <returns>
-        ///     一个带符号数字，指示此实例和 <paramref name="value" /> 的相对值。
-        ///     返回值
-        ///     说明
-        ///     负整数
-        ///     此实例小于 <paramref name="value" />。
-        ///     零
-        ///     此实例等于 <paramref name="value" />。
-        ///     正整数
-        ///     此实例大于 <paramref name="value" />，或 <paramref name="value" /> 为 <see langword="null" />。
+        /// 一个带符号数字，指示此实例和 <paramref name="value" /> 的相对值。
+        /// 返回值
+        /// 说明
+        /// 负整数
+        /// 此实例小于 <paramref name="value" />。
+        /// 零
+        /// 此实例等于 <paramref name="value" />。
+        /// 正整数
+        /// 此实例大于 <paramref name="value" />，或 <paramref name="value" /> 为 <see langword="null" />。
         /// </returns>
         /// <exception cref="T:System.ArgumentException">
-        ///     <paramref name="value" /> 不是 <see cref="T:System.Uuid" />。
+        /// <paramref name="value" /> 不是 <see cref="T:System.Uuid" />。
         /// </exception>
         public int CompareTo(object value)
         {
@@ -158,8 +158,8 @@ namespace Minecraft
         /// <summary>返回一个值，该值指示此实例是否与指定的对象相等。</summary>
         /// <param name="obj">与该实例进行比较的对象。</param>
         /// <returns>
-        ///     如果 <paramref name="obj" /> 是值与此实例相等的 <see cref="T:System.Uuid" />，则为 <see langword="true" />；否则为
-        ///     <see langword="false" />。
+        /// 如果 <paramref name="obj" /> 是值与此实例相等的 <see cref="T:System.Uuid" />，则为 <see langword="true" />；否则为
+        /// <see langword="false" />。
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -202,9 +202,9 @@ namespace Minecraft
         /// <param name="input">包含表示 UUID 的字节的只读范围。</param>
         /// <returns>一个包含已分析的值的结构。</returns>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="input" /> 的格式无法识别。
-        ///     或
-        ///     剪裁后，只读字符范围的长度为 0。
+        /// <paramref name="input" /> 的格式无法识别。
+        /// 或
+        /// 剪裁后，只读字符范围的长度为 0。
         /// </exception>
         public static Uuid Parse(ReadOnlySpan<char> input)
         {
@@ -215,10 +215,10 @@ namespace Minecraft
         /// <param name="input">要转换的字符串。</param>
         /// <returns>一个包含已分析的值的结构。</returns>
         /// <exception cref="T:System.ArgumentNullException">
-        ///     <paramref name="input" /> 为 <see langword="null" />。
+        /// <paramref name="input" /> 为 <see langword="null" />。
         /// </exception>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="input" /> 的格式无法识别。
+        /// <paramref name="input" /> 的格式无法识别。
         /// </exception>
         public static Uuid Parse(string input)
         {
@@ -239,10 +239,10 @@ namespace Minecraft
         /// <param name="format">下列说明符之一，指示解释 <paramref name="input" /> 时要使用的确切格式：“N”、“D”、“B”、“P”或“X”。</param>
         /// <returns>一个包含已分析的值的结构。</returns>
         /// <exception cref="T:System.ArgumentNullException">
-        ///     <paramref name="input" /> 或 <paramref name="format" /> 为 <see langword="null" />。
+        /// <paramref name="input" /> 或 <paramref name="format" /> 为 <see langword="null" />。
         /// </exception>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="input" /> 未采用 <paramref name="format" /> 指定的格式。
+        /// <paramref name="input" /> 未采用 <paramref name="format" /> 指定的格式。
         /// </exception>
         public static Uuid ParseExact(string input, string format)
         {
@@ -258,11 +258,11 @@ namespace Minecraft
 
         /// <summary>返回注册表格式的此实例值的字符串表示形式。</summary>
         /// <returns>
-        ///     这 <see cref="T:System.Uuid" />的值，格式化通过使用“D”格式说明符如下所示:
-        ///     <c>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</c>
-        ///     其中 UUID 的值表示为一系列小写的十六进制位，这些十六进制位分别以 8 个、4 个、4 个、4 个和 12 个位为一组并由连字符分隔开。
-        ///     例如，返回值可以是“382c74c3-721d-4f34-80e5-57657b6cbc27”。 若要将从 a 到 f 的十六进制数转换为大写，请对返回的字符串调用
-        ///     <see cref="M:System.String.ToUpper" /> 方法。
+        /// 这 <see cref="T:System.Uuid" />的值，格式化通过使用“D”格式说明符如下所示:
+        /// <c>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</c>
+        /// 其中 UUID 的值表示为一系列小写的十六进制位，这些十六进制位分别以 8 个、4 个、4 个、4 个和 12 个位为一组并由连字符分隔开。
+        /// 例如，返回值可以是“382c74c3-721d-4f34-80e5-57657b6cbc27”。 若要将从 a 到 f 的十六进制数转换为大写，请对返回的字符串调用
+        /// <see cref="M:System.String.ToUpper" /> 方法。
         /// </returns>
         public override string ToString()
         {
@@ -271,12 +271,12 @@ namespace Minecraft
 
         /// <summary>根据所提供的格式说明符，返回此 <see cref="T:System.Uuid" /> 实例值的字符串表示形式。</summary>
         /// <param name="format">
-        ///     一个单格式说明符，它指示如何格式化此 <see cref="T:System.Uuid" /> 的值。 <paramref name="format" />
-        ///     参数可以是“N”、“D”、“B”、“P”或“X”。 如果 <paramref name="format" /> 为 <see langword="null" /> 或空字符串 ("")，则使用“D”。
+        /// 一个单格式说明符，它指示如何格式化此 <see cref="T:System.Uuid" /> 的值。 <paramref name="format" />
+        /// 参数可以是“N”、“D”、“B”、“P”或“X”。 如果 <paramref name="format" /> 为 <see langword="null" /> 或空字符串 ("")，则使用“D”。
         /// </param>
         /// <returns>此 <see cref="T:System.Uuid" /> 的值，用一系列指定格式的小写十六进制位表示。</returns>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="format" /> 的值不是 <see langword="null" />、空字符串 ("")、“N”、“D”、“B”、“P”或“X”。
+        /// <paramref name="format" /> 的值不是 <see langword="null" />、空字符串 ("")、“N”、“D”、“B”、“P”或“X”。
         /// </exception>
         public string ToString(string format)
         {
@@ -285,13 +285,13 @@ namespace Minecraft
 
         /// <summary>根据所提供的格式说明符和区域性特定的格式信息，返回 <see cref="T:System.Uuid" /> 类的此实例值的字符串表示形式。</summary>
         /// <param name="format">
-        ///     一个单格式说明符，它指示如何格式化此 <see cref="T:System.Uuid" /> 的值。 <paramref name="format" />
-        ///     参数可以是“N”、“D”、“B”、“P”或“X”。 如果 <paramref name="format" /> 为 <see langword="null" /> 或空字符串 ("")，则使用“D”。
+        /// 一个单格式说明符，它指示如何格式化此 <see cref="T:System.Uuid" /> 的值。 <paramref name="format" />
+        /// 参数可以是“N”、“D”、“B”、“P”或“X”。 如果 <paramref name="format" /> 为 <see langword="null" /> 或空字符串 ("")，则使用“D”。
         /// </param>
         /// <param name="provider">（保留）一个对象，用于提供区域性特定的格式设置信息。</param>
         /// <returns>此 <see cref="T:System.Uuid" /> 的值，用一系列指定格式的小写十六进制位表示。</returns>
         /// <exception cref="T:System.FormatException">
-        ///     <paramref name="format" /> 的值不是 <see langword="null" />、空字符串 ("")、“N”、“D”、“B”、“P”或“X”。
+        /// <paramref name="format" /> 的值不是 <see langword="null" />、空字符串 ("")、“N”、“D”、“B”、“P”或“X”。
         /// </exception>
         public string ToString(string format, IFormatProvider provider)
         {

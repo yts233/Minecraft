@@ -13,7 +13,7 @@ namespace Minecraft.Extensions
             }
             catch (Exception exception)
             {
-                await Logger.Exception<T>(exception);
+                Logger.GetLogger<T>().Error(exception);
             }
         }
 
@@ -25,7 +25,7 @@ namespace Minecraft.Extensions
             }
             catch (Exception exception)
             {
-                await Logger.Exception<T>(exception);
+                Logger.GetLogger<T>().Error(exception);
             }
         }
 

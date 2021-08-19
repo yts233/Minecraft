@@ -3,7 +3,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     布尔值数据类型
+    /// 布尔值数据类型
     /// </summary>
     public struct Boolean : IDataType<bool>
     {

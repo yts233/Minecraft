@@ -5,21 +5,21 @@ using System.Linq;
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     文件路径类
+    /// 文件路径类
     /// </summary>
     public sealed class FilePath : IFilePath
     {
         private readonly string _pathName;
 
         /// <summary>
-        ///     从当前路径开始
+        /// 从当前路径开始
         /// </summary>
         public FilePath() : this(Directory.GetCurrentDirectory())
         {
         }
 
         /// <summary>
-        ///     从指定路径开始
+        /// 从指定路径开始
         /// </summary>
         /// <param name="path"></param>
         public FilePath(string path)

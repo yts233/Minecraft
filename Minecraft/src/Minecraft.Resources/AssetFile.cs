@@ -4,7 +4,7 @@ using System.IO;
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     Asset文件
+    /// Asset文件
     /// </summary>
     public class AssetFile : Asset
     {
@@ -12,7 +12,7 @@ namespace Minecraft.Resources
         private readonly ICollection<Stream> _openedStream = new List<Stream>();
 
         /// <summary>
-        ///     创建<see cref="AssetFile" />
+        /// 创建<see cref="AssetFile" />
         /// </summary>
         /// <param name="name">名称</param>
         /// <param name="type">类型</param>
@@ -20,15 +20,15 @@ namespace Minecraft.Resources
         /// <param name="id">标识符</param>
         /// <param name="file">文件</param>
         /// <param name="namespace">命名空间</param>
-        public AssetFile(string name, AssetType type, Resource resource, Uuid id, IFilePath file,
+        public AssetFile(NamedIdentifier name, AssetType type, Resource resource, Uuid id, IFilePath file,
             string @namespace = "minecraft") :
-            base(name, type, resource, id, @namespace)
+            base(name, type, resource, id)
         {
             _file = file;
         }
 
         /// <summary>
-        ///     创建<see cref="AssetFile" />
+        /// 创建<see cref="AssetFile" />
         /// </summary>
         /// <param name="name">名称</param>
         /// <param name="type">类型</param>

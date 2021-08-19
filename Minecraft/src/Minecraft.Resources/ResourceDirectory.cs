@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     资源目录
+    /// 资源目录
     /// </summary>
     public class ResourceDirectory : Resource
     {
@@ -16,7 +16,7 @@ namespace Minecraft.Resources
         private IFilePath _filepath;
 
         /// <summary>
-        ///     从真实存在的路径创建<see cref="ResourceDirectory" />
+        /// 从真实存在的路径创建<see cref="ResourceDirectory" />
         /// </summary>
         /// <param name="path"></param>
         /// <param name="name"></param>
@@ -25,7 +25,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     从<see cref="IFilePath" />创建<see cref="ResourceDirectory" />
+        /// 从<see cref="IFilePath" />创建<see cref="ResourceDirectory" />
         /// </summary>
         /// <param name="path"></param>
         /// <param name="name"></param>
@@ -38,7 +38,7 @@ namespace Minecraft.Resources
 
         protected override void LoadAssets(object argument)
         {
-            var root = _filepath = (IFilePath) argument;
+            var root = _filepath = (IFilePath)argument;
 
             static IFilePath GetPackMcmeta(IFilePath rootPath)
             {
@@ -64,7 +64,7 @@ namespace Minecraft.Resources
                         region = lang.Value.GetProperty("region").GetString(),
                         bidirectional = lang.Value.GetProperty("bidirectional").GetBoolean()
                     });
-                return new {format, description, languages};
+                return new { format, description, languages };
             }
 
             static IEnumerable<Asset> LoadAsset(AssetType type, Resource resource, IFilePath pathBase,
@@ -74,8 +74,8 @@ namespace Minecraft.Resources
                 if (!currentPath.Exists) yield break;
                 if (currentPath.IsDirectory)
                     foreach (var subPath in currentPath)
-                    foreach (var asset in LoadAsset(type, resource, pathBase, @namespace, subPath))
-                        yield return asset;
+                        foreach (var asset in LoadAsset(type, resource, pathBase, @namespace, subPath))
+                            yield return asset;
                 else if (currentPath.IsFile)
                     yield return new AssetFile(
                         string.Join(
@@ -124,8 +124,8 @@ namespace Minecraft.Resources
                     languageInfo.name,
                     languageInfo.bidirectional,
                     _assets
-                        .Where(asset => asset.Type == AssetType.Lang)
-                        .Where(asset => asset.Name.StartsWith(languageInfo.id))
+                        .Where(asset => asset.Type == AssetType.Lang
+                                     && ((INamedObject)asset).Name.StartsWith(languageInfo.id))
                         .ToList()
                 ));
         }

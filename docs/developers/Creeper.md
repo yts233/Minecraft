@@ -42,4 +42,5 @@
 
 #### Minecraft.Graphics
 
-我tm再也不用CubeMap了，太坑了。
+~~我tm再也不用CubeMap了，太坑了。~~
+

@@ -7,11 +7,11 @@ namespace Minecraft.Resources.Vanilla.VillageAndPillage
 {
     public class VanillaResource : ResourceDirectory
     {
-        private static readonly ResourceManager ResourceManager;
+        private static readonly System.Resources.ResourceManager ResourceManager;
 
         static VanillaResource()
         {
-            ResourceManager = new ResourceManager("Minecraft.Resources.Vanilla.VillageAndPillage.Resources",
+            ResourceManager = new System.Resources.ResourceManager("Minecraft.Resources.Vanilla.VillageAndPillage.Resources",
                 Assembly.GetExecutingAssembly());
         }
 

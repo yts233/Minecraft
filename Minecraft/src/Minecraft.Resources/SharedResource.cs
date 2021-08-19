@@ -4,7 +4,7 @@ using System.Linq;
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     共享的资源
+    /// 共享的资源
     /// </summary>
     public static class SharedResource
     {
@@ -13,7 +13,7 @@ namespace Minecraft.Resources
         private static IEnumerable<Language> _languages = new List<Language>();
 
         /// <summary>
-        ///     重新遍历<see cref="Asset" />
+        /// 重新遍历<see cref="Asset" />
         /// </summary>
         public static void Reload()
         {
@@ -26,7 +26,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     激活资源
+        /// 激活资源
         /// </summary>
         /// <param name="resource">资源</param>
         public static void Activate(this Resource resource)
@@ -36,7 +36,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     取消激活资源
+        /// 取消激活资源
         /// </summary>
         /// <param name="resource">资源</param>
         public static void Deactivate(this Resource resource)
@@ -45,16 +45,16 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取<see cref="Asset" />
+        /// 获取<see cref="Asset" />
         /// </summary>
         /// <param name="type">类型</param>
         /// <param name="fullname">全名</param>
         /// <returns></returns>
-        public static Asset GetAsset(AssetType type, string fullname)
+        public static Asset GetAsset(AssetType type, NamedIdentifier fullname)
         {
             return _assets
                 .Where(asset => asset.Type == type)
-                .First(asset => asset.FullName == fullname);
+                .First(asset => asset.NamedIdentifier == fullname);
         }
 
         public static IEnumerable<Translation> GetTranslations(string id)

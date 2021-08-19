@@ -9,38 +9,38 @@ namespace Minecraft.Resources
     public interface IFilePath : IEquatable<IFilePath>, IEnumerable<IFilePath>, IDisposable
     {
         /// <summary>
-        ///     以当前路径进入子路径
+        /// 以当前路径进入子路径
         /// </summary>
         /// <param name="path"></param>
         IFilePath this[string path] { get; }
 
         /// <summary>
-        ///     当前路径名
+        /// 当前路径名
         /// </summary>
         string PathName { get; }
 
         /// <summary>
-        ///     是否为文件
+        /// 是否为文件
         /// </summary>
         bool IsFile { get; }
 
         /// <summary>
-        ///     是否为路径
+        /// 是否为路径
         /// </summary>
         bool IsDirectory { get; }
 
         /// <summary>
-        ///     当前路径是否存在
+        /// 当前路径是否存在
         /// </summary>
         bool Exists => IsFile || IsDirectory;
 
         /// <summary>
-        ///     当前路径的根路径
+        /// 当前路径的根路径
         /// </summary>
         IFilePath Root { get; }
 
         /// <summary>
-        ///     上层路径
+        /// 上层路径
         /// </summary>
         IFilePath Up { get; }
 
@@ -55,7 +55,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     比较两路径
+        /// 比较两路径
         /// </summary>
         /// <param name="other">另一个路径</param>
         /// <returns></returns>
@@ -65,13 +65,13 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取子路径
+        /// 获取子路径
         /// </summary>
         /// <returns></returns>
         IEnumerable<IFilePath> GetChildren();
 
         /// <summary>
-        ///     获取子路径下的所有文件
+        /// 获取子路径下的所有文件
         /// </summary>
         /// <returns></returns>
         IEnumerable<IFilePath> GetFiles()
@@ -80,7 +80,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取子路径下的所有目录
+        /// 获取子路径下的所有目录
         /// </summary>
         /// <returns></returns>
         IEnumerable<IFilePath> GetDirectories()
@@ -89,7 +89,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取上层所有目录
+        /// 获取上层所有目录
         /// </summary>
         /// <returns></returns>
         IEnumerable<IFilePath> GetUpDirectories()
@@ -101,7 +101,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取此路径是否为指定路径的父路径
+        /// 获取此路径是否为指定路径的父路径
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -111,7 +111,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取此路径是否为指定路径的子路径
+        /// 获取此路径是否为指定路径的子路径
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -121,7 +121,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     打开读取流
+        /// 打开读取流
         /// </summary>
         /// <returns></returns>
         Stream OpenRead();
@@ -139,13 +139,13 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     打开写入流
+        /// 打开写入流
         /// </summary>
         /// <returns></returns>
         Stream OpenWrite();
 
         /// <summary>
-        ///     打开文本读取器
+        /// 打开文本读取器
         /// </summary>
         /// <returns></returns>
         TextReader OpenText()
@@ -164,7 +164,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取文件名
+        /// 获取文件名
         /// </summary>
         /// <returns></returns>
         string GetFileName()
@@ -180,7 +180,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     获取目录名
+        /// 获取目录名
         /// </summary>
         /// <returns></returns>
         string GetDirectoryName()

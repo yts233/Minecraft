@@ -12,7 +12,7 @@ namespace Minecraft.Resources
         private readonly string _pathName;
 
         /// <summary>
-        ///     从Zip文件创建<see cref="ZipFilePath" />
+        /// 从Zip文件创建<see cref="ZipFilePath" />
         /// </summary>
         /// <param name="zipFile"></param>
         public ZipFilePath(IFilePath zipFile) : this(zipFile.OpenRead())
@@ -20,7 +20,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     从Zip文件流内创建<see cref="ZipFilePath" />
+        /// 从Zip文件流内创建<see cref="ZipFilePath" />
         /// </summary>
         /// <param name="stream">Zip文件流</param>
         // ReSharper disable once MemberCanBePrivate.Global
@@ -29,7 +29,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     从<see cref="ZipArchive" />内创建<see cref="ZipFilePath" />
+        /// 从<see cref="ZipArchive" />内创建<see cref="ZipFilePath" />
         /// </summary>
         /// <param name="zipArchive">Zip归档</param>
         /// <param name="path">路径名</param>

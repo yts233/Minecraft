@@ -1,76 +1,132 @@
-﻿using System;
+﻿#define EnableLogTask
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Minecraft
 {
-    /// <summary>
-    ///     日志记录器
-    /// </summary>
-    /// <remarks>异步记录日志，请在程序结束前调用<see cref="WaitForLogging"/></remarks>
-    public class Logger
+    public delegate void LogOutputDelegate(string log, LogLevel level, string threadName, Type senderType, DateTime time);
+
+    public sealed class Logger
     {
-        /// <summary>
-        ///     创建一个记录器
-        /// </summary>
-        /// <param name="output">输出对象</param>
-        public Logger(TextWriter output)
+        private Logger()
         {
-            Output = output;
         }
 
-        /// <summary>
-        ///     记录器的输出对象
-        /// </summary>
-        public TextWriter Output { get; }
-
-
-        /// <summary>
-        ///     当前默认的记录器
-        /// </summary>
-        public static Logger Current { get; set; } = new ConsoleLogger();
-
-        /// <summary>
-        ///     记录日志
-        /// </summary>
-        /// <param name="level">等级</param>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public void Log<T>(LogLevel level, string log)
+        private delegate void MemoryMonitor();
+        private delegate void ExceptionHandler();
+        private static LogOutputDelegate _output;
+        private static readonly Logger<MemoryMonitor> _memoryLogger = GetLogger<MemoryMonitor>();
+        private static readonly Logger<ExceptionHandler> _exceptLogger = GetLogger<ExceptionHandler>();
+#if EnableLogTask //已弃用
+        private static readonly Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)> _logQueue = new Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)>();
+#else
+        private static readonly object _logQueue = new object();
+#endif
+        static Logger()
         {
-            Log<T>(DateTime.Now, level, log, Thread.CurrentThread.Name);
+            _output = (log, level, threadName, senderType, time) =>
+            {
+                switch (level)
+                {
+                    case LogLevel.Fatal:
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        break;
+                    case LogLevel.Error:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    case LogLevel.Warn:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    case LogLevel.Info:
+                        Console.ResetColor();
+                        break;
+                    case LogLevel.Debug:
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(level), level, null);
+                }
+                var @string = new StringBuilder();
+                @string.Append($"[{time:H:mm:ss}] [{senderType.Name}]");
+                @string.Append(
+                    $" [{threadName ?? "UnnamedThread"}/{level.ToString().ToUpper()}]");
+                @string.Append($": {log}");
+                Console.WriteLine(@string);
+
+                Console.ResetColor();
+            };
+#if EnableLogTask
+            new Thread(LogTask) { IsBackground = true }.Start();
+#endif
         }
 
-        /// <summary>
-        ///     记录日志
-        /// </summary>
-        /// <param name="time">时间</param>
-        /// <param name="level">等级</param>
-        /// <param name="log">日志</param>
-        /// <param name="threadName">线程名</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public virtual void Log<T>(DateTime time, LogLevel level, string log,
-            string threadName = null)
+        private static int _waitCount = 0;
+
+#if EnableLogTask //已弃用
+        private static void LogTask()
         {
-            var @string = new StringBuilder();
-            @string.Append($"[{time:H:mm:ss}] [{typeof(T).Name}]");
-            @string.Append(
-                $" [{threadName ?? "UnnamedThread"}/{level.ToString().ToUpper()}]");
-            @string.Append($": {log}");
-            Output.WriteLine(@string);
+            SetThreadName("LoggingThread");
+            var logger = GetLogger<Logger>();
+            while (true)
+            {
+                lock (_logQueue)
+                {
+                    if (_logQueue.TryDequeue(out var logItem))
+                    {
+                        _output(logItem.log, logItem.level, logItem.threadName, logItem.senderType, logItem.time);
+                    }
+                    else if (_waitCount != 0)
+                    {
+                        // 将等待锁全部移动到就绪锁
+                        Monitor.PulseAll(_logQueue);
+                    }
+                }
+                if (_logQueue.Count == 0)
+                    Thread.Sleep(1); //cpu break
+            }
+        }
+#endif
+
+        public static Logger<T> GetLogger<T>()
+        {
+            return new Logger<T>();
         }
 
-        public static async Task Exception<T>(Exception exception)
+        internal static void Output(string log, LogLevel level, string threadName, Type senderType, DateTime time)
         {
-            await Fatal<T>($"Unhandled exception. {exception}");
+#if EnableLogTask
+            _logQueue.Enqueue((log, level, threadName, senderType, time));
+#else
+            new Thread(() =>
+            {
+                lock (_logQueue)
+                {
+                    _output(log, level, threadName, senderType, time);
+                }
+            })
+            { IsBackground = true }.Start();
+#endif
         }
 
-        /// <summary>
-        ///     给当前线程所在的应用域设置异常记录器
-        /// </summary>
+        public static void SetOutput(LogOutputDelegate outputDelegate)
+        {
+            if (outputDelegate is null)
+            {
+                throw new ArgumentNullException(nameof(outputDelegate));
+            }
+            _output = outputDelegate;
+        }
+
+        public static void SetThreadName(string name)
+        {
+            Thread.CurrentThread.Name = name;
+        }
+
         public static void SetExceptionHandler()
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -84,174 +140,200 @@ namespace Minecraft
             AppDomain.MonitoringIsEnabled = true;
         }
 
-        public static async Task LogMemory()
+        public static void LogMemory()
         {
-            await Info<MemoryMonitor>(
-                 $"Memory: {AppDomain.CurrentDomain.MonitoringSurvivedMemorySize >> 20} / {AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize >> 20} MB");
+            var size1 = AppDomain.CurrentDomain.MonitoringSurvivedMemorySize;
+            var size2 = AppDomain.CurrentDomain.MonitoringTotalAllocatedMemorySize;
+            var moveBits = 0;
+            for (var i = 0; i < 3; i++)
+            {
+                var size3 = size1 >> 10;
+                var size4 = size2 >> 10;
+                if (size3 == 0 || size4 == 0)
+                {
+                    break;
+                }
+                size1 = size3;
+                size2 = size4;
+                moveBits++;
+            }
+            var unit = moveBits switch
+            {
+                0 => "B",
+                1 => "KB",
+                2 => "MB",
+                _ => null
+            };
+            _memoryLogger.Info($"Memory: {size1} / {size2} {unit}");
         }
 
-        private static async void HandleException(Exception exception)
+        private static void HandleException(Exception exception)
         {
-            await Exception<ExceptionHandler>(exception);
+            _exceptLogger.Fatal(exception);
             WaitForLogging();
-#if !DEBUG
+#if !DEBUG //防止调试器的异常处理不起作用
             Environment.Exit(1);
 #endif
         }
 
-        public static void SetThreadName(string name)
-        {
-            Thread.CurrentThread.Name = name;
-        }
-
+#if !EnableLogTask
+        [Obsolete("no use")]
+#endif
         public static void WaitForLogging()
         {
-            lock (Current.Output)
+#if EnableLogTask
+            lock (_logQueue)
             {
+                _waitCount++;
+                // 进入等待锁
+                Monitor.Wait(_logQueue);
+                _waitCount--;
             }
+#endif
+        }
+    }
+
+    /// <summary>
+    /// 日志记录器
+    /// </summary>
+    /// <typeparam name="T">记录器所在的对象</typeparam>
+    /// <remarks>异步记录日志，请在程序结束前调用<see cref="WaitForLogging"/></remarks>
+    public sealed class Logger<T>
+    {
+        #region Instance
+
+        private readonly Type _senderType;
+
+        internal Logger()
+        {
+            _senderType = typeof(T);
         }
 
-        public static async Task HelloWorld<T>(string programName)
+        public void Log(object log, LogLevel level)
         {
-            await Info<T>($"Hello {programName}");
+            Log(log, level, Thread.CurrentThread.Name);
         }
 
-        private delegate void ExceptionHandler();
-
-        private delegate void MemoryMonitor();
-
-        #region Log
-
-        /// <summary>
-        ///     记录日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <param name="level">等级</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Log<T>(object log, LogLevel level)
+        public void Log(object log, LogLevel level, DateTime time)
         {
-            switch (level)
-            {
-                case LogLevel.Fatal:
-                    if (!_logFatal) return;
-                    break;
-                case LogLevel.Error:
-                    if (!_logError) return;
-                    break;
-                case LogLevel.Warn:
-                    if (!_logWarn) return;
-                    break;
-                case LogLevel.Info:
-                    if (!_logInfo) return;
-                    break;
-                case LogLevel.Debug:
-                    if (!_logDebug) return;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(null, nameof(level));
-            }
-            if (Current == null)
-                return;
-            var threadName = Thread.CurrentThread.Name;
-            await Task.Yield();
-            lock (Current.Output)
-            {
-                Current.Log<T>(DateTime.Now, level, log.ToString(), threadName);
-            }
+            Log(log, level, Thread.CurrentThread.Name, time);
         }
 
-        /// <summary>
-        ///     记录Info日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Info<T>(object log)
+        public void Log(object log, LogLevel level, string threadName)
         {
-            await Log<T>(log, LogLevel.Info);
+            Log(log, level, threadName, DateTime.Now);
         }
 
-        /// <summary>
-        ///     记录Warn日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Warn<T>(object log)
+        public void Log(object log, LogLevel level, string threadName, DateTime time)
         {
-            await Log<T>(log, LogLevel.Warn);
+            Logger.Output(log.ToString(), level, threadName, _senderType, time);
         }
 
-        /// <summary>
-        ///     记录Error日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Error<T>(object log)
+        public void Info(object log)
         {
-            await Log<T>(log, LogLevel.Error);
+            Log(log, LogLevel.Info);
         }
 
-        /// <summary>
-        ///     记录Fatal日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Fatal<T>(object log)
+        public void Info(object log, DateTime time)
         {
-            await Log<T>(log, LogLevel.Fatal);
+            Log(log, LogLevel.Info, time);
         }
 
-        /// <summary>
-        ///     记录Debug日志
-        /// </summary>
-        /// <param name="log">日志</param>
-        /// <typeparam name="T">记录日志的对象信息</typeparam>
-        public static async Task Debug<T>(object log)
+        public void Info(object log, string threadName)
         {
-            await Log<T>(log, LogLevel.Debug);
+            Log(log, LogLevel.Info, threadName);
+        }
+
+        public void Info(object log, string threadName, DateTime time)
+        {
+            Log(log, LogLevel.Info, threadName, time);
+        }
+
+        public void Warn(object log)
+        {
+            Log(log, LogLevel.Warn);
+        }
+
+        public void Warn(object log, DateTime time)
+        {
+            Log(log, LogLevel.Warn, time);
+        }
+
+        public void Warn(object log, string threadName)
+        {
+            Log(log, LogLevel.Warn, threadName);
+        }
+
+        public void Warn(object log, string threadName, DateTime time)
+        {
+            Log(log, LogLevel.Warn, threadName, time);
+        }
+
+        public void Error(object log)
+        {
+            Log(log, LogLevel.Error);
+        }
+
+        public void Error(object log, DateTime time)
+        {
+            Log(log, LogLevel.Error, time);
+        }
+
+        public void Error(object log, string threadName)
+        {
+            Log(log, LogLevel.Error, threadName);
+        }
+
+        public void Error(object log, string threadName, DateTime time)
+        {
+            Log(log, LogLevel.Error, threadName, time);
+        }
+
+        public void Fatal(object log)
+        {
+            Log(log, LogLevel.Fatal);
+        }
+
+        public void Fatal(object log, DateTime time)
+        {
+            Log(log, LogLevel.Fatal, time);
+        }
+
+        public void Fatal(object log, string threadName)
+        {
+            Log(log, LogLevel.Fatal, threadName);
+        }
+
+        public void Fatal(object log, string threadName, DateTime time)
+        {
+            Log(log, LogLevel.Fatal, threadName, time);
+        }
+
+        public void Debug(object log)
+        {
+            Log(log, LogLevel.Debug);
+        }
+
+        public void Debug(object log, DateTime time)
+        {
+            Log(log, LogLevel.Debug, time);
+        }
+
+        public void Debug(object log, string threadName)
+        {
+            Log(log, LogLevel.Debug, threadName);
+        }
+
+        public void Debug(object log, string threadName, DateTime time)
+        {
+            Log(log, LogLevel.Debug, threadName, time);
+        }
+
+        public void HelloWorld(string programName)
+        {
+            Info($"Hello {programName}");
         }
 
         #endregion
-
-        private static readonly ICollection<string> _disabledLogger = new HashSet<string>();
-
-        public static void DisableLogger(string typeName)
-        {
-            _disabledLogger.Add(typeName);
-        }
-
-        public static void EnableLogger(string typeName)
-        {
-            _disabledLogger.Remove(typeName);
-        }
-
-        private static bool _logDebug = true;
-        private static bool _logInfo = true;
-        private static bool _logWarn = true;
-        private static bool _logError = true;
-        private static bool _logFatal = true;
-
-        public static void SetLogLevel(LogLevel level, bool isLogged)
-        {
-            switch (level)
-            {
-                case LogLevel.Fatal:
-                    _logFatal = isLogged;
-                    return;
-                case LogLevel.Error:
-                    _logError = isLogged;
-                    return;
-                case LogLevel.Warn:
-                    _logWarn = isLogged;
-                    return;
-                case LogLevel.Info:
-                    _logInfo = isLogged;
-                    return;
-                case LogLevel.Debug:
-                    _logDebug = isLogged;
-                    return;
-                default:
-                    throw new ArgumentOutOfRangeException(null, nameof(level));
-            }
-        }
     }
 }

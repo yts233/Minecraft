@@ -3,7 +3,7 @@ using Minecraft.Protocol.Data;
 namespace Minecraft.Protocol.Packets.Client
 {
     /// <summary>
-    ///     状态请求包
+    /// 状态请求包
     /// </summary>
     public class StatusRequestPacket : Packet
     {

@@ -5,7 +5,7 @@ using Minecraft.Text;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     字符串
+    /// 字符串
     /// </summary>
     public struct String : IDataType<string>
     {

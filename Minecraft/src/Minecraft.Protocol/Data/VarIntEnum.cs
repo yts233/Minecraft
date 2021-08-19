@@ -4,7 +4,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     可变长度整数枚举
+    /// 可变长度整数枚举
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public struct VarIntEnum<T> : IEnum<T> where T : Enum

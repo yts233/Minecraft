@@ -3,7 +3,7 @@
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     由资源引发的异常
+    /// 由资源引发的异常
     /// </summary>
     public class ResourceException : Exception
     {

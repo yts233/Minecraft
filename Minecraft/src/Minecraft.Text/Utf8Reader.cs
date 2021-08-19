@@ -4,14 +4,14 @@ using System.IO;
 namespace Minecraft.Text
 {
     /// <summary>
-    ///     UTF-8读取器
+    /// UTF-8读取器
     /// </summary>
     public class Utf8Reader : TextReader
     {
         private readonly Stream _baseStream;
 
         /// <summary>
-        ///     创建<see cref="Utf8Reader" />
+        /// 创建<see cref="Utf8Reader" />
         /// </summary>
         /// <param name="stream">流</param>
         public Utf8Reader(Stream stream)

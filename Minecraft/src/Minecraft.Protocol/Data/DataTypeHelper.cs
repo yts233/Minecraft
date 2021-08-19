@@ -5,12 +5,12 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     数据类型助手
+    /// 数据类型助手
     /// </summary>
     public static class DataTypeHelper
     {
         /// <summary>
-        ///     检查流是否可读
+        /// 检查流是否可读
         /// </summary>
         /// <param name="dataType">终为null</param>
         /// <param name="stream">要检查的流</param>
@@ -20,7 +20,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     检查流是否可写
+        /// 检查流是否可写
         /// </summary>
         /// <param name="dataType">终为null</param>
         /// <param name="stream">要检查的流</param>
@@ -30,7 +30,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     获取流的<see cref="ByteArray" />形式
+        /// 获取流的<see cref="ByteArray" />形式
         /// </summary>
         /// <param name="dataType">终为null</param>
         /// <param name="stream">流</param>
@@ -41,7 +41,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     从流内读取字节
+        /// 从流内读取字节
         /// </summary>
         /// <param name="dataType">终为null</param>
         /// <param name="stream">流</param>
@@ -56,7 +56,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     从流内读取数据
+        /// 从流内读取数据
         /// </summary>
         /// <param name="dataType">数据类型</param>
         /// <param name="stream">流</param>
@@ -69,7 +69,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     将数据类型写入至流
+        /// 将数据类型写入至流
         /// </summary>
         /// <param name="dataType">数据类型</param>
         /// <param name="stream">流</param>

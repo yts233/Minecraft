@@ -10,13 +10,14 @@ using Minecraft.Protocol.Data;
 namespace Minecraft.Protocol.Packets
 {
     /// <summary>
-    ///     数据包
+    /// 数据包
     /// </summary>
     public abstract class Packet
     {
+        private static readonly Logger<Packet> _logger = Logger.GetLogger<Packet>();
         //注册的数据包
         private static readonly ICollection<RegisteredPacket> RegisteredPackets = new List<RegisteredPacket>();
-
+       
         static Packet()
         {
             ////bound to client
@@ -53,33 +54,33 @@ namespace Minecraft.Protocol.Packets
             }
         }
         /// <summary>
-        ///     包ID
+        /// 包ID
         /// </summary>
         public abstract int PacketId { get; }
 
         /// <summary>
-        ///     包绑定至
+        /// 包绑定至
         /// </summary>
         public abstract PacketBoundTo BoundTo { get; }
 
         /// <summary>
-        ///     协议状态
+        /// 协议状态
         /// </summary>
         public abstract ProtocolState State { get; }
 
         /// <summary>
-        ///     注册数据包
+        /// 注册数据包
         /// </summary>
         /// <param name="constructor">Packet构造器</param>
         public static void Register(Func<Packet> constructor) //使用委托提升性能
         {
             var packet = constructor();
-            _ = Logger.Debug<Packet>("register packet " + packet.GetType().FullName);
+            _logger.Debug("register packet " + packet.GetType().FullName);
             RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.BoundTo, packet.State, constructor));
         }
 
         /// <summary>
-        ///     注册数据包
+        /// 注册数据包
         /// </summary>
         /// <typeparam name="T">数据包的类型</typeparam>
         public static void Register<T>() where T : Packet, new()
@@ -88,7 +89,7 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     创建数据包
+        /// 创建数据包
         /// </summary>
         /// <param name="packetId">包Id</param>
         /// <param name="boundTo">绑定至</param>
@@ -119,7 +120,7 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     读取数据包
+        /// 读取数据包
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="boundTo"></param>
@@ -169,7 +170,7 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     用指定类型读取数据包
+        /// 用指定类型读取数据包
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="origin"></param>
@@ -184,13 +185,13 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     从流读入
+        /// 从流读入
         /// </summary>
         /// <param name="content">流</param>
         protected abstract void _ReadFromStream(ByteArray content);
 
         /// <summary>
-        ///     从流读入
+        /// 从流读入
         /// </summary>
         /// <returns>The from stream.</returns>
         /// <param name="stream">Stream.</param>
@@ -201,13 +202,13 @@ namespace Minecraft.Protocol.Packets
         }
 
         /// <summary>
-        ///     将此数据包写入到流
+        /// 将此数据包写入到流
         /// </summary>
         /// <param name="content">流</param>
         protected abstract void _WriteToStream(ByteArray content);
 
         /// <summary>
-        ///     将此数据包写入到流
+        /// 将此数据包写入到流
         /// </summary>
         /// <returns>The to stream.</returns>
         /// <param name="stream">Stream.</param>

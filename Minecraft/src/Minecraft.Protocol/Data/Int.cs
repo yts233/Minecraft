@@ -3,7 +3,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     符号型整数
+    /// 符号型整数
     /// </summary>
     public struct Int : IDataType<int>
     {

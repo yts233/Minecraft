@@ -7,31 +7,31 @@ using Minecraft.Data.Nbt.Serialization;
 namespace Minecraft.Data.Common.Chunking
 {
     /// <summary>
-    ///     区块数据
+    /// 区块数据
     /// </summary>
     [NbtCompound]
     public class ChuckData
     {
         /// <summary>
-        ///     该区块的X坐标。
+        /// 该区块的X坐标。
         /// </summary>
         [NbtTag(Name = "xPos", Type = NbtTagType.Int)]
         public int X { get; set; }
 
         /// <summary>
-        ///     该区块的Z坐标。
+        /// 该区块的Z坐标。
         /// </summary>
         [NbtTag(Name = "zPos", Type = NbtTagType.Int)]
         public int Z { get; set; }
 
         /// <summary>
-        ///     自该区块上次保存以来经过的刻。
+        /// 自该区块上次保存以来经过的刻。
         /// </summary>
         [NbtTag(Name = "LastUpdate", Type = NbtTagType.Long)]
         public long LastUpdate { get; set; }
 
         /// <summary>
-        ///     玩家已在该区块的总刻数。
+        /// 玩家已在该区块的总刻数。
         /// </summary>
         /// <remarks>注意该值在多个玩家处于同一区块时会增长得更快。</remarks>
         /// <remarks>用于区域难度：增加带有一些装备的生物的生成几率，生物自带的盔甲附有附魔效果的几率，生成带有药水效果蜘蛛的几率，生成拥有捡起物品能力的生物的几率以及决定僵尸被攻击时生成其他僵尸的几率。</remarks>
@@ -42,7 +42,7 @@ namespace Minecraft.Data.Common.Chunking
         public long InhabitedTime { get; set; }
 
         /// <summary>
-        ///     包含了1024个元素的生物群系信息。
+        /// 包含了1024个元素的生物群系信息。
         /// </summary>
         /// <remarks>可能不存在。</remarks>
         /// <remarks>该数组中的每一个数字表示一片4×4×4的区域的生物群系。</remarks>
@@ -59,7 +59,7 @@ namespace Minecraft.Data.Common.Chunking
         public ChuckCarvingMasks CarvingMasks { get; set; } = new ChuckCarvingMasks();
 
         /// <summary>
-        ///     一组复合标签，每个标签都包含一组子区块的描述。
+        /// 一组复合标签，每个标签都包含一组子区块的描述。
         /// </summary>
         [NbtTag(Name = "Sections", Type = NbtTagType.List)]
         public ICollection<ChuckSection> Sections { get; set; } = new List<ChuckSection>();

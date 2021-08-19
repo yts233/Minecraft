@@ -3,7 +3,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     符号型短整数
+    /// 符号型短整数
     /// </summary>
     public struct Short : IDataType<short>
     {

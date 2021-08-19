@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace Minecraft.Resources
 {
     /// <summary>
-    ///     语言
+    /// 语言
     /// </summary>
     public class Language : IEnumerable<Translation>
     {
@@ -14,7 +14,7 @@ namespace Minecraft.Resources
         private bool _loaded;
 
         /// <summary>
-        ///     创建语言
+        /// 创建语言
         /// </summary>
         /// <param name="id">标识符</param>
         /// <param name="region">区域</param>
@@ -32,22 +32,22 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     标识符
+        /// 标识符
         /// </summary>
         public string Id { get; }
 
         /// <summary>
-        ///     区域
+        /// 区域
         /// </summary>
         public string Region { get; }
 
         /// <summary>
-        ///     名称
+        /// 名称
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        ///     从右至左
+        /// 从右至左
         /// </summary>
         public bool Bidirectional { get; }
 
@@ -62,7 +62,7 @@ namespace Minecraft.Resources
         }
 
         /// <summary>
-        ///     加载
+        /// 加载
         /// </summary>
         /// <exception cref="ResourceException">语言文件格式错误</exception>
         public void Load()
@@ -71,7 +71,7 @@ namespace Minecraft.Resources
             foreach (var asset in _langFiles)
             {
                 var reader = asset.OpenText();
-                var @namespace = asset.Namespace;
+                var @namespace = ((INamedObject)asset).Namespace;
                 var isJson = false;
                 while (true)
                 {
@@ -94,7 +94,7 @@ namespace Minecraft.Resources
                 {
                     var jsonDocument = JsonDocument.Parse(asset.OpenRead());
                     foreach (var translation in jsonDocument.RootElement.EnumerateObject())
-                        _translations.Add(new Translation(@namespace, translation.Name, translation.Value.GetString()));
+                        _translations.Add(new Translation((@namespace, translation.Name), translation.Value.GetString()));
                 }
                 else
                 {
@@ -108,10 +108,10 @@ namespace Minecraft.Resources
                         var index = line.IndexOf('=');
                         if (index == -1)
                             throw new ResourceException(
-                                $"format incorrect at line {lines} in lang file {asset.FullName}.");
+                                $"format incorrect at line {lines} in lang file {asset.NamedIdentifier}.");
                         var name = line[..index];
                         var value = index + 1 == line.Length ? "" : line[(index + 1)..];
-                        _translations.Add(new Translation(@namespace, name, value));
+                        _translations.Add(new Translation((@namespace, name), value));
                     }
                 }
             }

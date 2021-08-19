@@ -3,7 +3,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     无符号型整数
+    /// 无符号型整数
     /// </summary>
     public struct UnsignedInt : IDataType<uint>
     {

@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
-using System.Resources;
 
 namespace Minecraft.Resources.Vanilla.WorldOfColorUpdate
 {
     public class VanillaResource : ResourceDirectory
     {
-        private static readonly ResourceManager ResourceManager;
+        private static readonly System.Resources.ResourceManager ResourceManager;
 
         static VanillaResource()
         {
-            ResourceManager = new ResourceManager("Minecraft.Resources.Vanilla.WorldOfColorUpdate.Resources",
+            ResourceManager = new System.Resources.ResourceManager("Minecraft.Resources.Vanilla.WorldOfColorUpdate.Resources",
                 Assembly.GetExecutingAssembly());
         }
 

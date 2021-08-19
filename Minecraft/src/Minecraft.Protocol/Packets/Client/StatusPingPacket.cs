@@ -3,7 +3,7 @@ using Minecraft.Protocol.Data;
 namespace Minecraft.Protocol.Packets.Client
 {
     /// <summary>
-    ///     状态Ping包
+    /// 状态Ping包
     /// </summary>
     public class StatusPingPacket : Packet
     {
@@ -12,7 +12,7 @@ namespace Minecraft.Protocol.Packets.Client
         public override ProtocolState State => ProtocolState.Status;
 
         /// <summary>
-        ///     负载（一般为Unix时间）
+        /// 负载（一般为Unix时间）
         /// </summary>
         public long Payload { get; set; }
 

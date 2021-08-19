@@ -4,21 +4,21 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     字节序列
+    /// 字节序列
     /// </summary>
     public class ByteArray : Stream, IDataType<Stream>
     {
         private Stream _stream;
 
         /// <summary>
-        ///     创建一个空的字节序列，除非读取，无法写入数据
+        /// 创建一个空的字节序列，除非读取，无法写入数据
         /// </summary>
         public ByteArray()
         {
         }
 
         /// <summary>
-        ///     从字节数组创建字节序列并共享内存
+        /// 从字节数组创建字节序列并共享内存
         /// </summary>
         /// <param name="buffer"></param>
         public ByteArray(byte[] buffer) : this(buffer, 0, buffer.Length)
@@ -26,7 +26,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     从字节数组创建字节序列并共享内存
+        /// 从字节数组创建字节序列并共享内存
         /// </summary>
         /// <param name="buffer">缓冲</param>
         /// <param name="index">索引</param>
@@ -37,7 +37,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     从流创建字节序列
+        /// 从流创建字节序列
         /// </summary>
         /// <param name="stream">流</param>
         /// <param name="copyFromStream">是否从流复制。</param>
@@ -49,7 +49,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     从流内复制定长的字节序列作为内容
+        /// 从流内复制定长的字节序列作为内容
         /// </summary>
         /// <param name="stream">流</param>
         /// <param name="length">长度</param>
@@ -59,7 +59,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     创建一个空的可写字节序列
+        /// 创建一个空的可写字节序列
         /// </summary>
         /// <param name="capacity">字节序列的大小。为0则无限大</param>
         public ByteArray(int capacity)
@@ -148,7 +148,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     写入某个特定的数据
+        /// 写入某个特定的数据
         /// </summary>
         /// <param name="data">数据</param>
         /// <returns></returns>
@@ -159,7 +159,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     读取某个特定的数据
+        /// 读取某个特定的数据
         /// </summary>
         /// <typeparam name="T">数据类型</typeparam>
         /// <returns></returns>
@@ -171,7 +171,7 @@ namespace Minecraft.Protocol.Data
         }
 
         /// <summary>
-        ///     获取流
+        /// 获取流
         /// </summary>
         /// <returns></returns>
         public Stream GetStream()

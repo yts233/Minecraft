@@ -23,5 +23,10 @@ namespace Minecraft.Extensions
             }
             return @string.ToString();
         }
+
+        public static Logger<T> GetLogger<T>(this T _)
+        {
+            return Logger.GetLogger<T>();
+        }
     }
 }

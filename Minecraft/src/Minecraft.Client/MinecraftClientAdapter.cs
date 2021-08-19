@@ -14,8 +14,12 @@ using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePac
 
 namespace Minecraft.Client
 {
+
+    // TODO: Reform
+#if false
     public class MinecraftClientAdapter
     {
+        private delegate void Chat();
         private readonly string _hostname;
         private readonly ushort _port;
         private readonly int _protocolVersion;
@@ -23,6 +27,8 @@ namespace Minecraft.Client
         private readonly TcpClient _tcpClient;
         private ProtocolAdapter _protocolAdapter;
         private readonly MinecraftClient _client;
+        private static readonly Logger<MinecraftClientAdapter> _logger = Logger.GetLogger<MinecraftClientAdapter>();
+        private static readonly Logger<Chat> _chatLogger = Logger.GetLogger<Chat>();
 
         public MinecraftClientAdapter(string hostname, ushort port, MinecraftClient client)
         {
@@ -33,7 +39,7 @@ namespace Minecraft.Client
             _client = client;
         }
 
-        #region Events
+    #region Events
 
         public event EventHandler<(string hostname, uint port)> Connected;
         public event EventHandler<(string userName, Uuid uuid)> Logined;
@@ -45,16 +51,16 @@ namespace Minecraft.Client
         public event EventHandler<string> Disconnected;
         public event EventHandler<Exception> Exception;
 
-        #endregion
+    #endregion
 
-        #region Properties
+    #region Properties
 
         public (string locale, sbyte viewDistance, ChatMode chatMode, bool chatColors, SkinPart displayedSkinParts, Hand mainHand, bool disableTextFiltering) ClientSettings { get; set; } = ("en_US", 4, ChatMode.Enabled, true, SkinPart.All, Hand.Right, true);
 
         public async Task SubmitClientSettings()
         {
             var (locale, viewDistance, chatMode, chatColors, displayedSkinParts, mainHand, disableTextFiltering) = ClientSettings;
-            await _protocolAdapter.SendPacket(new ClientSettingsPacket
+            _protocolAdapter.SendPacket(new ClientSettingsPacket
             {
                 Locale = locale,
                 ViewDistance = viewDistance,
@@ -66,18 +72,18 @@ namespace Minecraft.Client
             });
         }
 
-        #endregion
+    #endregion
 
-        #region Send Packets
+    #region Send Packets
 
         public async Task SendChatPacket(string message)
         {
             await _protocolAdapter.SendPacket(new ClientChatMessagePacket { Message = message });
         }
 
-        #endregion
+    #endregion
 
-        #region Connection
+    #region Connection
 
         public bool IsConnected { get; private set; }
         public bool IsLogined { get; private set; }
@@ -93,15 +99,11 @@ namespace Minecraft.Client
                 _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), Protocol.Packets.PacketBoundTo.Server);
                 _protocolAdapter.Started += ProtocolAdapter_Started;
                 _protocolAdapter.Stopped += ProtocolAdapter_Stopped;
-                _protocolAdapter.Exception += (sender, ex) =>
-                {
-                    _ = Logger.Warn<MinecraftClientAdapter>(ex.ToString());
-                };
                 await Task.Run(_protocolAdapter.Start);
             }
             catch (Exception ex)
             {
-                _ = Logger.Warn<MinecraftClientAdapter>($"Adapter stopped with exception: {ex.Message}");
+                _logger.Warn($"Adapter stopped with exception: {ex.Message}");
                 await Task.Run(() =>
                 {
                     Exception?.Invoke(this, ex);
@@ -127,12 +129,11 @@ namespace Minecraft.Client
             await Start().LogException<MinecraftClientAdapter>();
         }
 
-        private delegate void Chat();
         private async Task Start()
         {
-            _protocolAdapter.PacketReceived += (_, p) => _ = Logger.Info<Chat>($"Packet S->C\n{p.GetPropertyInfoString()}");
-            _protocolAdapter.PacketSent += (_, p) => _ = Logger.Info<Chat>($"Packet C->S\n{p.GetPropertyInfoString()}");
-            _protocolAdapter.HandlePacket<ServerChatMessagePacket>(p => _ = Logger.Info<Chat>(p.JsonData));
+            _protocolAdapter.PacketReceived += (_, p) => _logger.Info($"Packet S->C\n{p.GetPropertyInfoString()}");
+            _protocolAdapter.PacketSent += (_, p) => _logger.Info($"Packet C->S\n{p.GetPropertyInfoString()}");
+            _protocolAdapter.HandlePacket<ServerChatMessagePacket>(p => _logger.Info(p.JsonData));
             await Login();
             await Join();
         }
@@ -154,7 +155,7 @@ namespace Minecraft.Client
 
             _protocolAdapter.HandlePacket<LoginDisconnectPacket>(packet =>
             {
-                _ = Logger.Info<MinecraftClientAdapter>($"Disconnect. Reason: {packet.Reason}");
+                _logger.Info($"Disconnect. Reason: {packet.Reason}");
                 Disconnected?.Invoke(this, packet.Reason);
             });
 
@@ -186,7 +187,7 @@ namespace Minecraft.Client
 
             var loginSuccessPacket = await _protocolAdapter.ReceiveSinglePacket<LoginSuccessPacket>();
             _ = Task.Run(() => Logined?.Invoke(this, (loginSuccessPacket.Username, loginSuccessPacket.Uuid))).LogException<MinecraftClientAdapter>();
-            _ = Logger.Info<MinecraftClientAdapter>($"User {loginSuccessPacket.Username} ({loginSuccessPacket.Uuid}) logined");
+            _logger.Info($"User {loginSuccessPacket.Username} ({loginSuccessPacket.Uuid}) logined");
 
             IsLogined = true;
         }
@@ -223,15 +224,15 @@ namespace Minecraft.Client
 
             _protocolAdapter.HandlePacket<DisconnectPacket>(packet =>
             {
-                _ = Logger.Info<MinecraftClientAdapter>($"Disconnect. Reason: {packet.Reason}");
+                _logger.Info($"Disconnect. Reason: {packet.Reason}");
                 Disconnected?.Invoke(this, packet.Reason);
             });
 
             // S→C: Join Game
-            _ = _protocolAdapter.HandleReceiveSinglePacket<JoinGamePacket>(joinGamePacket =>
+            _protocolAdapter.HandleReceiveSinglePacket<JoinGamePacket>(joinGamePacket =>
             {
                 Joined?.Invoke(this, (joinGamePacket.EntityId, joinGamePacket.IsHardcore, joinGamePacket.Gamemode, joinGamePacket.PreviousGamemode, joinGamePacket.WorldCount, joinGamePacket.WorldNames, joinGamePacket.DimensionCodec, joinGamePacket.Dimension, joinGamePacket.WorldName, joinGamePacket.HashedSeed, joinGamePacket.MaxPlayers, joinGamePacket.ViewDistance, joinGamePacket.ReducedDebugInfo, joinGamePacket.EnableRespawnScreen, joinGamePacket.IsDebug, joinGamePacket.IsFlat));
-            }).LogException<MinecraftClientAdapter>();
+            });
 
             // TODO: S->C: Plugin Message
             //
@@ -333,7 +334,7 @@ namespace Minecraft.Client
             _stopping = false;
         }
 
-        #endregion
-
+    #endregion
     }
+#endif
 }

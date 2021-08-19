@@ -6,7 +6,7 @@ namespace Minecraft.Protocol.Packets
     public static class PacketHelper
     {
         /// <summary>
-        ///     获取流的<see cref="DataPacket" />形式
+        /// 获取流的<see cref="DataPacket" />形式
         /// </summary>
         /// <param name="packet">总为null</param>
         /// <param name="stream">流</param>

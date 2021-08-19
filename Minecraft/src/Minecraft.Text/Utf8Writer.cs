@@ -4,14 +4,14 @@ using System.Text;
 namespace Minecraft.Text
 {
     /// <summary>
-    ///     UTF-8写入器
+    /// UTF-8写入器
     /// </summary>
     public class Utf8Writer : TextWriter
     {
         private readonly Stream _baseStream;
 
         /// <summary>
-        ///     创建<see cref="Utf8Writer" />
+        /// 创建<see cref="Utf8Writer" />
         /// </summary>
         /// <param name="stream">流</param>
         public Utf8Writer(Stream stream)

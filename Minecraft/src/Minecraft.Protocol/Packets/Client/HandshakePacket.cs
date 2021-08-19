@@ -3,7 +3,7 @@
 namespace Minecraft.Protocol.Packets.Client
 {
     /// <summary>
-    ///     握手包
+    /// 握手包
     /// </summary>
     public class HandshakePacket : Packet
     {
@@ -13,22 +13,22 @@ namespace Minecraft.Protocol.Packets.Client
         public override ProtocolState State => ProtocolState.Handshaking;
 
         /// <summary>
-        ///     协议版本
+        /// 协议版本
         /// </summary>
         public int ProtocolVersion { get; set; }
 
         /// <summary>
-        ///     服务器地址
+        /// 服务器地址
         /// </summary>
         public string ServerAddress { get; set; }
 
         /// <summary>
-        ///     服务器端口
+        /// 服务器端口
         /// </summary>
         public ushort ServerPort { get; set; }
 
         /// <summary>
-        ///     下一协议状态
+        /// 下一协议状态
         /// </summary>
         /// <remarks>只能是<see cref="ProtocolState.Status" />或<see cref="ProtocolState.Login" /></remarks>
         public ProtocolState NextState { get; set; }

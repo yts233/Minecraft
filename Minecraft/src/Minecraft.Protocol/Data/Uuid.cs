@@ -3,7 +3,7 @@
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     通用唯一标识符
+    /// 通用唯一标识符
     /// </summary>
     public struct Uuid : IDataType<Minecraft.Uuid>
     {

@@ -3,7 +3,7 @@
 namespace Minecraft.Protocol.Packets.Server
 {
     /// <summary>
-    ///     状态响应包
+    /// 状态响应包
     /// </summary>
     public class StatusResponsePacket : Packet
     {
@@ -13,7 +13,7 @@ namespace Minecraft.Protocol.Packets.Server
         public override ProtocolState State => ProtocolState.Status;
 
         /// <summary>
-        ///     内容
+        /// 内容
         /// </summary>
         public string Content { get; private set; }
 

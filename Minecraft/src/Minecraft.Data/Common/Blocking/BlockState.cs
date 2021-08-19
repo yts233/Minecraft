@@ -7,7 +7,7 @@ using Minecraft.Data.Nbt.Serialization;
 namespace Minecraft.Data.Common.Blocking
 {
     /// <summary>
-    ///     一个方块状态。
+    /// 一个方块状态。
     /// </summary>
     [NbtCompound]
     public class BlockState : ICloneable, IEquatable<BlockState>,IEquatable<NamedIdentifier>
@@ -39,13 +39,13 @@ namespace Minecraft.Data.Common.Blocking
         }
 
         /// <summary>
-        ///     方块的命名空间ID。
+        /// 方块的命名空间ID。
         /// </summary>
         [NbtTag(Name = "Name", Type = NbtTagType.String)]
         public NamedIdentifier Name { get; set; }
 
         /// <summary>
-        ///     方块状态属性列表，Key代表的是方块状态属性的名称。
+        /// 方块状态属性列表，Key代表的是方块状态属性的名称。
         /// </summary>
         [NbtTag(Name = "Properties", Type = NbtTagType.Compound)]
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();

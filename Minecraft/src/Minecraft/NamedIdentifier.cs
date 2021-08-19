@@ -82,5 +82,15 @@ namespace Minecraft
         {
             return id.FullName;
         }
+
+        public static implicit operator (string @namespace, string name)(NamedIdentifier id)
+        {
+            return (id.Namespace, id.Name);
+        }
+
+        public static implicit operator NamedIdentifier((string @namespace, string name) values)
+        {
+            return new NamedIdentifier(values.@namespace, values.name);
+        }
     }
 }

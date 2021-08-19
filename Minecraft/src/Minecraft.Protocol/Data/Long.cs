@@ -3,7 +3,7 @@ using System.IO;
 namespace Minecraft.Protocol.Data
 {
     /// <summary>
-    ///     符号型长整数
+    /// 符号型长整数
     /// </summary>
     public struct Long : IDataType<long>
     {

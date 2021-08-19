@@ -3,7 +3,7 @@
 namespace Minecraft.Protocol
 {
     /// <summary>
-    ///     协议引发的异常
+    /// 协议引发的异常
     /// </summary>
     public class ProtocolException : Exception
     {
