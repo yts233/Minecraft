@@ -5,6 +5,8 @@ namespace Minecraft.Protocol
     /// </summary>
     public enum ProtocolState
     {
+        Closed = -2,
+
         /// <summary>
         /// 任何状态
         /// </summary>

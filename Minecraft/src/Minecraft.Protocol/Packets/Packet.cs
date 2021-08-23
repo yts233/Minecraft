@@ -17,7 +17,7 @@ namespace Minecraft.Protocol.Packets
         private static readonly Logger<Packet> _logger = Logger.GetLogger<Packet>();
         //注册的数据包
         private static readonly ICollection<RegisteredPacket> RegisteredPackets = new List<RegisteredPacket>();
-       
+
         static Packet()
         {
             ////bound to client
@@ -75,7 +75,7 @@ namespace Minecraft.Protocol.Packets
         public static void Register(Func<Packet> constructor) //使用委托提升性能
         {
             var packet = constructor();
-            _logger.Debug("register packet " + packet.GetType().FullName);
+            //_logger.Debug("register packet " + packet.GetType().FullName);
             RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.BoundTo, packet.State, constructor));
         }
 
@@ -128,21 +128,25 @@ namespace Minecraft.Protocol.Packets
         /// <param name="compressed"></param>
         /// <returns></returns>
         public static DataPacket ReadDataPacket(Stream stream, PacketBoundTo boundTo,
-            Func<ProtocolState> state, Func<bool> compressed)
+            Func<ProtocolState> state, Func<bool> compressed, Func<int> threshold)
         {
             var content = PacketHelper.GetContent(null, stream);
             var packetLength = content.ReadVarInt();
             var dataStream = new ByteArray(content, packetLength);
             var state_ = state();
             var compressed_ = compressed();
+            var threshold_ = threshold();
             if (compressed_)
             {
                 var dataLength = dataStream.ReadVarInt();
                 if (dataLength != 0)
                 {
+                    if (dataLength < threshold_)
+                        throw new ProtocolException($"invalid packet: dataLength: {dataLength} should be greater than threshold: {threshold}");
                     using var compressedStream = new InflaterInputStream(dataStream);
+                    using var buffer = new ByteArray(compressedStream, dataLength);
                     return (DataPacket)new DataPacket(boundTo, state_)
-                          .ReadFromStream(compressedStream);
+                          .ReadFromStream(buffer);
                 }
             }
             return (DataPacket)new DataPacket(boundTo, state_)
@@ -150,13 +154,13 @@ namespace Minecraft.Protocol.Packets
         }
 
         public static Packet ReadPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
-           Func<bool> compressed, Action<DataPacket> unregisteredPacketReceivedHandler = null)
+           Func<bool> compressed, Func<int> threshold, Action<DataPacket> unregisteredPacketReceivedHandler = null)
         {
             if (unregisteredPacketReceivedHandler == null)
-                return ReadDataPacket(stream, origin, state, compressed).Parse();
+                return ReadDataPacket(stream, origin, state, compressed, threshold).Parse();
             else
             {
-                var dataPacket = ReadDataPacket(stream, origin, state, compressed);
+                var dataPacket = ReadDataPacket(stream, origin, state, compressed, threshold);
                 try
                 {
                     return dataPacket.Parse();
@@ -179,9 +183,9 @@ namespace Minecraft.Protocol.Packets
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T ReadPacket<T>(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
-           Func<bool> compressed) where T : Packet, new()
+           Func<bool> compressed, Func<int> threshold) where T : Packet, new()
         {
-            return ReadDataPacket(stream, origin, state, compressed).Parse<T>();
+            return ReadDataPacket(stream, origin, state, compressed, threshold).Parse<T>();
         }
 
         /// <summary>

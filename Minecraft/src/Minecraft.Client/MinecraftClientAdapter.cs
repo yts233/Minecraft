@@ -14,9 +14,9 @@ using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePac
 
 namespace Minecraft.Client
 {
-
-    // TODO: Reform
-#if false
+    /// <summary>
+    /// Minecraft 客户端适配器
+    /// </summary>
     public class MinecraftClientAdapter
     {
         private delegate void Chat();
@@ -39,28 +39,68 @@ namespace Minecraft.Client
             _client = client;
         }
 
-    #region Events
+        #region Events
 
+        /// <summary>
+        /// 连接到服务器
+        /// </summary>
         public event EventHandler<(string hostname, uint port)> Connected;
+        /// <summary>
+        /// 登录成功
+        /// </summary>
         public event EventHandler<(string userName, Uuid uuid)> Logined;
+        /// <summary>
+        /// 加入到服务器
+        /// </summary>
         public event EventHandler<(int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, int worldCount, NamedIdentifier[] worldNames, NbtCompound dimensionCodec, NbtCompound dimension, NamedIdentifier worldName, long hashedSeed, int maxPlayers, int viewDistance, bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat)> Joined;
+        /// <summary>
+        /// 服务器难度
+        /// </summary>
         public event EventHandler<(Difficulty difficulty, bool locked)> ServerDiffculty;
+        /// <summary>
+        /// 玩家能力
+        /// </summary>
         public event EventHandler<(PlayerAbilitiy Flags, float flyingSpeed, float fieldOfViewModifier)> PlayerAbilities;
+        /// <summary>
+        /// 切换物品栏
+        /// </summary>
         public event EventHandler<HotbarSlot> HeldItemChange;
-        public event EventHandler<(Vector3d position, Rotation rotation, CoordKind xKind, CoordKind yKind, CoordKind zKind, CoordKind yRotKind, CoordKind xRotKind, int teleportId, bool dismountVehicle)> PlayerPositionAndLook;
+        /// <summary>
+        /// 玩家位置变化
+        /// </summary>
+        public event EventHandler<(Vector3d position, CoordKind xKind, CoordKind yKind, CoordKind zKind, int teleportId, bool dismountVehicle)> PlayerPosition;
+        /// <summary>
+        /// 玩家朝向变化
+        /// </summary>
+        public event EventHandler<(Rotation rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId)> PlayerLook;
+        /// <summary>
+        /// 断开连接
+        /// </summary>
+        /// <remarks>附带原因</remarks>
         public event EventHandler<string> Disconnected;
+        /// <summary>
+        /// 发生异常
+        /// </summary>
         public event EventHandler<Exception> Exception;
 
-    #endregion
+        #endregion
 
-    #region Properties
+        #region Properties
 
+        /// <summary>
+        /// 客户端设置
+        /// </summary>
         public (string locale, sbyte viewDistance, ChatMode chatMode, bool chatColors, SkinPart displayedSkinParts, Hand mainHand, bool disableTextFiltering) ClientSettings { get; set; } = ("en_US", 4, ChatMode.Enabled, true, SkinPart.All, Hand.Right, true);
 
+        /// <summary>
+        /// 提交客户端设置
+        /// </summary>
+        /// <returns></returns>
         public async Task SubmitClientSettings()
         {
             var (locale, viewDistance, chatMode, chatColors, displayedSkinParts, mainHand, disableTextFiltering) = ClientSettings;
-            _protocolAdapter.SendPacket(new ClientSettingsPacket
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new ClientSettingsPacket
             {
                 Locale = locale,
                 ViewDistance = viewDistance,
@@ -72,269 +112,190 @@ namespace Minecraft.Client
             });
         }
 
-    #endregion
+        #endregion
 
-    #region Send Packets
+        #region Send Packets
 
+        /// <summary>
+        /// 发送聊天
+        /// </summary>
+        /// <param name="message">内容</param>
+        /// <returns></returns>
         public async Task SendChatPacket(string message)
         {
-            await _protocolAdapter.SendPacket(new ClientChatMessagePacket { Message = message });
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new ClientChatMessagePacket { Message = message });
         }
 
-    #endregion
+        #endregion
 
-    #region Connection
+        #region Connection
 
+        /// <summary>
+        /// 是否已连接
+        /// </summary>
         public bool IsConnected { get; private set; }
+        /// <summary>
+        /// 是否已登录
+        /// </summary>
         public bool IsLogined { get; private set; }
+        /// <summary>
+        /// 是否已加入
+        /// </summary>
         public bool IsJoined { get; private set; }
 
+        private bool _connecting = false;
+
+        /// <summary>
+        /// 连接到服务器
+        /// </summary>
+        /// <returns></returns>
         public async Task Connect()
         {
             if (IsConnected) throw new InvalidOperationException("The adapter is already connected");
+            if (_connecting) throw new InvalidOperationException("The adapter is connecting");
+            _connecting = true;
+
+            await _tcpClient.ConnectAsync(_hostname, _port);
             IsConnected = true;
+            _connecting = false;
+            _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), Protocol.Packets.PacketBoundTo.Server);
+            Connected?.Invoke(this, (_hostname, _port));
+
+            async Task LoginStart()
+            {
+                await Task.Yield();
+
+                // C→S: Handshake State=2
+                await _protocolAdapter.WritePacketAsync(new HandshakePacket
+                {
+                    NextState = ProtocolState.Login,
+                    ProtocolVersion = _protocolVersion,
+                    ServerAddress = _hostname,
+                    ServerPort = _port,
+                });
+
+                // C→S: Login Start
+                await _protocolAdapter.WritePacketAsync(new LoginStartPacket
+                {
+                    Name = _client._playerName
+                });
+
+                if (!_client._offlineMode)
+                {
+                    // S→C: Encryption Request
+                    // Client auth
+
+                    // C→S: Encryption Response
+                    // Server auth, both enable encryption
+                }
+            }
+
+            _ = PacketHandleTask();
+            _ = LoginStart().HandleException(ex =>
+            {
+                Exception?.Invoke(this, ex);
+                _logger.Warn($"Adapter stopped with exception: {(ex is SocketException ? ex.Message : ex)}");
+            });
+        }
+
+        private async Task PacketHandleTask()
+        {
+            await Task.Yield();
             try
             {
-                await _tcpClient.ConnectAsync(_hostname, _port);
-                _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), Protocol.Packets.PacketBoundTo.Server);
-                _protocolAdapter.Started += ProtocolAdapter_Started;
-                _protocolAdapter.Stopped += ProtocolAdapter_Stopped;
-                await Task.Run(_protocolAdapter.Start);
+                while (IsConnected)
+                {
+                    var p = await _protocolAdapter.ReadPacketAsync();
+                    if (p == null)
+                        break;
+                    switch (p)
+                    {
+                        case LoginDisconnectPacket packet:
+                            _logger.Info($"Disconnect. Reason: {packet.Reason}");
+                            IsConnected = false;
+                            Disconnected?.Invoke(this, packet.Reason);
+                            break;
+                        case ServerChatMessagePacket packet:
+                            _logger.Info(packet.JsonData);
+                            break;
+                        case LoginSuccessPacket packet:
+                            Logined?.Invoke(this, (packet.Username, packet.Uuid));
+                            _logger.Info($"User {packet.Username} ({packet.Uuid}) logined");
+                            IsLogined = true;
+                            break;
+                        case DisconnectPacket packet:
+                            _logger.Info($"Disconnect. Reason: {packet.Reason}");
+                            IsConnected = false;
+                            Disconnected?.Invoke(this, packet.Reason);
+                            break;
+                        case JoinGamePacket packet:
+                            Joined?.Invoke(this, (packet.EntityId, packet.IsHardcore, packet.Gamemode, packet.PreviousGamemode, packet.WorldCount, packet.WorldNames, packet.DimensionCodec, packet.Dimension, packet.WorldName, packet.HashedSeed, packet.MaxPlayers, packet.ViewDistance, packet.ReducedDebugInfo, packet.EnableRespawnScreen, packet.IsDebug, packet.IsFlat));
+                            await SubmitClientSettings();
+                            break;
+                        case ServerDifficultyPacket packet:
+                            ServerDiffculty?.Invoke(this, (packet.Difficulty, packet.DifficultyLocked));
+                            break;
+                        case PlayerAbilitiesPacket packet:
+                            PlayerAbilities?.Invoke(this, (packet.Flags, packet.FlyingSpeed, packet.FieldOfViewModifier));
+                            break;
+                        case HeldItemChangePacket packet:
+                            HeldItemChange?.Invoke(this, packet.Slot);
+                            break;
+                        case PlayerPositionAndLookPacket packet:
+                            _ = _protocolAdapter.WritePacketAsync(new TeleportConfirmPacket { TeleportId = packet.TeleportId });
+                            if (!IsJoined)
+                            {
+                                IsJoined = true;
+                                _ = _protocolAdapter.WritePacketAsync(new PlayerPositionAndRotationPacket
+                                {
+                                    Position = packet.Position,
+                                    Rotation = packet.Rotation,
+                                    OnGround = true
+                                });
+                                _ = _protocolAdapter.WritePacketAsync(new ClientStatusPacket
+                                {
+                                    ActionId = ClientStatusAction.PerformRespawn
+                                });
+                            }
+                            PlayerPosition?.Invoke(this, (packet.Position, packet.XKind, packet.YKind, packet.ZKind, packet.TeleportId, packet.DismountVehicle));
+                            PlayerLook?.Invoke(this, (packet.Rotation, packet.YRotKind, packet.XRotKind, packet.TeleportId));
+                            break;
+                    }
+                }
+            }
+            catch (SocketException ex)
+            {
+                IsConnected = false;
+                Disconnected?.Invoke(this, $"{ex.GetType().FullName}: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.Warn($"Adapter stopped with exception: {ex.Message}");
-                await Task.Run(() =>
-                {
-                    Exception?.Invoke(this, ex);
-                    Disconnected?.Invoke(this, ex.Message);
-                });
+                Exception?.Invoke(this, ex);
             }
             finally
             {
+                if (IsConnected)
+                {
+                    Disconnected?.Invoke(this, "Connection closed");
+                }
                 IsConnected = false;
                 IsLogined = false;
                 IsJoined = false;
             }
         }
 
-        private void ProtocolAdapter_Stopped(object sender, EventArgs e)
-        {
-            Disconnected?.Invoke(this, "Lose connection.");
-        }
-
-        private async void ProtocolAdapter_Started(object sender, EventArgs e)
-        {
-            _ = Task.Run(() => Connected?.Invoke(this, (_hostname, _port))).LogException<MinecraftClientAdapter>();
-            await Start().LogException<MinecraftClientAdapter>();
-        }
-
-        private async Task Start()
-        {
-            _protocolAdapter.PacketReceived += (_, p) => _logger.Info($"Packet S->C\n{p.GetPropertyInfoString()}");
-            _protocolAdapter.PacketSent += (_, p) => _logger.Info($"Packet C->S\n{p.GetPropertyInfoString()}");
-            _protocolAdapter.HandlePacket<ServerChatMessagePacket>(p => _logger.Info(p.JsonData));
-            await Login();
-            await Join();
-        }
-
-        private async Task Login()
-        {
-            /*
-             * Client connects to server
-             * C→S: Handshake State=2
-             * C→S: Login Start
-             * S→C: Encryption Request
-             * Client auth
-             * C→S: Encryption Response
-             * Server auth, both enable encryption
-             * S→C: Set Compression (Optional, enables compression)
-             * S→C: Login Success
-             */
-
-
-            _protocolAdapter.HandlePacket<LoginDisconnectPacket>(packet =>
-            {
-                _logger.Info($"Disconnect. Reason: {packet.Reason}");
-                Disconnected?.Invoke(this, packet.Reason);
-            });
-
-            // C→S: Handshake State=2
-            await _protocolAdapter.SendPacket(new HandshakePacket
-            {
-                NextState = ProtocolState.Login,
-                ProtocolVersion = _protocolVersion,
-                ServerAddress = _hostname,
-                ServerPort = _port,
-            });
-
-            // C→S: Login Start
-            await _protocolAdapter.SendPacket(new LoginStartPacket
-            {
-                Name = _client._playerName
-            });
-
-            if (!_client._offlineMode)
-            {
-                // S→C: Encryption Request
-                // Client auth
-
-                // C→S: Encryption Response
-                // Server auth, both enable encryption
-            }
-
-            // S→C: Set Compression (Optional, enables compression)
-
-            var loginSuccessPacket = await _protocolAdapter.ReceiveSinglePacket<LoginSuccessPacket>();
-            _ = Task.Run(() => Logined?.Invoke(this, (loginSuccessPacket.Username, loginSuccessPacket.Uuid))).LogException<MinecraftClientAdapter>();
-            _logger.Info($"User {loginSuccessPacket.Username} ({loginSuccessPacket.Uuid}) logined");
-
-            IsLogined = true;
-        }
-
-        private async Task Join()
-        {
-            /*
-            * S→C: Join Game
-            * S→C: Plugin Message: minecraft:brand with the server's brand (Optional)
-            * S→C: Server Difficulty (Optional)
-            * S→C: Player Abilities (Optional)
-            * C→S: Plugin Message: minecraft:brand with the client's brand (Optional)
-            * C→S: Client Settings
-            * S→C: Held Item Change
-            * S→C: Declare Recipes
-            * S→C: Tags
-            * S→C: Entity Status
-            * S→C: Declare Commands
-            * S→C: Unlock Recipes
-            * S→C: Player Position And Look
-            * S→C: Player Info (Add Player action)
-            * S→C: Player Info (Update latency action)
-            * S→C: Update View Position
-            * S→C: Update Light (One sent for each chunk in a square centered on the player's position)
-            * S→C: Chunk Data (One sent for each chunk in a square centered on the player's position)
-            * S→C: World Border (Once the world is finished loading)
-            * S→C: Spawn Position (“home” spawn, not where the client will spawn on login)
-            * S→C: Player Position And Look (Required, tells the client they're ready to spawn)
-            * C→S: Teleport Confirm
-            * C→S: Player Position And Look (to confirm the spawn position)
-            * C→S: Client Status (sent either before or while receiving chunks, further testing needed, server handles correctly if not sent)
-            * S→C: inventory, entities, etc
-            */
-
-            _protocolAdapter.HandlePacket<DisconnectPacket>(packet =>
-            {
-                _logger.Info($"Disconnect. Reason: {packet.Reason}");
-                Disconnected?.Invoke(this, packet.Reason);
-            });
-
-            // S→C: Join Game
-            _protocolAdapter.HandleReceiveSinglePacket<JoinGamePacket>(joinGamePacket =>
-            {
-                Joined?.Invoke(this, (joinGamePacket.EntityId, joinGamePacket.IsHardcore, joinGamePacket.Gamemode, joinGamePacket.PreviousGamemode, joinGamePacket.WorldCount, joinGamePacket.WorldNames, joinGamePacket.DimensionCodec, joinGamePacket.Dimension, joinGamePacket.WorldName, joinGamePacket.HashedSeed, joinGamePacket.MaxPlayers, joinGamePacket.ViewDistance, joinGamePacket.ReducedDebugInfo, joinGamePacket.EnableRespawnScreen, joinGamePacket.IsDebug, joinGamePacket.IsFlat));
-            });
-
-            // TODO: S->C: Plugin Message
-            //
-
-            // S→C: Server Difficulty (Optional)
-            _ = _protocolAdapter.HandlePacket<ServerDifficultyPacket>(p => ServerDiffculty?.Invoke(this, (p.Difficulty, p.DifficultyLocked)));
-
-            // S→C: Player Abilities (Optional)
-            _ = _protocolAdapter.HandlePacket<PlayerAbilitiesPacket>(p => PlayerAbilities?.Invoke(this, (p.Flags, p.FlyingSpeed, p.FieldOfViewModifier)));
-
-            // TODO: C->S: Plugin Message
-            //
-
-            // C→S: Client Settings
-            _ = SubmitClientSettings();
-
-            // S→C: Held Item Change
-            _ = _protocolAdapter.HandlePacket<HeldItemChangePacket>(p => HeldItemChange?.Invoke(this, p.Slot));
-
-            // S→C: Declare Recipes
-
-
-            // S→C: Tags
-
-
-            // S→C: Entity Status
-
-
-            // S→C: Declare Commands
-
-
-            // S→C: Unlock Recipes
-
-
-            // S→C: Player Position And Look
-            // ingore
-
-            // S→C: Player Info (Add Player action)
-
-
-            // S→C: Player Info (Update latency action)
-
-
-            // S→C: Update View Position
-
-
-            // S→C: Update Light (One sent for each chunk in a square centered on the player's position)
-
-
-            // S→C: Chunk Data (One sent for each chunk in a square centered on the player's position)
-
-
-            // S→C: World Border (Once the world is finished loading)
-
-
-            // S→C: Spawn Position (“home” spawn, not where the client will spawn on login)
-
-
-            // S→C: Player Position And Look (Required, tells the client they're ready to spawn)
-            // C→S: Teleport Confirm
-            // C→S: Player Position And Rotation (to confirm the spawn position)
-            // C→S: Client Status (sent either before or while receiving chunks, further testing needed, server handles correctly if not sent)
-            _ = _protocolAdapter.HandlePacket<PlayerPositionAndLookPacket>(p =>
-            {
-                _ = _protocolAdapter.SendPacket(new TeleportConfirmPacket { TeleportId = p.TeleportId }).LogException<MinecraftClientAdapter>();
-                PlayerPositionAndLook?.Invoke(this, (p.Position, p.Rotation, p.XKind, p.YKind, p.ZKind, p.YRotKind, p.XRotKind, p.TeleportId, p.DismountVehicle));
-            });
-            _ = _protocolAdapter.HandleReceiveSinglePacket<PlayerPositionAndLookPacket>(async p =>
-            {
-                IsJoined = true;
-                await _protocolAdapter.SendPacket(new PlayerPositionAndRotationPacket
-                {
-                    Position = p.Position,
-                    Rotation = p.Rotation,
-                    OnGround = true
-                });
-            });
-
-
-            await _protocolAdapter.SendPacket(new ClientStatusPacket
-            {
-                ActionId = ClientStatusAction.PerformRespawn
-            });
-
-            // S→C: inventory, entities, etc
-
-
-
-
-        }
-
         public async Task Disconnect()
         {
             if (!IsConnected || _stopping) return;
             _stopping = true;
-            await _protocolAdapter.Stop();
-            _tcpClient.Close();
             IsConnected = false;
+            _protocolAdapter.Dispose();
+            _tcpClient.Dispose();
             _stopping = false;
+            await Task.CompletedTask;
         }
 
-    #endregion
+        #endregion
     }
-#endif
 }

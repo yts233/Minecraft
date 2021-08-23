@@ -1,7 +1,7 @@
 ﻿using Minecraft.Data.Numerics;
 using Minecraft.Protocol.Data;
 
-namespace Minecraft.Protocol.Packets.Server
+namespace Minecraft.Protocol.Packets.Client
 {
     /// <summary>
     /// A combination of <see cref="PlayerRotationPacket"/> and <see cref="PlayerPositionPacket"/>.

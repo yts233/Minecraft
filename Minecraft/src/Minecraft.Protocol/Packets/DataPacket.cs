@@ -59,19 +59,30 @@ namespace Minecraft.Protocol.Packets
             content.WriteVarInt((int)buffer.Length).Write(buffer);
         }
 
-        public void WriteCompressedToStream(Stream stream)
+        public void WriteCompressedToStream(Stream stream, int threshold)
         {
-            var content = this.GetContent(stream);
-            using var buffer = new ByteArray(0);
+            var content = this.GetContent(stream); // get upload stream
+            using var buffer = new ByteArray(0); // uncompressed packetId and data
             Content.Position = 0;
             buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
             var dataLength = (int)buffer.Length;
-            using var buffer2 = new ByteArray(0);
-            using var compressedStream = new DeflaterOutputStream(buffer);
-            this.GetContent(compressedStream).WriteVarInt(dataLength).Write(buffer);
-            buffer2.Position = 0;
-            content.Write((int)buffer2.Length).Write(buffer2);
+            using var buffer4 = new ByteArray(0);
+            if (dataLength >= threshold)
+            {
+                using var buffer2 = new ByteArray(0); // compressed packetId and data
+                using var compressedStream = new DeflaterOutputStream(buffer2);
+                this.GetContent(compressedStream).Write(buffer);
+                compressedStream.Flush();
+                buffer2.Position = 0;
+                buffer4.WriteVarInt(dataLength).Write(buffer2);
+            }
+            else
+            {
+                buffer4.WriteVarInt(0).Write(buffer);
+            }
+            buffer4.Position = 0;
+            content.WriteVarInt((int)buffer4.Length).Write(buffer4);
         }
     }
 }

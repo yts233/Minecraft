@@ -23,7 +23,7 @@ namespace Minecraft.Protocol.Packets.Client
 
         protected override void _WriteToStream(ByteArray content)
         {
-            content.Write(TeleportId);
+            content.WriteVarInt(TeleportId);
         }
     }
 }

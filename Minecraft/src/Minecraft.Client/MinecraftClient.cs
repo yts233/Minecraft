@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -12,11 +13,11 @@ namespace Minecraft.Client
 {
     public class MinecraftClient
     {
-        private static Logger<MinecraftClient> _logger = Logger.GetLogger<MinecraftClient>();
+        private static readonly Logger<MinecraftClient> _logger = Logger.GetLogger<MinecraftClient>();
         internal string _playerName;
         internal int _protocolVersion = 756;
         internal bool _offlineMode = true;
-        //private MinecraftClientAdapter _adapter;
+        private MinecraftClientAdapter _adapter;
 
         /// <summary>
         /// 客户端状态
@@ -24,7 +25,7 @@ namespace Minecraft.Client
         public MinecraftClientState State { get; private set; } = MinecraftClientState.InTitle;
 
         public string Server { get; private set; }
-        public bool IsConnected => false;//_adapter.IsConnected;
+        public bool IsConnected => _adapter?.IsConnected ?? false;
 
         public MinecraftClient(string playerName)
         {
@@ -36,6 +37,7 @@ namespace Minecraft.Client
         /// 强制切换协议版本号
         /// </summary>
         /// <param name="version">协议版本号</param>
+        /// <remarks>字面意思，不会适配相应协议版本的内容</remarks>
         public void SwitchProtocolVersion(int version)
         {
             _protocolVersion = version;
@@ -48,10 +50,10 @@ namespace Minecraft.Client
         /// <param name="hostname">主机名</param>
         /// <param name="port">端口</param>
         /// <returns></returns>
-        public ServerListPingResult ServerListPing(string hostname, ushort port)
+        public async Task<ServerListPingResult> ServerListPing(string hostname, ushort port)
         {
             if (State != MinecraftClientState.InTitle)
-                throw new InvalidOperationException($"invalid client state {State}, it should be InTitle.");
+                throw new InvalidOperationException($"invalid client state {State}, it should be {MinecraftClientState.InTitle}.");
             const int timeout = 10000;
             var timedOut = false;
             var handshaked = false;
@@ -65,36 +67,36 @@ namespace Minecraft.Client
             ProtocolAdapter adapter = null;
             try
             {
+                await Task.Yield();
                 client = new TcpClient();
-                client.Connect(hostname, port);
+                await client.ConnectAsync(hostname, port);
                 adapter = new ProtocolAdapter(client.GetStream(), PacketBoundTo.Server);
                 _ = Task.Run(async () => // timeout
                 {
                     await Task.Delay(timeout);
-                    if (adapter.Running)
+                    if (adapter.State != ProtocolState.Closed)
                     {
                         timedOut = true;
-                        adapter.Stop();
                         client.Close();
                         _logger.Warn($"{hostname}:{port} timed out");
                     }
                 });
-                adapter.Start(); // start adapter
-                adapter.SendPacket(new HandshakePacket
+                await adapter.WritePacketAsync(new HandshakePacket //handshake
                 {
                     NextState = ProtocolState.Status,
                     ProtocolVersion = _protocolVersion,
                     ServerAddress = hostname,
                     ServerPort = port
                 });
-                adapter.SendPacket(new StatusRequestPacket());
-                var statusResponsePacket = (StatusResponsePacket)adapter.ReceivePacket();
+                await adapter.WritePacketAsync(new StatusRequestPacket());
+                var statusResponsePacket = (StatusResponsePacket)await adapter.ReadPacketAsync();
                 handshaked = true;
                 result.LoadContent(statusResponsePacket.Content);
                 time1 = DateTime.Now;
-                adapter.SendPacket(new StatusPingPacket { Payload = time1.ToUnixTimeStamp() });
-                _ = (StatusPongPacket)adapter.ReceivePacket();
-                result.Delay = (int)(DateTime.Now - time1).TotalMinutes;
+                await adapter.WritePacketAsync(new StatusPingPacket { Payload = time1.ToUnixTimeStamp() });
+                if ((StatusPongPacket)await adapter.ReadPacketAsync() != null)
+                    result.Delay = (int)(DateTime.Now - time1).TotalMinutes;
+                adapter.Close();
             }
             catch
             {
@@ -103,15 +105,14 @@ namespace Minecraft.Client
             }
             finally
             {
-                adapter?.Stop();
-                client?.Close();
+                adapter?.Dispose();
                 client?.Dispose();
             }
             if (timedOut)
                 _logger.Warn("Pinging timeout");
             return result;
         }
-#if false
+
         public async Task Connect(string hostname, ushort port)
         {
             if (State == MinecraftClientState.InGame)
@@ -130,6 +131,5 @@ namespace Minecraft.Client
         {
             await _adapter.SendChatPacket(message);
         }
-#endif
     }
 }

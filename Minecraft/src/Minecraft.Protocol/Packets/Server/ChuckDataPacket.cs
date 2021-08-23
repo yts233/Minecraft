@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Data;
-
+#if false
 namespace Minecraft.Protocol.Packets.Server
 {
     public class ChuckDataPacket : Packet
@@ -22,3 +22,4 @@ namespace Minecraft.Protocol.Packets.Server
         }
     }
 }
+#endif

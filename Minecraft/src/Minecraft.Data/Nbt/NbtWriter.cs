@@ -21,7 +21,7 @@ namespace Minecraft.Data.Nbt
             var name = tag.Name ?? "";
             _writer.Write((sbyte)tag.Type);
             _writer.Write(name.Length);
-            _writer.Write(name);
+            _writer.Write(name.ToCharArray());
             WritePayload(tag);
         }
 

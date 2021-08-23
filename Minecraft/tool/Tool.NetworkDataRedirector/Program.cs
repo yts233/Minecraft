@@ -1,4 +1,4 @@
-﻿#define RAWDATA
+﻿//#define RAWDATA
 
 #if RAWDATA
 using System;
@@ -153,8 +153,12 @@ namespace Tool.NetworkDataRedirector
 }
 #else
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using Minecraft.Protocol;
+using Minecraft.Extensions;
 using Minecraft.Protocol.Data;
 using Minecraft.Protocol.Packets;
+using Minecraft.Protocol.Packets.Server;
+using Minecraft.Protocol.Packets.Client;
 using System;
 using System.IO;
 using System.Net;
@@ -162,6 +166,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Minecraft;
 
 
 //test server: bgp.polarstar.cc:11201
@@ -177,143 +182,167 @@ namespace Tool.NetworkDataRedirector
         {
             Console.WriteLine("Hello World!");
 
-            static void LogPacket(DataPacket dataPacket, bool isServer)
+            static async void LogPacket(Packet packet, bool isServer)
             {
+                await Task.Yield();
                 lock (Console.Out)
                 {
-                    var @string = new StringBuilder();
-                    var buff = dataPacket.Content;
-                    @string.Append('\n');
-                    @string.Append(DateTime.Now.ToString("H:mm:ss FFFFFFF"));
-                    @string.Append("\t" + (isServer ? "S->C" : "C->S"));
-                    @string.Append($"\tpacket: 0x{dataPacket.PacketId.ToString("X").PadLeft(2, '0')}");
-                    @string.Append("\tlength:" + buff.Length);
-                    @string.Append('\n');
-                    void ProcessData(Stream stream)
+                    if (packet is DataPacket dataPacket)
                     {
-                        @string.Append("Address  00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF  0123456789ABCDEF\n");
-                        while (stream.Position < stream.Length)
+                        if (isServer)
+                            return;
+                        dataPacket.Content.Position = 0;
+                        lock (Console.Out)
                         {
-                            var sb = new StringBuilder();
-                            @string.Append("0x" + stream.Position.ToString("X").PadLeft(5, '0') + "  ");
-                            for (var i = 0; i < 16; i++)
-                            {
-                                var tmp = stream.ReadByte();
-                                if (tmp == -1)
-                                {
-                                    sb.Append(' ');
-                                    @string.Append(".. ");
-                                    continue;
-                                }
-
-                                sb.Append(tmp >= 32 ? (char)tmp : '.');
-                                @string.Append(tmp.ToString("X").PadLeft(2, '0') + " ");
-                            }
-
-                            @string.Append(' ');
-                            @string.Append(sb);
+                            var @string = new StringBuilder();
+                            var buff = dataPacket.Content;
                             @string.Append('\n');
+                            @string.Append(DateTime.Now.ToString("H:mm:ss FFFFFFF"));
+                            @string.Append("\t" + (isServer ? "S->C" : "C->S"));
+                            @string.Append($"\tpacket: 0x{dataPacket.PacketId.ToString("X").PadLeft(2, '0')}");
+                            @string.Append("\tlength:" + buff.Length);
+                            @string.Append('\n');
+                            void ProcessData(Stream stream)
+                            {
+                                @string.Append("Address  00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF  0123456789ABCDEF\n");
+                                while (stream.Position < stream.Length)
+                                {
+                                    var sb = new StringBuilder();
+                                    @string.Append("0x" + stream.Position.ToString("X").PadLeft(5, '0') + "  ");
+                                    for (var i = 0; i < 16; i++)
+                                    {
+                                        var tmp = stream.ReadByte();
+                                        if (tmp == -1)
+                                        {
+                                            sb.Append(' ');
+                                            @string.Append(".. ");
+                                            continue;
+                                        }
+
+                                        sb.Append(tmp >= 32 ? (char)tmp : '.');
+                                        @string.Append(tmp.ToString("X").PadLeft(2, '0') + " ");
+                                    }
+
+                                    @string.Append(' ');
+                                    @string.Append(sb);
+                                    @string.Append('\n');
+                                }
+                                @string.Append("End Of Data");
+                            }
+                            ProcessData(buff);
+                            Console.WriteLine(@string);
+                            Console.Out.Flush();
                         }
-                        @string.Append("End Of Data");
                     }
-                    ProcessData(buff);
-                    Console.WriteLine(@string);
-                    Console.Out.Flush();
+                    else
+                    {
+                        var @string = new StringBuilder();
+                        @string.Append('\n');
+                        @string.Append(DateTime.Now.ToString("H:mm:ss FFFFFFF"));
+                        @string.Append("\t" + (isServer ? "S->C" : "C->S"));
+                        @string.Append('\t');
+                        var s = packet.GetPropertyInfoString();
+                        if (s.Length > 256)
+                            s = packet.GetType().FullName;
+                        @string.Append(s);
+                        Console.WriteLine(@string);
+                        Console.Out.Flush();
+                    }
                 }
             }
 
             mainThread = Thread.CurrentThread;
             mainThread.IsBackground = true;
             var listener = new TcpListener(new IPEndPoint(IPAddress.Any, 25565));
+            listener.Start();
             while (true)
             {
-                listener.Start();
                 var client = listener.AcceptTcpClient();
                 Console.Write("[/" + client.Client.RemoteEndPoint + "]");
-                listener.Stop();
+                //listener.Stop();
                 var server = new TcpClient();
-                var compressed = false;
                 try
                 {
                     server.Connect(new IPEndPoint(IPAddress.Parse(args.Length == 1 ? args[0] : "127.0.0.1"), 25566));
-                    //server.Connect(Dns.GetHostAddresses("bgp.polarstar.cc"), 11201);
+                    //server.Connect(Dns.GetHostAddresses("mc.oxygenstudio.cn"), 25565);
                     Console.Write(" <-> [/" + server.Client.RemoteEndPoint + "]\n");
                     Stream clientStream = new BufferedStream(client.GetStream()), serverStream = new BufferedStream(server.GetStream());
-                    Task serverTask = new(() =>
+                    var clientAdapter = new ProtocolAdapter(clientStream, PacketBoundTo.Client)
                     {
-                        try
-                        {
-                            Thread.CurrentThread.IsBackground = true;
-
-                            while (true)
-                            {
-                                var dataPacket = Packet.ReadDataPacket(serverStream, PacketBoundTo.Client, () => Minecraft.Protocol.ProtocolState.Any, () => compressed);
-                                if (dataPacket.PacketId == 0x03) compressed = true;
-                                Task.Run(() =>
-                                {
-                                    if (compressed) dataPacket.WriteCompressedToStream(clientStream);
-                                    else dataPacket.WriteToStream(clientStream);
-                                    clientStream.Flush();
-                                    dataPacket.Content.Position = 0;
-                                    LogPacket(dataPacket, true);
-                                });
-                            }
-                        }
-                        catch
-                        {
-                        }
-                        finally
-                        {
-                            try
-                            {
-                                Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
-                                              server.Client.RemoteEndPoint + "]\n");
-                            }
-                            catch
-                            {
-                            }
-
-                            if (client.Connected) client.Close();
-                            if (server.Connected) server.Close();
-                        }
-                    }), clientTask = new(() =>
-                        {
-                            try
-                            {
-                                Thread.CurrentThread.IsBackground = true;
-                                while (true)
-                                {
-                                    var dataPacket = Packet.ReadDataPacket(clientStream, PacketBoundTo.Server, () => Minecraft.Protocol.ProtocolState.Any, () => compressed);
-                                    if (dataPacket.PacketId == 0x03) compressed = true;
-                                    Task.Run(() =>
-                                    {
-                                        if (compressed) dataPacket.WriteCompressedToStream(serverStream);
-                                        else dataPacket.WriteToStream(serverStream);
-                                        serverStream.Flush();
-                                        dataPacket.Content.Position = 0;
-                                        LogPacket(dataPacket, false);
-                                    });
-                                }
-                            }
-                            catch
-                            {
-                            }
-                            finally
+                        AutoSendSpecialPacket = false
+                    };
+                    var serverAdapter = new ProtocolAdapter(serverStream, PacketBoundTo.Server)
+                    {
+                        AutoSendSpecialPacket = false
+                    };
+                    //var lockB = new object();
+                    Task serverTask = new(() =>
                             {
                                 try
                                 {
-                                    Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
-                                                  server.Client.RemoteEndPoint + "]\n");
-                                }
-                                catch
-                                {
-                                    // ignore
-                                }
+                                    Thread.CurrentThread.IsBackground = true;
 
-                                if (client.Connected) client.Close();
-                                if (server.Connected) server.Close();
-                            }
-                        });
+                                    while (true)
+                                    {
+                                        var packet = serverAdapter.ReadPacket();
+                                        if (packet == null)
+                                            break;
+                                        clientAdapter.WritePacket(packet);
+                                        LogPacket(packet, true);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex);
+                                }
+                                finally
+                                {
+                                    try
+                                    {
+                                        Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
+                                                      server.Client.RemoteEndPoint + "] [S >|< C]\n");
+                                    }
+                                    catch
+                                    {
+                                    }
+
+                                    if (client.Connected) client.Close();
+                                    if (server.Connected) server.Close();
+                                }
+                            }), clientTask = new(() =>
+                                {
+                                    try
+                                    {
+                                        Thread.CurrentThread.IsBackground = true;
+                                        while (true)
+                                        {
+                                            var packet = clientAdapter.ReadPacket();
+                                            if (packet == null)
+                                                break;
+                                            serverAdapter.WritePacket(packet);
+                                            LogPacket(packet, false);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex);
+                                    }
+                                    finally
+                                    {
+                                        try
+                                        {
+                                            Console.Write("[/" + client.Client.RemoteEndPoint + "] >|< [/" +
+                                                          server.Client.RemoteEndPoint + "] [C >|< S]\n");
+                                        }
+                                        catch
+                                        {
+                                            // ignore
+                                        }
+
+                                        if (client.Connected) client.Close();
+                                        if (server.Connected) server.Close();
+                                    }
+                                });
                     serverTask.Start();
                     clientTask.Start();
                     serverTask.Wait();
@@ -322,8 +351,11 @@ namespace Tool.NetworkDataRedirector
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
-                    if (client.Connected) client.Close();
-                    if (server.Connected) server.Close();
+                }
+                finally
+                {
+                    server.Dispose();
+                    client.Dispose();
                 }
             }
         }

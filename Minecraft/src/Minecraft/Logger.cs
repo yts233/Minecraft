@@ -17,12 +17,15 @@ namespace Minecraft
         {
         }
 
+        private static int _logThreadId = 0;
+        private static readonly object _logThreadLock = new object();
+
         private delegate void MemoryMonitor();
         private delegate void ExceptionHandler();
         private static LogOutputDelegate _output;
         private static readonly Logger<MemoryMonitor> _memoryLogger = GetLogger<MemoryMonitor>();
         private static readonly Logger<ExceptionHandler> _exceptLogger = GetLogger<ExceptionHandler>();
-#if EnableLogTask //已弃用
+#if EnableLogTask
         private static readonly Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)> _logQueue = new Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)>();
 #else
         private static readonly object _logQueue = new object();
@@ -54,7 +57,7 @@ namespace Minecraft
                 var @string = new StringBuilder();
                 @string.Append($"[{time:H:mm:ss}] [{senderType.Name}]");
                 @string.Append(
-                    $" [{threadName ?? "UnnamedThread"}/{level.ToString().ToUpper()}]");
+                    $" [{threadName}/{level.ToString().ToUpper()}]");
                 @string.Append($": {log}");
                 Console.WriteLine(@string);
 
@@ -67,7 +70,7 @@ namespace Minecraft
 
         private static int _waitCount = 0;
 
-#if EnableLogTask //已弃用
+#if EnableLogTask
         private static void LogTask()
         {
             SetThreadName("LoggingThread");
@@ -125,6 +128,24 @@ namespace Minecraft
         public static void SetThreadName(string name)
         {
             Thread.CurrentThread.Name = name;
+        }
+
+        internal static string GetThreadName()
+        {
+            var currentThread = Thread.CurrentThread;
+            var name = currentThread.Name;
+            if (name == null)
+            {
+                int threadId;
+                lock (_logThreadLock)
+                {
+                    threadId = _logThreadId;
+                    _logThreadId++;
+                }
+                name = $"Worker-{threadId}";
+                currentThread.Name = name;
+            }
+            return name;
         }
 
         public static void SetExceptionHandler()
@@ -211,12 +232,12 @@ namespace Minecraft
 
         public void Log(object log, LogLevel level)
         {
-            Log(log, level, Thread.CurrentThread.Name);
+            Log(log, level, Logger.GetThreadName());
         }
 
         public void Log(object log, LogLevel level, DateTime time)
         {
-            Log(log, level, Thread.CurrentThread.Name, time);
+            Log(log, level, Logger.GetThreadName(), time);
         }
 
         public void Log(object log, LogLevel level, string threadName)
