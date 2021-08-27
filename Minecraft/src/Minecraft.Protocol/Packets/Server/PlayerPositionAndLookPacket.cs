@@ -1,4 +1,4 @@
-﻿using Minecraft.Data.Numerics;
+﻿using Minecraft.Numerics;
 using Minecraft.Protocol.Data;
 
 namespace Minecraft.Protocol.Packets.Server
@@ -58,10 +58,10 @@ namespace Minecraft.Protocol.Packets.Server
         /// <remarks>True if the player should dismount their vehicle.</remarks>
         public bool DismountVehicle { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
-            Position = new Vector3d { X = content.ReadDouble(), Y = content.ReadDouble(), Z = content.ReadDouble() };
-            Rotation = new Rotation { Yaw = content.ReadFloat(), Pitch = content.ReadFloat() };
+            Position = content.ReadVector3d();
+            Rotation = content.ReadRotation();
             var flags = content.ReadUnsignedByte();
             XKind = (CoordKind)(flags & 0x01);
             YKind = (CoordKind)(flags >> 1 & 0x01);
@@ -72,7 +72,7 @@ namespace Minecraft.Protocol.Packets.Server
             DismountVehicle = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             byte flags = 0;
             void PushFlag(CoordKind kind)
@@ -84,11 +84,8 @@ namespace Minecraft.Protocol.Packets.Server
             PushFlag(ZKind);
             PushFlag(YRotKind);
             PushFlag(XRotKind);
-            content.Write(Position.X)
-                .Write(Position.Y)
-                .Write(Position.Z)
-                .Write(Rotation.Yaw)
-                .Write(Rotation.Pitch)
+            content.Write(Position)
+                .Write(Rotation)
                 .Write(flags)
                 .WriteVarInt(TeleportId)
                 .Write(DismountVehicle);

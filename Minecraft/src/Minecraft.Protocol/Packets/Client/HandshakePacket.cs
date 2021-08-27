@@ -33,7 +33,7 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>只能是<see cref="ProtocolState.Status" />或<see cref="ProtocolState.Login" /></remarks>
         public ProtocolState NextState { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             ProtocolVersion = content.ReadVarInt();
             ServerAddress = content.ReadString();
@@ -41,7 +41,7 @@ namespace Minecraft.Protocol.Packets.Client
             NextState = content.ReadVarIntEnum<ProtocolState>();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content
                 .WriteVarInt(ProtocolVersion)

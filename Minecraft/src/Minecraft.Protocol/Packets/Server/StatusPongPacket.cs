@@ -16,12 +16,12 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public long Payload { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Payload = content.ReadLong();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write(Payload);
         }

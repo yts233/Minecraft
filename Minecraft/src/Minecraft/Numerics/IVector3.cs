@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Minecraft.Data.Numerics
+namespace Minecraft.Numerics
 {
-    public interface IVector2<T> : IList<T> where T : struct
+    public interface IVector3<T> : IList<T> where T : struct
     {
         public T X { get; set; }
         public T Y { get; set; }
+        public T Z { get; set; }
 
         new T this[int index]
         {
@@ -16,6 +17,7 @@ namespace Minecraft.Data.Numerics
                 {
                     0 => X,
                     1 => Y,
+                    2 => Z,
                     _ => throw new ArgumentOutOfRangeException(nameof(index))
                 };
             set
@@ -28,6 +30,9 @@ namespace Minecraft.Data.Numerics
                     case 1:
                         Y = value;
                         break;
+                    case 2:
+                        Z = value;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(index));
                 }
@@ -38,12 +43,14 @@ namespace Minecraft.Data.Numerics
         {
             yield return X;
             yield return Y;
+            yield return Z;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             yield return X;
             yield return Y;
+            yield return Z;
         }
 
         void ICollection<T>.Add(T item)
@@ -58,7 +65,7 @@ namespace Minecraft.Data.Numerics
 
         bool ICollection<T>.Contains(T item)
         {
-            return X.Equals(item) || Y.Equals(item);
+            return X.Equals(item) || Y.Equals(item) || Z.Equals(item);
         }
 
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
@@ -90,11 +97,18 @@ namespace Minecraft.Data.Numerics
             throw new InvalidOperationException();
         }
 
-        public (T x, T y) Deconstruct()
+        public (T x, T y, T z) Deconstruct()
         {
-            return (X, Y);
+            return (X, Y, Z);
         }
 
-        void Deconstruct(out T x, out T y);
+        void Deconstruct(out T x, out T y, out T z);
+
+        void Add(IVector3<T> other);
+        void Delta(IVector3<T> other);
+        void Scale(T other);
+
+        T LengthPow2 { get; }
+        T Length { get; }
     }
-    }
+}

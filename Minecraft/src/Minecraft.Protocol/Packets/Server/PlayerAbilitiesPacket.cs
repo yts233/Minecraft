@@ -27,14 +27,14 @@ namespace Minecraft.Protocol.Packets.Server
         /// <remarks>A Notchian server will use the same value as the movement speed sent in the Entity Properties packet, which defaults to 0.1 for players.</remarks>
         public float FieldOfViewModifier { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Flags = (PlayerAbilitiy)content.ReadByte();
             FlyingSpeed = content.ReadFloat();
             FieldOfViewModifier = content.ReadFloat();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write((sbyte)Flags)
                 .Write(FlyingSpeed)

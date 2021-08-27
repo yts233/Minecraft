@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -132,29 +133,36 @@ namespace Minecraft.Protocol.Packets
         {
             var content = PacketHelper.GetContent(null, stream);
             var packetLength = content.ReadVarInt();
-            var dataStream = new ByteArray(content, packetLength);
-            var state_ = state();
-            var compressed_ = compressed();
-            var threshold_ = threshold();
-            if (compressed_)
+            try
             {
-                var dataLength = dataStream.ReadVarInt();
-                if (dataLength != 0)
+                var dataStream = new ByteArray(content, packetLength);
+                var state_ = state();
+                var compressed_ = compressed();
+                var threshold_ = threshold();
+                if (compressed_)
                 {
-                    if (dataLength < threshold_)
-                        throw new ProtocolException($"invalid packet: dataLength: {dataLength} should be greater than threshold: {threshold}");
-                    using var compressedStream = new InflaterInputStream(dataStream);
-                    using var buffer = new ByteArray(compressedStream, dataLength);
-                    return (DataPacket)new DataPacket(boundTo, state_)
-                          .ReadFromStream(buffer);
+                    var dataLength = dataStream.ReadVarInt();
+                    if (dataLength != 0)
+                    {
+                        if (dataLength < threshold_)
+                            throw new ProtocolException($"invalid packet: dataLength: {dataLength} should be greater than threshold: {threshold}");
+                        using var compressedStream = new InflaterInputStream(dataStream);
+                        using var buffer = new ByteArray(compressedStream, dataLength);
+                        return (DataPacket)new DataPacket(boundTo, state_)
+                              .ReadFromStream(buffer);
+                    }
                 }
+                return (DataPacket)new DataPacket(boundTo, state_)
+                    .ReadFromStream(dataStream);
             }
-            return (DataPacket)new DataPacket(boundTo, state_)
-                .ReadFromStream(dataStream);
+            catch (Exception ex)
+            {
+                throw new ProtocolException("Error while read a packet", ex);
+            }
         }
 
         public static Packet ReadPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
-           Func<bool> compressed, Func<int> threshold, Action<DataPacket> unregisteredPacketReceivedHandler = null)
+           Func<bool> compressed, Func<int> threshold, Func<DataPacket, Packet> unregisteredPacketReceivedHandler = null)
         {
             if (unregisteredPacketReceivedHandler == null)
                 return ReadDataPacket(stream, origin, state, compressed, threshold).Parse();
@@ -167,8 +175,7 @@ namespace Minecraft.Protocol.Packets
                 }
                 catch (PacketParseException)
                 {
-                    unregisteredPacketReceivedHandler.Invoke(dataPacket);
-                    throw;
+                    return unregisteredPacketReceivedHandler.Invoke(dataPacket);
                 }
             }
         }
@@ -192,7 +199,7 @@ namespace Minecraft.Protocol.Packets
         /// 从流读入
         /// </summary>
         /// <param name="content">流</param>
-        protected abstract void _ReadFromStream(ByteArray content);
+        protected abstract void ReadFromStream_(ByteArray content);
 
         /// <summary>
         /// 从流读入
@@ -201,7 +208,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="stream">Stream.</param>
         public Packet ReadFromStream(Stream stream)
         {
-            _ReadFromStream(this.GetContent(stream));
+            ReadFromStream_(this.GetContent(stream));
             return this;
         }
 
@@ -209,7 +216,7 @@ namespace Minecraft.Protocol.Packets
         /// 将此数据包写入到流
         /// </summary>
         /// <param name="content">流</param>
-        protected abstract void _WriteToStream(ByteArray content);
+        protected abstract void WriteToStream_(ByteArray content);
 
         /// <summary>
         /// 将此数据包写入到流
@@ -219,7 +226,7 @@ namespace Minecraft.Protocol.Packets
         public Packet WriteToStream(Stream stream)
         {
             VerifyValues();
-            _WriteToStream(this.GetContent(stream));
+            WriteToStream_(this.GetContent(stream));
             return this;
         }
 

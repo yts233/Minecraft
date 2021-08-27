@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Minecraft;
+using Minecraft.Numerics;
 using Minecraft.Extensions;
 using Minecraft.Client;
 using static Demo.MinecraftClientConsole.Shared;
@@ -54,7 +55,9 @@ namespace Demo.MinecraftClientConsole
             Logger.SetThreadName("MainThread");
             Logger.SetExceptionHandler();
             Println("Hello, Minecraft Client Console!");
+            //initalize client
             _client = new MinecraftClient("MCConsoleTest");
+            _client.Disconnected += (_, e) => Console.WriteLine($"Disconnected. Reason: {e}");
             LoadCommands();
             Println("type help for commands");
             while (true)
@@ -110,27 +113,44 @@ namespace Demo.MinecraftClientConsole
 
         private static void LoadCommands()
         {
-            AddCommand("help", async _ =>
-             {
-                 Println("Minecraft Client Console 命令", ConsoleColor.Yellow);
-                 foreach (var commandName in Commands.Keys) ShowHelp(commandName);
-                 await Task.CompletedTask;
-             }, "获取帮助");
+            AddCommand("help", async args =>
+            {
+                if (args.Length > 1)
+                {
+                    ShowHelp("help");
+                    return;
+                }
+                else if (args.Length == 1 && !string.IsNullOrEmpty(args[0]))
+                {
+                    var prefix = args[0];
+                    Println("Minecraft Client Console 命令", ConsoleColor.Yellow);
+                    foreach (var commandName in Commands.Keys.Where(key => key.StartsWith(prefix)))
+                        ShowHelp(commandName);
+                    return;
+                }
+                Println("Minecraft Client Console 命令", ConsoleColor.Yellow);
+                foreach (var commandName in Commands.Keys) ShowHelp(commandName);
+                await Task.CompletedTask;
+            }, "[command] 获取帮助");
             AddCommand("echo", async args =>
             {
                 Println(string.Join(' ', args));
                 await Task.CompletedTask;
             }, "回声输出");
-            //AddCommand("username", async args =>
-            //{
-            //    if (args.Length != 1)
-            //    {
-            //        ShowHelp("username");
-            //        return;
-            //    }
-            //    _client.ChangeOfflineUserName(args[0]);
-            //    await Task.CompletedTask;
-            //}, "<username> 改变离线用户名");
+            AddCommand("newclient", async args =>
+            {
+                if (args.Length > 1)
+                {
+                    ShowHelp("newclient");
+                    return;
+                }
+                var userName = "MCConsoleTest";
+                if (args.Length == 1 && !string.IsNullOrEmpty(args[0]))
+                    userName = args[0];
+                await _client.Disconnect();
+                _client = new MinecraftClient(userName);
+                await Task.CompletedTask;
+            }, "[username=MCConsoleTest] 重新创建MinecraftClient实例");
             AddCommand("protocol", async args =>
             {
                 if (args.Length != 1)
@@ -171,56 +191,65 @@ namespace Demo.MinecraftClientConsole
                 }
                 else if (args.Length != 2)
                 {
-                    ShowHelp("ping");
+                    ShowHelp("connect");
                     return;
                 }
 
                 var hostname = args[0];
                 var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
                 await _client.Connect(hostname, port);
-                await new InServer(_client).Main();
+                /*_client.GetAdapter().PlayerPosition += (_, e) =>
+                {
+                    e.position
+                };*/
             }, "<hostname> [port=25565] 连接到服务器，并切换到 InServer");
-            //AddCommand("logger", args =>
-            //{
-            //    if (args.Length != 2)
-            //    {
-            //        ShowHelp("loglevel");
-            //        return;
-            //    }
+            AddCommand("send", async args =>
+            {
+                var msg = string.Join(' ', args);
+                await _client.Chat(msg);
+            }, "<message> 向服务器发送聊天或指令");
 
-            //    switch (args[0])
-            //    {
-            //        case "enable":
-            //            Logger.EnableLogger(args[1]);
-            //            break;
-            //        case "disable":
-            //            Logger.DisableLogger(args[1]);
-            //            break;
-            //        default:
-            //            throw new ArgumentOutOfRangeException(null, nameof(args));
-            //    };
+            #region Packets
+            AddCommand("vehiclemove", async args =>
+            {
+                if (args.Length == 5
+                && double.TryParse(args[0], out var x)
+                && double.TryParse(args[1], out var y)
+                && double.TryParse(args[2], out var z)
+                && float.TryParse(args[3], out var yaw)
+                && float.TryParse(args[4], out var pitch))
+#pragma warning disable CS0618 // 类型或成员已过时
+                    await _client.GetAdapter().SendVehicleMovePacket((x, y, z), (yaw, pitch));
+#pragma warning restore CS0618 // 类型或成员已过时
+                else ShowHelp("vehiclemove");
+            }, "<x> <y> <z> <yaw> <pitch> 向服务器发送VehicleMovePacket");
+            AddCommand("playerposition", async args =>
+            {
+                if (args.Length == 4
+                && double.TryParse(args[0], out var x)
+                && double.TryParse(args[1], out var feetY)
+                && double.TryParse(args[2], out var z)
+                && bool.TryParse(args[3], out var onGround))
+#pragma warning disable CS0618 // 类型或成员已过时
+                    await _client.GetAdapter().SendPlayerPositionPacket((x, feetY, z), onGround);
+#pragma warning restore CS0618 // 类型或成员已过时
+                else ShowHelp("playerposition");
+            }, "<x> <feety> <z> <onGround> 向服务器发送PlayerPositionPacket");
+            #endregion
 
-            //}, "<enable|disable> <loggerName>");
-            //AddCommand("loglevel", async args =>
-            //{
-            //    if (args.Length != 2)
-            //    {
-            //        ShowHelp("loglevel");
-            //        return;
-            //    }
+            #region InGame
+            AddCommand("entities", async _ =>
+            {
+                if (!_client.IsJoined)
+                    return;
+                foreach (var entity in _client.GetWorld().GetEntities())
+                {
+                    Console.WriteLine(entity.GetPropertyInfoString());
+                }
+                await Task.CompletedTask;
+            }, "获取所有实体");
+            #endregion
 
-            //    var enable = args[0] switch
-            //    {
-            //        "enable" => true,
-            //        "disable" => false,
-            //        _ => throw new ArgumentOutOfRangeException(null, nameof(args)),
-            //    };
-
-            //    var level = (LogLevel)int.Parse(args[1]);
-            //    Logger.SetLogLevel(level, enable);
-
-            //    await Task.CompletedTask;
-            //}, "<enable|disable> <level:{0:fatal|1:error|2:warn|3:info|4:debug}> 启用或禁用记录器记录指定等级的日志");
             AddCommand("clear", async _ =>
             {
                 Console.Clear();
@@ -231,30 +260,6 @@ namespace Demo.MinecraftClientConsole
                 Environment.Exit(0);
                 await Task.CompletedTask;
             }, "退出此 Minecraft Client Console");
-        }
-    }
-    class InServer
-    {
-        private readonly MinecraftClient _client;
-
-        public InServer(MinecraftClient client)
-        {
-            _client = client;
-        }
-
-        public async Task Main()
-        {
-            while (_client.IsConnected)
-            {
-                var input = Console.ReadLine();
-                if (string.IsNullOrEmpty(input)) continue;
-                input = input.Trim();
-                if (input == "#exit")
-                    break;
-                _ = _client.Chat(input);
-                await Task.CompletedTask;
-            }
-            await _client.Disconnect();
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Minecraft
 {
+#if false
     public class ObjectTransformer : IDisposable
     {
         private readonly Stream _baseStream;
@@ -50,4 +51,5 @@ namespace Minecraft
             _binaryWriter.Dispose();
         }
     }
+#endif
 }

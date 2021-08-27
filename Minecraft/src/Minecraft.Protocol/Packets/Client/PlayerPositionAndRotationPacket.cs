@@ -1,4 +1,4 @@
-﻿using Minecraft.Data.Numerics;
+﻿using Minecraft.Numerics;
 using Minecraft.Protocol.Data;
 
 namespace Minecraft.Protocol.Packets.Client
@@ -31,20 +31,17 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>True if the client is on the ground, false otherwise.</remarks>
         public bool OnGround { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
-            Position = new Vector3d { X = content.ReadDouble(), Y = content.ReadDouble(), Z = content.ReadDouble() };
-            Rotation = new Rotation { Yaw = content.ReadFloat(), Pitch = content.ReadFloat() };
+            Position = content.ReadVector3d();
+            Rotation = content.ReadRotation();
             OnGround = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
-            content.Write(Position.X)
-                .Write(Position.Y)
-                .Write(Position.Z)
-                .Write(Rotation.Yaw)
-                .Write(Rotation.Pitch)
+            content.Write(Position)
+                .Write(Rotation)
                 .Write(OnGround);
         }
     }

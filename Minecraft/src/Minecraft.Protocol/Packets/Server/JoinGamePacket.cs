@@ -38,6 +38,7 @@ namespace Minecraft.Protocol.Packets.Server
         /// The world count.
         /// </summary>
         /// <remarks>Size of the <see cref="WorldNames"/>.</remarks>
+        /// <remarks>Unnessary when send this packet.</remarks>
         public int WorldCount { get; set; }
 
         public NamedIdentifier[] WorldNames { get; set; }
@@ -101,7 +102,7 @@ namespace Minecraft.Protocol.Packets.Server
         /// <remarks>True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.</remarks>
         public bool IsFlat { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             EntityId = content.ReadInt();
             IsHardcore = content.ReadBoolean();
@@ -121,7 +122,7 @@ namespace Minecraft.Protocol.Packets.Server
             IsFlat = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write(EntityId)
                 .Write(IsHardcore)
@@ -139,6 +140,11 @@ namespace Minecraft.Protocol.Packets.Server
                 .Write(EnableRespawnScreen)
                 .Write(IsDebug)
                 .Write(IsFlat);
+        }
+
+        protected override void VerifyValues()
+        {
+            WorldCount = WorldNames.Length;
         }
     }
 }

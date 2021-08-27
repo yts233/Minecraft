@@ -37,7 +37,7 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>Currently always true</remarks>
         public bool DisableTextFiltering { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Locale = content.ReadString();
             ViewDistance = content.ReadByte();
@@ -48,7 +48,7 @@ namespace Minecraft.Protocol.Packets.Client
             DisableTextFiltering = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write(Locale)
                 .Write(ViewDistance)

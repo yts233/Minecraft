@@ -14,12 +14,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         public override ProtocolState State => ProtocolState.Play;
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
 
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
 
         }

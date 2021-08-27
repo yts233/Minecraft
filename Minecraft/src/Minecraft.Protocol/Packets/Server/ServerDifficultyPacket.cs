@@ -13,13 +13,13 @@ namespace Minecraft.Protocol.Packets.Server
         public Difficulty Difficulty { get; set; }
         public bool DifficultyLocked { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Difficulty = (Difficulty)content.ReadUnsignedByte();
             DifficultyLocked = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write((byte)Difficulty)
                 .Write(DifficultyLocked);

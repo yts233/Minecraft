@@ -17,12 +17,12 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public string Content { get; private set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Content = content.Read<String>();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.Write(Content);
         }

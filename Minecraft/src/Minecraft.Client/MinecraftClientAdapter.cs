@@ -8,9 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Minecraft.Extensions;
 using Minecraft.Data.Nbt.Tags;
-using Minecraft.Data.Numerics;
+using Minecraft.Numerics;
 using ClientChatMessagePacket = Minecraft.Protocol.Packets.Client.ChatMessagePacket;
 using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePacket;
+using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Client
 {
@@ -19,16 +20,15 @@ namespace Minecraft.Client
     /// </summary>
     public class MinecraftClientAdapter
     {
-        private delegate void Chat();
         private readonly string _hostname;
         private readonly ushort _port;
+
         private readonly int _protocolVersion;
         private bool _stopping = false;
         private readonly TcpClient _tcpClient;
         private ProtocolAdapter _protocolAdapter;
         private readonly MinecraftClient _client;
         private static readonly Logger<MinecraftClientAdapter> _logger = Logger.GetLogger<MinecraftClientAdapter>();
-        private static readonly Logger<Chat> _chatLogger = Logger.GetLogger<Chat>();
 
         public MinecraftClientAdapter(string hostname, ushort port, MinecraftClient client)
         {
@@ -37,6 +37,13 @@ namespace Minecraft.Client
             _protocolVersion = client._protocolVersion;
             _tcpClient = new TcpClient();
             _client = client;
+        }
+
+        public ProtocolAdapter GetProtocol()
+        {
+            if (!IsConnected)
+                return null;
+            return _protocolAdapter;
         }
 
         #region Events
@@ -74,6 +81,30 @@ namespace Minecraft.Client
         /// </summary>
         public event EventHandler<(Rotation rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId)> PlayerLook;
         /// <summary>
+        /// 玩家生成
+        /// </summary>
+        public event EventHandler<(int entityId, Uuid playerUuid, Vector3d position, Rotation rotation)> SpawnPlayer;
+        /// <summary>
+        /// 接收聊天
+        /// </summary>
+        public event EventHandler<(string jsonData, ChatMessagePosition position, Uuid sender)> Chat;
+        /// <summary>
+        /// 实体移动8格以内距离
+        /// </summary>
+        public event EventHandler<(int entityId, Vector3d delta, bool onGround)> EntityDeltaMove;
+        /// <summary>
+        /// 实体朝向改变
+        /// </summary>
+        public event EventHandler<(int entityId, Rotation rotation, bool onGround)> EntityRotation;
+        /// <summary>
+        /// 实体移动8格以外距离
+        /// </summary>
+        public event EventHandler<(int entityId, Vector3d position, Rotation rotation, bool onGround)> EntityTeleport;
+        /// <summary>
+        /// 实体在客户端中被移除
+        /// </summary>
+        public event EventHandler<(int count, int[] entityIds)> EntitiesDestroyed;
+        /// <summary>
         /// 断开连接
         /// </summary>
         /// <remarks>附带原因</remarks>
@@ -86,7 +117,6 @@ namespace Minecraft.Client
         #endregion
 
         #region Properties
-
         /// <summary>
         /// 客户端设置
         /// </summary>
@@ -125,6 +155,67 @@ namespace Minecraft.Client
         {
             await Task.Yield();
             _protocolAdapter.WritePacket(new ClientChatMessagePacket { Message = message });
+        }
+
+        /// <summary>
+        /// 当玩家用一个速度移动时发送
+        /// </summary>
+        /// <remarks>使用绝对坐标</remarks>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public async Task SendVehicleMovePacket(Vector3d position, Rotation rotation)
+        {
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new VehicleMovePacket { Position = position, Rotation = rotation });
+        }
+
+        /// <summary>
+        /// 发送玩家位置数据包
+        /// </summary>
+        /// <remarks>使用绝对坐标</remarks>
+        /// <param name="position">玩家脚部的坐标，FeetY一般为HeadY-1.62</param>
+        /// <param name="onGround"></param>
+        /// <returns></returns>
+        public async Task SendPlayerPositionPacket(Vector3d position, bool onGround)
+        {
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new PlayerPositionPacket { Position = position, OnGround = onGround });
+        }
+
+        /// <summary>
+        /// 发送玩家朝向数据包
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public async Task SendPlayerRotationPacket(Rotation rotation, bool onGround)
+        {
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
+        }
+
+        /// <summary>
+        /// 发送玩家坐标朝向数据包
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="onGround"></param>
+        /// <returns></returns>
+        public async Task SendPlayerPositionAndRotationPacket(Vector3d position, Rotation rotation, bool onGround)
+        {
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
+        }
+
+        /// <summary>
+        /// 发送玩家移动数据包
+        /// </summary>
+        /// <param name="onGround"></param>
+        /// <returns></returns>
+        public async Task SendPlayerMovementPacket(bool onGround)
+        {
+            await Task.Yield();
+            _protocolAdapter.WritePacket(new PlayerMovementPacket { OnGround = onGround });
         }
 
         #endregion
@@ -199,6 +290,21 @@ namespace Minecraft.Client
             });
         }
 
+        public async Task Disconnect()
+        {
+            if (!IsConnected || _stopping) return;
+            _stopping = true;
+            IsConnected = false;
+            _protocolAdapter.Dispose();
+            _tcpClient.Dispose();
+            _stopping = false;
+            await Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Handler
+
         private async Task PacketHandleTask()
         {
             await Task.Yield();
@@ -211,13 +317,13 @@ namespace Minecraft.Client
                         break;
                     switch (p)
                     {
+                        // handle packets here
                         case LoginDisconnectPacket packet:
-                            _logger.Info($"Disconnect. Reason: {packet.Reason}");
                             IsConnected = false;
                             Disconnected?.Invoke(this, packet.Reason);
                             break;
                         case ServerChatMessagePacket packet:
-                            _logger.Info(packet.JsonData);
+                            Chat?.Invoke(this, (packet.JsonData, packet.Position, packet.Sender));
                             break;
                         case LoginSuccessPacket packet:
                             Logined?.Invoke(this, (packet.Username, packet.Uuid));
@@ -225,13 +331,12 @@ namespace Minecraft.Client
                             IsLogined = true;
                             break;
                         case DisconnectPacket packet:
-                            _logger.Info($"Disconnect. Reason: {packet.Reason}");
                             IsConnected = false;
                             Disconnected?.Invoke(this, packet.Reason);
                             break;
                         case JoinGamePacket packet:
                             Joined?.Invoke(this, (packet.EntityId, packet.IsHardcore, packet.Gamemode, packet.PreviousGamemode, packet.WorldCount, packet.WorldNames, packet.DimensionCodec, packet.Dimension, packet.WorldName, packet.HashedSeed, packet.MaxPlayers, packet.ViewDistance, packet.ReducedDebugInfo, packet.EnableRespawnScreen, packet.IsDebug, packet.IsFlat));
-                            await SubmitClientSettings();
+                            _ = SubmitClientSettings();
                             break;
                         case ServerDifficultyPacket packet:
                             ServerDiffculty?.Invoke(this, (packet.Difficulty, packet.DifficultyLocked));
@@ -261,6 +366,25 @@ namespace Minecraft.Client
                             PlayerPosition?.Invoke(this, (packet.Position, packet.XKind, packet.YKind, packet.ZKind, packet.TeleportId, packet.DismountVehicle));
                             PlayerLook?.Invoke(this, (packet.Rotation, packet.YRotKind, packet.XRotKind, packet.TeleportId));
                             break;
+                        case SpawnPlayerPacket packet:
+                            SpawnPlayer?.Invoke(this, (packet.EntityId, packet.PlayerUuid, packet.Position, packet.Rotation));
+                            break;
+                        case EntityPositionPacket packet:
+                            EntityDeltaMove?.Invoke(this, (packet.EntityId, packet.Delta, packet.OnGround));
+                            break;
+                        case EntityRotationPacket packet:
+                            EntityRotation?.Invoke(this, (packet.EntityId, packet.Rotation, packet.OnGround));
+                            break;
+                        case EntityPositionAndRotationPacket packet:
+                            EntityDeltaMove?.Invoke(this, (packet.EntityId, packet.Delta, packet.OnGround));
+                            EntityRotation?.Invoke(this, (packet.EntityId, packet.Rotation, packet.OnGround));
+                            break;
+                        case EntityTeleportPacket packet:
+                            EntityTeleport?.Invoke(this, (packet.EntityId, packet.Position, packet.Rotation, packet.OnGround));
+                            break;
+                        case DestroyEntitiesPacket packet:
+                            EntitiesDestroyed?.Invoke(this, (packet.Count, packet.EntityIds));
+                            break;
                     }
                 }
             }
@@ -271,10 +395,12 @@ namespace Minecraft.Client
             }
             catch (Exception ex)
             {
+                _logger.Warn(ex);
                 Exception?.Invoke(this, ex);
             }
             finally
             {
+                _tcpClient.Dispose();
                 if (IsConnected)
                 {
                     Disconnected?.Invoke(this, "Connection closed");
@@ -283,17 +409,6 @@ namespace Minecraft.Client
                 IsLogined = false;
                 IsJoined = false;
             }
-        }
-
-        public async Task Disconnect()
-        {
-            if (!IsConnected || _stopping) return;
-            _stopping = true;
-            IsConnected = false;
-            _protocolAdapter.Dispose();
-            _tcpClient.Dispose();
-            _stopping = false;
-            await Task.CompletedTask;
         }
 
         #endregion

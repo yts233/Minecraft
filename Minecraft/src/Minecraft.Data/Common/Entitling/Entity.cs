@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Minecraft.Data.Nbt;
 using Minecraft.Data.Nbt.Serialization;
-using Minecraft.Data.Numerics;
+using Minecraft.Numerics;
 
 namespace Minecraft.Data.Common.Entitling
 {

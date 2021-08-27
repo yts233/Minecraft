@@ -13,12 +13,12 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public int Threshold { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             Threshold = content.ReadVarInt();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.WriteVarInt(Threshold);
         }

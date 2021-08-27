@@ -44,13 +44,13 @@ namespace Minecraft.Protocol.Packets
             Content?.Dispose();
         }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             _packetId = content.ReadVarInt();
             Content = content.Read<ByteArray>();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             using var buffer = new ByteArray(0);
             Content.Position = 0;

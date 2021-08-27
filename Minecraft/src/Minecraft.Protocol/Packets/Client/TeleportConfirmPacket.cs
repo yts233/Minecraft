@@ -16,12 +16,12 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>The ID given by the <see cref="PlayerPositionAndLookPacket"/> packet.</remarks>
         public int TeleportId { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             TeleportId = content.ReadVarInt();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             content.WriteVarInt(TeleportId);
         }

@@ -15,7 +15,7 @@ namespace Test.Protocol.Test
         private static async Task Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            static void TestPacket(Packet packet, bool compressed = false)
+            static async Task TestPacket(Packet packet, bool compressed = false)
             {
                 var stream = new MemoryStream();
                 Console.WriteLine(packet.GetPropertyInfoString());
@@ -25,7 +25,7 @@ namespace Test.Protocol.Test
                     Threshold = 1,
                     AutoHandleSpecialPacket = false
                 };
-                adapter.WritePacket(packet);
+                await adapter.WritePacketAsync(packet);
                 Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
                 adapter = new ProtocolAdapter(stream, adapter.RemoteBoundTo)
                 {
@@ -35,12 +35,12 @@ namespace Test.Protocol.Test
                     AutoHandleSpecialPacket = false
                 };
                 stream.Position = 0;
-                packet = adapter.ReadPacket();
+                packet = await adapter.ReadPacketAsync();
                 Console.WriteLine(packet.GetPropertyInfoString());
                 Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
             }
-            TestPacket(new KeepAlivePacket { KeepAliveId = 1234567 }, true);
-            TestPacket(new KeepAliveResponsePacket { KeepAliveId = 1234567 }, true);
+            await TestPacket(new KeepAlivePacket { KeepAliveId = 1234567 }, true);
+            await TestPacket(new KeepAliveResponsePacket { KeepAliveId = 1234567 }, true);
         }
     }
 }

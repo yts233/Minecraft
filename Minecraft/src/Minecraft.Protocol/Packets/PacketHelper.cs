@@ -1,5 +1,7 @@
-using System.IO;
 using Minecraft.Protocol.Data;
+using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace Minecraft.Protocol.Packets
 {
@@ -16,16 +18,22 @@ namespace Minecraft.Protocol.Packets
             return DataTypeHelper.GetContent(null, stream);
         }
 
-        internal static Packet Parse(this DataPacket dataPacket)
+        public static Packet Parse(this DataPacket dataPacket)
         {
-            return Packet
-                .CreatePacket(dataPacket.PacketId, dataPacket.BoundTo, dataPacket.State)
-                .ReadFromStream(dataPacket.Content);
+            var packet = Packet.CreatePacket(dataPacket.PacketId, dataPacket.BoundTo, dataPacket.State);
+            try
+            {
+                return packet.ReadFromStream(dataPacket.Content);
+            }
+            catch (Exception ex)
+            {
+                throw new ProtocolException($"Error while processing {packet.GetType().FullName}", ex);
+            }
         }
 
-        internal static T Parse<T>(this DataPacket dataPacket) where T : Packet, new()
+        public static T Parse<T>(this DataPacket dataPacket) where T : Packet, new()
         {
-            return (T) new T().ReadFromStream(dataPacket.Content);
+            return (T)new T().ReadFromStream(dataPacket.Content);
         }
     }
 }

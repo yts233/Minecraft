@@ -104,30 +104,28 @@ namespace Minecraft.Protocol
             {
                 lock (_receiveStream)
                 {
-                    try
-                    {
-                        packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, dp => packet = dp);
+                    packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, dp => dp);
 #if LogPacket
-                        var s = packet.GetPropertyInfoString();
-                        if (s.Length > 512)
-                            s = packet.GetType().FullName;
-                        _logger.Info($"S->C {s}");
-                        //_logger.Info($"S->C {packet.GetType().FullName}");
+                    var s = packet.GetPropertyInfoString();
+                    if (s.Length > 512)
+                        s = packet.GetType().FullName;
+                    _logger.Info($"S->C {s}");
+                    //_logger.Info($"S->C {packet.GetType().FullName}");
 #endif
-                    }
-                    catch (PacketParseException)
-                    {
-                        //_logger.Info(ex);
-                    }
                     if (AutoHandleSpecialPacket)
                         HandleSpecialPacket(packet);
                     return packet;
                 }
             }
-            catch (EndOfStreamException)
+            catch(Exception ex)
             {
+                _logger.Error(ex);
                 return null;
             }
+            //catch (EndOfStreamException)
+            //{
+            //    return null;
+            //}
             finally
             {
                 if (packet == null)

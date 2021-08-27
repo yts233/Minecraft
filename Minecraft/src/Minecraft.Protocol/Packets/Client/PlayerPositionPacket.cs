@@ -1,7 +1,7 @@
-﻿using Minecraft.Data.Numerics;
+﻿using Minecraft.Numerics;
 using Minecraft.Protocol.Data;
 
-namespace Minecraft.Protocol.Packets.Server
+namespace Minecraft.Protocol.Packets.Client
 {
     public class PlayerPositionPacket : Packet
     {
@@ -18,22 +18,19 @@ namespace Minecraft.Protocol.Packets.Server
         public Vector3d Position { get; set; }
 
         /// <summary>
-        /// On ground
+        /// True if the client is on the ground, false otherwise.
         /// </summary>
-        /// <remarks>True if the client is on the ground, false otherwise.</remarks>
         public bool OnGround { get; set; }
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
-            Position = new Vector3d { X = content.ReadDouble(), Y = content.ReadDouble(), Z = content.ReadDouble() };
+            Position = content.ReadVector3d();
             OnGround = content.ReadBoolean();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
-            content.Write(Position.X)
-                .Write(Position.Y)
-                .Write(Position.Z)
+            content.Write(Position)
                 .Write(OnGround);
         }
     }

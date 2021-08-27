@@ -11,12 +11,12 @@ namespace Minecraft.Protocol.Packets.Client
         public override PacketBoundTo BoundTo => PacketBoundTo.Server;
         public override ProtocolState State => ProtocolState.Status;
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void ReadFromStream_(ByteArray content)
         {
             //empty
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
             //empty
         }

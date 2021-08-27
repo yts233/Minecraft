@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Minecraft.Client.Handlers;
 using Minecraft.Extensions;
 using Minecraft.Protocol;
 using Minecraft.Protocol.Packets;
@@ -18,14 +19,16 @@ namespace Minecraft.Client
         internal int _protocolVersion = 756;
         internal bool _offlineMode = true;
         private MinecraftClientAdapter _adapter;
+        private IClientPlayerHandler _player;
+        private IWorldHandler _world;
 
         /// <summary>
         /// 客户端状态
         /// </summary>
         public MinecraftClientState State { get; private set; } = MinecraftClientState.InTitle;
 
-        public string Server { get; private set; }
         public bool IsConnected => _adapter?.IsConnected ?? false;
+        public bool IsJoined => _adapter?.IsJoined ?? false;
 
         public MinecraftClient(string playerName)
         {
@@ -113,23 +116,77 @@ namespace Minecraft.Client
             return result;
         }
 
+        /// <summary>
+        /// 连接到服务器
+        /// </summary>
+        /// <param name="hostname"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
         public async Task Connect(string hostname, ushort port)
         {
             if (State == MinecraftClientState.InGame)
-                throw new InvalidOperationException("You have already connected to the server.");
+                await _adapter.Disconnect();
             _logger.Info($"Connecting {hostname}, {port}");
             _adapter = new MinecraftClientAdapter(hostname, port, this);
+            _adapter.Disconnected += (sender, e) =>
+            {
+                State = MinecraftClientState.InTitle;
+                Disconnected?.Invoke(sender, e);
+                _world = null;
+                _player = null;
+            };
+            _player = new ClientPlayerEntityHandler(_adapter);
+            _world = new WorldHandler(_adapter, _player);
             await _adapter.Connect();
+            State = MinecraftClientState.InGame;
         }
 
+        /// <summary>
+        /// 断开与服务器的连接
+        /// </summary>
+        /// <returns></returns>
         public async Task Disconnect()
         {
+            if (State != MinecraftClientState.InGame)
+                return;
             await _adapter.Disconnect();
+            State = MinecraftClientState.InTitle;
         }
 
+        /// <summary>
+        /// 发送聊天消息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public async Task Chat(string message)
         {
+            if (!IsJoined)
+                throw new InvalidOperationException("You cannot chat until join the server");
             await _adapter.SendChatPacket(message);
+        }
+
+        #region Events
+        public event EventHandler<string> Disconnected;
+        #endregion
+
+        /// <summary>
+        /// 获取<see cref="MinecraftClientAdapter"/>
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete("不建议使用")]
+        public MinecraftClientAdapter GetAdapter()
+        {
+            return IsConnected ? _adapter : null;
+        }
+
+        public IWorldHandler GetWorld()
+        {
+            return IsJoined ? _world : null;
+        }
+
+        public IClientPlayerHandler GetPlayer()
+        {
+            return IsJoined ? _player : null;
         }
     }
 }

@@ -1,6 +1,8 @@
 using Minecraft.Data.Nbt;
+using Minecraft.Numerics;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Minecraft.Protocol.Data
 {
@@ -159,6 +161,12 @@ namespace Minecraft.Protocol.Data
             return byteArray;
         }
 
+        public static ByteArray Write(this ByteArray byteArray, ulong value)
+        {
+            byteArray.Write((UnsignedLong)value);
+            return byteArray;
+        }
+
         public static ByteArray WriteVarInt(this ByteArray byteArray, int value)
         {
             byteArray.Write((VarInt)value);
@@ -169,7 +177,7 @@ namespace Minecraft.Protocol.Data
         {
         }
 
-        public static ByteArray WriteArray<T>(this ByteArray byteArray,T[] array)where T:IDataType,new()
+        public static ByteArray WriteArray<T>(this ByteArray byteArray, T[] array) where T : IDataType, new()
         {
             var array1 = new Array<T>(array);
             array1.WriteToStream(byteArray);
@@ -222,6 +230,11 @@ namespace Minecraft.Protocol.Data
             return byteArray.Read<UnsignedInt>();
         }
 
+        public static ulong ReadUnsignedLong(this ByteArray byteArray)
+        {
+            return byteArray.Read<UnsignedLong>();
+        }
+
         public static ushort ReadUnsignedShort(this ByteArray byteArray)
         {
             return byteArray.Read<UnsignedShort>();
@@ -242,6 +255,65 @@ namespace Minecraft.Protocol.Data
             return byteArray.Read<VarInt>();
         }
 
+        public static float ReadAngle(this ByteArray byteArray)
+        {
+            return byteArray.Read<Angle>();
+        }
+
+        public static ByteArray WriteAngle(this ByteArray byteArray, float value)
+        {
+            byteArray.Write((Angle)value);
+            return byteArray;
+        }
+
+        public static Vector3d ReadVector3d(this ByteArray byteArray)
+        {
+            return new Vector3d { X = byteArray.ReadDouble(), Y = byteArray.ReadDouble(), Z = byteArray.ReadDouble() };
+        }
+
+        public static Rotation ReadRotation(this ByteArray byteArray)
+        {
+            return new Rotation { Yaw = byteArray.ReadFloat(), Pitch = byteArray.ReadFloat() };
+        }
+
+        public static Rotation ReadAngleRotation(this ByteArray byteArray)
+        {
+            return new Rotation { Yaw = byteArray.ReadAngle(), Pitch = byteArray.ReadAngle() };
+        }
+
+        public static Vector3i ReadVector3i(this ByteArray byteArray)
+        {
+            return byteArray.Read<Position>();
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, Vector3d value)
+        {
+            byteArray.Write(value.X);
+            byteArray.Write(value.Y);
+            byteArray.Write(value.Z);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, Rotation value)
+        {
+            byteArray.Write(value.Yaw);
+            byteArray.Write(value.Pitch);
+            return byteArray;
+        }
+
+        public static ByteArray WriteAngleRotation(this ByteArray byteArray, Rotation value)
+        {
+            byteArray.WriteAngle(value.Yaw);
+            byteArray.WriteAngle(value.Pitch);
+            return byteArray;
+        }
+
+        public static ByteArray WriteVector3i(this ByteArray byteArray, Vector3i value)
+        {
+            byteArray.Write((Position)value);
+            return byteArray;
+        }
+
         public static T[] ReadArray<T>(this ByteArray byteArray, int length) where T : IDataType, new()
         {
             var array = new Array<T>
@@ -250,6 +322,16 @@ namespace Minecraft.Protocol.Data
             };
             array.ReadFromStream(byteArray);
             return array.Value;
+        }
+
+        public static TValueType[] ReadArray<TDataType, TValueType>(this ByteArray byteArray, int length) where TDataType : IDataType<TValueType>, new()
+        {
+            var array = new Array<TDataType>
+            {
+                Length = length
+            };
+            array.ReadFromStream(byteArray);
+            return array.Value.Select(ele => ele.Value).ToArray();
         }
 
         public static T ReadVarIntEnum<T>(this ByteArray byteArray) where T : Enum
