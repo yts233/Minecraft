@@ -19,7 +19,7 @@ namespace Minecraft.Protocol.Packets.Server
         /// <summary>
         /// 实体是否在地面上
         /// </summary>
-        public bool OnGround { get; private set; }
+        public bool OnGround { get; set; }
 
         protected override void ReadFromStream_(ByteArray content)
         {

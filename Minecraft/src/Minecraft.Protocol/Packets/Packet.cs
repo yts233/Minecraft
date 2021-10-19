@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define LogRegisterPacketDebug
+//#define LogNotRegisteredPacketDebug
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,20 +23,6 @@ namespace Minecraft.Protocol.Packets
 
         static Packet()
         {
-            ////bound to client
-            //Register<Server.StatusResponsePacket>();
-            //Register<Server.StatusPongPacket>();
-            //Register<Server.EntityMovementPacket>();
-            //Register<Server.LoginDisconnectPacket>();
-            //Register<Server.LoginSetCompressionPacket>();
-            //Register<Server.LoginSuccessPacket>();
-
-            ////bound to server
-            //Register<Client.HandshakePacket>();
-            //Register<Client.StatusRequestPacket>();
-            //Register<Client.StatusPingPacket>();
-            //Register<Client.LoginStartPacket>();
-
             var assembly = typeof(Packet).Assembly;
             foreach (var packetConstructor in assembly.GetTypes()
                 .Where(type =>
@@ -76,7 +64,9 @@ namespace Minecraft.Protocol.Packets
         public static void Register(Func<Packet> constructor) //使用委托提升性能
         {
             var packet = constructor();
-            //_logger.Debug("register packet " + packet.GetType().FullName);
+#if LogRegisterPacketDebug
+            _logger.Debug("register packet " + packet.GetType().FullName);
+#endif
             RegisteredPackets.Add(new RegisteredPacket(packet.PacketId, packet.BoundTo, packet.State, constructor));
         }
 
@@ -105,9 +95,13 @@ namespace Minecraft.Protocol.Packets
                                                        && packet.BoundTo == boundTo
                                                        && packet.State == state)?.CreateInstance();
             if (result == null)
+            {
+#if LogNotRegisteredPacketDebug
+                    _logger.Debug($"packet 0x{packetId.ToString("X2")}, bound to {boundTo} hadn't been registered.");
+#endif
                 throw new PacketParseException(
-                        $"packet 0x{packetId.ToString("X").PadLeft(2, '0')} hadn't been registered.");
-
+                        $"packet 0x{packetId.ToString("X2")}, bound to {boundTo} hadn't been registered.");
+            }
             //_ = Logger.Debug<Packet>(result.GetType().FullName);
 
             return result;

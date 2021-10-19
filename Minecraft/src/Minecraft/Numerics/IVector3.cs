@@ -107,6 +107,7 @@ namespace Minecraft.Numerics
         void Add(IVector3<T> other);
         void Delta(IVector3<T> other);
         void Scale(T other);
+        void Normalize();
 
         T LengthPow2 { get; }
         T Length { get; }

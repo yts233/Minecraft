@@ -5,12 +5,12 @@ using OpenTK.Mathematics;
 namespace Minecraft.Graphics.Shading
 {
     /// <summary>
-    ///     提供没有Get、Set方法的着色器基类
+    /// 提供没有Get、Set方法的着色器基类
     /// </summary>
     public abstract class ShaderBase : IShader
     {
         /// <summary>
-        ///     创建着色器基类
+        /// 创建着色器基类
         /// </summary>
         /// <param name="shaderProgram">着色器程序</param>
         protected ShaderBase(int shaderProgram)
@@ -19,7 +19,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     创建着色器基类
+        /// 创建着色器基类
         /// </summary>
         /// <param name="shader">着色器</param>
         protected ShaderBase(IHandle shader) : this(shader.Handle)
@@ -27,14 +27,14 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     着色器程序
+        /// 着色器程序
         /// </summary>
         protected virtual int ShaderProgram { get; }
 
         int IHandle.Handle => ShaderProgram;
 
         /// <summary>
-        ///     使用着色器
+        /// 使用着色器
         /// </summary>
         public virtual void Use()
         {
@@ -42,7 +42,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量位置
+        /// 获取变量位置
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -57,7 +57,7 @@ namespace Minecraft.Graphics.Shading
         #region Sets
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="value"></param>
@@ -67,7 +67,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="value"></param>
@@ -77,7 +77,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="value"></param>
@@ -87,7 +87,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="vector"></param>
@@ -97,7 +97,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="vector"></param>
@@ -107,7 +107,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="vector"></param>
@@ -117,7 +117,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     设置变量
+        /// 设置变量
         /// </summary>
         /// <param name="location"></param>
         /// <param name="matrix"></param>
@@ -131,7 +131,7 @@ namespace Minecraft.Graphics.Shading
         #region Gets
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -142,7 +142,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -153,7 +153,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -164,7 +164,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -176,7 +176,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -188,7 +188,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
@@ -200,7 +200,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     获取变量
+        /// 获取变量
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>

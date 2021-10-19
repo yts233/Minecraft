@@ -9,7 +9,7 @@ namespace Minecraft.Data.Common.Chunking
     /// 一个独立的子区块。
     /// </summary>
     [NbtCompound]
-    public class ChuckSection
+    public class ChunkSection
     {
         /// <summary>
         /// 这个子区块的Y索引（不是坐标）。

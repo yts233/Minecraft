@@ -47,7 +47,7 @@ namespace Minecraft.Protocol.Packets.Client
                 .WriteVarInt(ProtocolVersion)
                 .Write(ServerAddress)
                 .Write(ServerPort)
-                .WriteVarEnum(NextState);
+                .WriteVarIntEnum(NextState);
         }
     }
 }

@@ -9,7 +9,7 @@ using OpenTK.Graphics.OpenGL;
 namespace Minecraft.Graphics.Arraying
 {
     /// <summary>
-    ///     顶点堆
+    /// 顶点堆
     /// </summary>
     public class VertexArray<T> : IVertexArray, IEnumerable<T> where T : struct
     {
@@ -18,9 +18,10 @@ namespace Minecraft.Graphics.Arraying
         private readonly int _vertexArrayObject;
         private readonly int _vertexBufferObject;
         private readonly T[] _vertices;
+        private static readonly Logger<VertexArray<T>> _logger = Logger.GetLogger<VertexArray<T>>();
 
         /// <summary>
-        ///     创建顶点堆
+        /// 创建顶点堆
         /// </summary>
         /// <param name="vertices">顶点</param>
         /// <param name="pointers">定点指针属性</param>
@@ -47,14 +48,14 @@ namespace Minecraft.Graphics.Arraying
                 };
             }
 
-            _vertices = vertices.ToArray();
+            _vertices = vertices is T[] arr ? arr : vertices.ToArray();
             _vertexBufferObject = GL.GenBuffer();
             _vertexArrayObject = GL.GenVertexArray();
             var size = Marshal.SizeOf(typeof(T));
             var totalSize = _vertices.Length * size;
             var vertexAttributePointers = pointers as VertexAttributePointer[] ?? pointers.ToArray();
             var stride = vertexAttributePointers
-                .Select(pointer => pointer.Offset + pointer.Size * GetSize((VertexAttribPointerType) pointer.Type))
+                .Select(pointer => pointer.Offset + pointer.Size * GetSize((VertexAttribPointerType)pointer.Type))
                 .Prepend(0).Max();
             _count = _vertices.Length * size / stride;
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
@@ -66,25 +67,25 @@ namespace Minecraft.Graphics.Arraying
                 GL.VertexAttribPointer(
                     pointer.Index,
                     pointer.Size,
-                    (VertexAttribPointerType) pointer.Type,
+                    (VertexAttribPointerType)pointer.Type,
                     pointer.Normalized,
                     stride,
                     pointer.Offset);
                 GL.EnableVertexAttribArray(pointer.Index);
             }
 
-            Logger.Info<VertexArray<T>>($"Create an vertex array:{_vertexArrayObject}");
+            _logger.Info($"Create an vertex array:{_vertexArrayObject}");
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return ((IEnumerable<T>) _vertices).GetEnumerator();
+            return ((IEnumerable<T>)_vertices).GetEnumerator();
         }
 
         int IHandle.Handle => _vertexArrayObject;
 
         /// <summary>
-        ///     渲染
+        /// 渲染
         /// </summary>
         public void Render()
         {
@@ -92,7 +93,7 @@ namespace Minecraft.Graphics.Arraying
         }
 
         /// <summary>
-        ///     渲染
+        /// 渲染
         /// </summary>
         /// <param name="index">索引</param>
         /// <param name="count">数量</param>
@@ -109,7 +110,7 @@ namespace Minecraft.Graphics.Arraying
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<byte>) this).GetEnumerator();
+            return ((IEnumerable<byte>)this).GetEnumerator();
         }
 
         public void Dispose()
@@ -119,7 +120,7 @@ namespace Minecraft.Graphics.Arraying
         }
 
         /// <summary>
-        ///     获取不包含原数组的顶点堆
+        /// 获取不包含原数组的顶点堆
         /// </summary>
         /// <remarks>理论上会减少资源占用</remarks>
         /// <returns>顶点堆的Handle</returns>

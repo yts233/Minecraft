@@ -1,4 +1,4 @@
-namespace Minecraft.Graphics.Transforming
+namespace Minecraft.Graphics
 {
     public interface ICalculator
     {

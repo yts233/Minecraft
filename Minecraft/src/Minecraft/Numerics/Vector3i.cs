@@ -73,5 +73,13 @@ namespace Minecraft.Numerics
             Z *= other;
         }
 
+        public void Normalize()
+        {
+            var len = Length;
+            X /= len;
+            Y /= len;
+            Z /= len;
+        }
+
     }
 }

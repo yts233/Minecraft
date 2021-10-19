@@ -7,22 +7,22 @@ namespace Minecraft.Data.Common.Chunking
     public static class Extensions
     {
         /*
-         * position in chuck section:
+         * position in chunk section:
          * |    Y    |    Z    |    X    |
          * | 0 1 2 3 | 4 5 6 7 | 8 9 A B |
          * 
-         * position in chuck section:
+         * position in chunk section:
          * |        Y        |    Z    |    X    |
          * | 0 1 2 3 4 5 6 7 | 8 9 A B | C D E F |
          * 
          */
 
-        public static int ToBlockPositionInChuck(this (int x, int y, int z) position)
+        public static int ToBlockPositionInChunk(this (int x, int y, int z) position)
         {
             return (position.y << 8) | (position.z << 4) | position.x;
         }
 
-        public static (int x, int y, int z) ToBlockPositionInChuck(this int position)
+        public static (int x, int y, int z) ToBlockPositionInChunk(this int position)
         {
             return (position & 0x0F, (position >> 8) & 0xFF, (position >> 4) & 0x0F);
         }
@@ -32,12 +32,12 @@ namespace Minecraft.Data.Common.Chunking
             return (y << 8) | (z << 4) | x;
         }
 
-        private static (int chuckX, int chuckY, int chuckZ) GetChuckPosition(int blockX, int blockY, int blockZ)
+        private static (int chunkX, int chunkY, int chunkZ) GetChunkPosition(int blockX, int blockY, int blockZ)
         {
             return (blockX >> 4, blockY >> 4, blockZ >> 4);
         }
 
-        private static (int blockInChuckX, int blockInChuckY, int blockInChuckZ) GetBlockInChuckPosition(int blockX,
+        private static (int blockInChunkX, int blockInChunkY, int blockInChunkZ) GetBlockInChunkPosition(int blockX,
             int blockY, int blockZ)
         {
             return (blockX & 0x0F, blockY & 0x0F, blockZ & 0x0F);
@@ -57,47 +57,47 @@ namespace Minecraft.Data.Common.Chunking
 
         // TODO: handle the relation among locations
 
-        public static ChuckSection GetSectionOrNull(this ChuckData chuckData, sbyte sectionY)
+        public static ChunkSection GetSectionOrNull(this ChunkData chunkData, sbyte sectionY)
         {
-            return chuckData.Sections
+            return chunkData.Sections
                 .FirstOrDefault(section => section.Y == sectionY);
         }
 
-        public static ChuckSection GetSectionOrCreate(this ChuckData chuckData, sbyte sectionY)
+        public static ChunkSection GetSectionOrCreate(this ChunkData chunkData, sbyte sectionY)
         {
-            var section = chuckData.GetSectionOrNull(sectionY);
+            var section = chunkData.GetSectionOrNull(sectionY);
             if (section != null)
                 return section;
-            section = new ChuckSection {Y = sectionY};
-            chuckData.Sections.Add(section);
+            section = new ChunkSection {Y = sectionY};
+            chunkData.Sections.Add(section);
             return section;
         }
 
-        public static int? GetPaletteIndexOrNull(this ChuckSection chuckSection, BlockState blockState)
+        public static int? GetPaletteIndexOrNull(this ChunkSection chunkSection, BlockState blockState)
         {
-            if (!chuckSection.Palette.Contains(blockState))
+            if (!chunkSection.Palette.Contains(blockState))
                 return null;
-            return chuckSection.Palette.IndexOf(blockState);
+            return chunkSection.Palette.IndexOf(blockState);
         }
 
-        public static int GetPaletteIndexOrCreate(this ChuckSection chuckSection, BlockState blockState)
+        public static int GetPaletteIndexOrCreate(this ChunkSection chunkSection, BlockState blockState)
         {
-            if (!chuckSection.Palette.Contains(blockState))
-                chuckSection.Palette.Add(blockState);
-            return chuckSection.Palette.IndexOf(blockState);
+            if (!chunkSection.Palette.Contains(blockState))
+                chunkSection.Palette.Add(blockState);
+            return chunkSection.Palette.IndexOf(blockState);
         }
 
-        public static IEnumerable<(int blockPosition, BlockState blockState)> GetBlocks(this ChuckSection chuckSection)
+        public static IEnumerable<(int blockPosition, BlockState blockState)> GetBlocks(this ChunkSection chunkSection)
         {
             for (var i = 0; i < 4096; i++)
-                yield return (i, chuckSection.GetBlock(i));
+                yield return (i, chunkSection.GetBlock(i));
         }
 
-        public static IEnumerable<(int blockPosition, BlockState blockState)> GetBlocks(this ChuckData chuckData)
+        public static IEnumerable<(int blockPosition, BlockState blockState)> GetBlocks(this ChunkData chunkData)
         {
             for (sbyte sectionY = 0; sectionY < 16; sectionY++)
             {
-                var section = chuckData.GetSectionOrNull(sectionY);
+                var section = chunkData.GetSectionOrNull(sectionY);
                 var tmp1 = sectionY << 12;
                 if (section == null)
                 {
@@ -112,115 +112,115 @@ namespace Minecraft.Data.Common.Chunking
             }
         }
 
-        public static BlockState GetBlock(this ChuckSection chuckSection, int blockPosition)
+        public static BlockState GetBlock(this ChunkSection chunkSection, int blockPosition)
         {
-            return chuckSection.Palette[(int) chuckSection.BlockStates[blockPosition]];
+            return chunkSection.Palette[(int) chunkSection.BlockStates[blockPosition]];
         }
 
-        public static BlockState GetBlock(this ChuckSection chuckSection, int x, int y, int z)
+        public static BlockState GetBlock(this ChunkSection chunkSection, int x, int y, int z)
         {
-            return chuckSection.GetBlock(GetBlockPosition(x, y, z));
+            return chunkSection.GetBlock(GetBlockPosition(x, y, z));
         }
 
-        public static BlockState GetBlock(this ChuckData chuckData, int x, int y, int z)
+        public static BlockState GetBlock(this ChunkData chunkData, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            return chuckData.GetSectionOrNull(sectionY)?
+            return chunkData.GetSectionOrNull(sectionY)?
                        .GetBlock(x, inSectionY, z)
                    ?? new BlockState("void_air");
         }
 
-        public static void SetBlock(this ChuckSection chuckSection, BlockState blockState, int blockPosition)
+        public static void SetBlock(this ChunkSection chunkSection, BlockState blockState, int blockPosition)
         {
-            var index = chuckSection.GetPaletteIndexOrCreate(blockState);
-            chuckSection.BlockStates[blockPosition] = index;
+            var index = chunkSection.GetPaletteIndexOrCreate(blockState);
+            chunkSection.BlockStates[blockPosition] = index;
         }
 
-        public static void SetBlock(this ChuckSection chuckSection, BlockState blockState, int x, int y, int z)
+        public static void SetBlock(this ChunkSection chunkSection, BlockState blockState, int x, int y, int z)
         {
-            chuckSection.SetBlock(blockState, GetBlockPosition(x, y, z));
+            chunkSection.SetBlock(blockState, GetBlockPosition(x, y, z));
         }
 
-        public static void SetBlock(this ChuckData chuckData, BlockState blockState, int x, int y, int z)
+        public static void SetBlock(this ChunkData chunkData, BlockState blockState, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            var section = chuckData.GetSectionOrCreate(sectionY);
+            var section = chunkData.GetSectionOrCreate(sectionY);
             section.SetBlock(blockState, x, inSectionY, z);
         }
 
-        public static sbyte GetBlockLight(this ChuckSection chuckSection, int blockPosition)
+        public static sbyte GetBlockLight(this ChunkSection chunkSection, int blockPosition)
         {
-            return Nibble4(chuckSection.BlockLight, blockPosition);
+            return Nibble4(chunkSection.BlockLight, blockPosition);
         }
 
-        public static sbyte GetBlockLight(this ChuckSection chuckSection, int x, int y, int z)
+        public static sbyte GetBlockLight(this ChunkSection chunkSection, int x, int y, int z)
         {
-            return chuckSection.GetBlockLight(GetBlockPosition(x, y, z));
+            return chunkSection.GetBlockLight(GetBlockPosition(x, y, z));
         }
 
-        public static sbyte GetBlockLight(this ChuckData chuckData, int x, int y, int z)
+        public static sbyte GetBlockLight(this ChunkData chunkData, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            return chuckData.GetSectionOrNull(sectionY)?
+            return chunkData.GetSectionOrNull(sectionY)?
                        .GetBlockLight(x, inSectionY, z)
                    ?? 0;
         }
 
-        public static void SetBlockLight(this ChuckSection chuckSection, sbyte light, int blockPosition)
+        public static void SetBlockLight(this ChunkSection chunkSection, sbyte light, int blockPosition)
         {
-            Nibble4(chuckSection.BlockLight, blockPosition, light);
+            Nibble4(chunkSection.BlockLight, blockPosition, light);
         }
 
-        public static void SetBlockLight(this ChuckSection chuckSection, sbyte light, int x, int y, int z)
+        public static void SetBlockLight(this ChunkSection chunkSection, sbyte light, int x, int y, int z)
         {
-            chuckSection.SetBlockLight(light, GetBlockPosition(x, y, z));
+            chunkSection.SetBlockLight(light, GetBlockPosition(x, y, z));
         }
 
-        public static void SetBlockLight(this ChuckData chuckData, sbyte light, int x, int y, int z)
+        public static void SetBlockLight(this ChunkData chunkData, sbyte light, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            var section = chuckData.GetSectionOrCreate(sectionY);
+            var section = chunkData.GetSectionOrCreate(sectionY);
             section.SetBlockLight(light, x, inSectionY, z);
         }
 
-        public static sbyte GetSkyLight(this ChuckSection chuckSection, int blockPosition)
+        public static sbyte GetSkyLight(this ChunkSection chunkSection, int blockPosition)
         {
-            return Nibble4(chuckSection.SkyLight, blockPosition);
+            return Nibble4(chunkSection.SkyLight, blockPosition);
         }
 
-        public static sbyte GetSkyLight(this ChuckSection chuckSection, int x, int y, int z)
+        public static sbyte GetSkyLight(this ChunkSection chunkSection, int x, int y, int z)
         {
-            return chuckSection.GetSkyLight(GetBlockPosition(x, y, z));
+            return chunkSection.GetSkyLight(GetBlockPosition(x, y, z));
         }
 
-        public static sbyte GetSkyLight(this ChuckData chuckData, int x, int y, int z)
+        public static sbyte GetSkyLight(this ChunkData chunkData, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            return chuckData.GetSectionOrNull(sectionY)?
+            return chunkData.GetSectionOrNull(sectionY)?
                        .GetSkyLight(x, inSectionY, z)
                    ?? 0;
         }
 
-        public static void SetSkyLight(this ChuckSection chuckSection, sbyte light, int blockPosition)
+        public static void SetSkyLight(this ChunkSection chunkSection, sbyte light, int blockPosition)
         {
-            Nibble4(chuckSection.SkyLight, blockPosition, light);
+            Nibble4(chunkSection.SkyLight, blockPosition, light);
         }
 
-        public static void SetSkyLight(this ChuckSection chuckSection, sbyte light, int x, int y, int z)
+        public static void SetSkyLight(this ChunkSection chunkSection, sbyte light, int x, int y, int z)
         {
-            chuckSection.SetBlockLight(light, GetBlockPosition(x, y, z));
+            chunkSection.SetBlockLight(light, GetBlockPosition(x, y, z));
         }
 
-        public static void SetSkyLight(this ChuckData chuckData, sbyte light, int x, int y, int z)
+        public static void SetSkyLight(this ChunkData chunkData, sbyte light, int x, int y, int z)
         {
             var sectionY = (sbyte) (y >> 4);
             var inSectionY = y & 0x0F;
-            var section = chuckData.GetSectionOrCreate(sectionY);
+            var section = chunkData.GetSectionOrCreate(sectionY);
             section.SetSkyLight(light, x, inSectionY, z);
         }
     }

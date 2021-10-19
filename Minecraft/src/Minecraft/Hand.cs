@@ -1,8 +1,11 @@
 ﻿namespace Minecraft
 {
+    /// <summary>
+    /// The hand
+    /// </summary>
     public enum Hand : int
     {
-        Left = 0,
-        Right = 1
+        MainHand = 0,
+        OffHand = 1
     }
 }

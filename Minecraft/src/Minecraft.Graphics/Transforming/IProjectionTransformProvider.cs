@@ -2,7 +2,7 @@
 
 namespace Minecraft.Graphics.Transforming
 {
-    public interface IProjectionTransformProvider : IMatrixProvider<Matrix4, Vector4>
+    public interface IProjectionTransformProvider : IMatrixCalculator<Matrix4, Vector4>
     {
     }
 }

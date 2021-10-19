@@ -8,7 +8,7 @@ namespace Minecraft.Resources
     /// </summary>
     public abstract class Resource : IDisposable
     {
-        private static Logger<Resource> _logger = Logger.GetLogger<Resource>();
+        private static readonly Logger<Resource> _logger = Logger.GetLogger<Resource>();
 
         /// <summary>
         /// 创建资源

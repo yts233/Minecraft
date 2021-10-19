@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -10,14 +10,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Minecraft.Graphics.Engines\Minecraft.Graphics.Renderers.csproj" />
+      <ProjectReference Include="..\..\src\Minecraft.Graphics.Blocking\Minecraft.Graphics.Blocking.csproj" />
+      <ProjectReference Include="..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics.Texturing\Minecraft.Graphics.Texturing.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Input\Minecraft.Input.csproj" />
-      <ProjectReference Include="..\..\src\Minecraft.Resources\Minecraft.Resources.csproj" />
-      <ProjectReference Include="..\..\src\Minecraft\Minecraft.csproj" />
-      <ProjectReference Include="..\..\res\Minecraft.Resources.Vanilla.VillageAndPillage\Minecraft.Resources.Vanilla.VillageAndPillage.csproj" />
+      <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft\Minecraft.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
+      <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\res\Minecraft.Resources.Vanilla.VillageAndPillage\Minecraft.Resources.Vanilla.VillageAndPillage.csproj" />
+      <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Resources\Minecraft.Resources.csproj" />
     </ItemGroup>
 
     <ItemGroup>

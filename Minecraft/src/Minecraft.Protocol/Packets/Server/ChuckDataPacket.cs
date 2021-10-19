@@ -2,7 +2,7 @@
 #if false
 namespace Minecraft.Protocol.Packets.Server
 {
-    public class ChuckDataPacket : Packet
+    public class ChunkDataPacket : Packet
     {
         // TODO: edit class
         public override int PacketId => 0x22;

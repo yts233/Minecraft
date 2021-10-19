@@ -46,8 +46,8 @@ namespace Minecraft.Numerics
         /// <summary>
         /// Delta the value
         /// </summary>
-        /// <param name="other"></param>
         /// <remarks>The operation is like:<code>current = current - other</code></remarks>
+        /// <param name="other"></param>
         public void Delta(IVector3<double> other)
         {
             X -= other.X;
@@ -65,6 +65,14 @@ namespace Minecraft.Numerics
             X *= other;
             Y *= other;
             Z *= other;
+        }
+
+        public void Normalize()
+        {
+            var len = Length;
+            X /= len;
+            Y /= len;
+            Z /= len;
         }
 
         public static implicit operator Vector3d((double x, double y, double z) value)

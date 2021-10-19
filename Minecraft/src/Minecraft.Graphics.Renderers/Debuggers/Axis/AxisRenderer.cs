@@ -30,19 +30,15 @@ namespace Minecraft.Graphics.Renderers.Debuggers.Axis
         {
             var matrix = _viewMatrix.GetMatrix();
             matrix.Column3 = Vector4.UnitW;
+            _shader.Use();
             _shader.View = matrix;
             _shader.Projection = _projectionMatrix.GetMatrix();
+            _vertexArray.Bind();
             _vertexArray.Render(PrimitiveType.Lines);
         }
 
         public void Update()
         {
-        }
-
-        public void Bind()
-        {
-            _shader.Use();
-            _vertexArray.Bind();
         }
 
         public void Tick()

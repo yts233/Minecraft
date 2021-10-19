@@ -14,21 +14,111 @@ using MKeys = Minecraft.Input.Keys;
 
 namespace Minecraft.Graphics.Windowing
 {
-    public class RenderWindow : IRenderContainer, IPointerContainer, IKeyboardContainer, IGameTickContainer, IDisposable
+    public class RenderWindow : IRenderWindowContainer
     {
         private GameWindow _gameWindow;
         private WindowPointerState _pointerState;
-        private double _renderFreq = 60, _updateFreq = 120;
+        private double _renderFreq = 60, _updateFreq = 60;
 
         public Vector2i Location => _gameWindow.Location;
-        public event Action<MKeyboardKeyEventArgs> KeyDown;
-        public event Action<MKeyboardKeyEventArgs> KeyUp;
 
         public IKeyboardState KeyboardState { get; private set; }
 
-        public event Action<PointerButtonEventArgs> PointerDown;
-        public event Action<PointerButtonEventArgs> PointerUp;
-        public event Action<PointerMoveEventArgs> PointerMove;
+
+        #region Events
+
+        public event EventHandler<MKeyboardKeyEventArgs> KeyDown;
+        public event EventHandler<MKeyboardKeyEventArgs> KeyUp;
+        public event EventHandler<PointerButtonEventArgs> PointerDown;
+        public event EventHandler<PointerButtonEventArgs> PointerUp;
+        public event EventHandler<PointerMoveEventArgs> PointerMove;
+        public event EventHandler ContainerInitalized;
+        public event EventHandler BeforeInitalizers;
+        public event EventHandler AfterInitalizers;
+        public event EventHandler BeforeRenderers;
+        public event EventHandler AfterRenderers;
+        public event EventHandler BeforeUpdaters;
+        public event EventHandler AfterUpdaters;
+        public event EventHandler ContainerStarted;
+        public event EventHandler ContainerClosed;
+        public event EventHandler TickTimerStarted;
+        public event EventHandler BeforeTickers;
+        public event EventHandler AfterTickers;
+
+        #endregion
+
+        #region EventMethods
+
+        protected virtual void OnKeyDown(object sender, MKeyboardKeyEventArgs e)
+        {
+            KeyDown?.Invoke(sender, e);
+        }
+        protected virtual void OnKeyUp(object sender, MKeyboardKeyEventArgs e)
+        {
+            KeyUp?.Invoke(sender, e);
+        }
+        protected virtual void OnPointerDown(object sender, PointerButtonEventArgs e)
+        {
+            PointerDown?.Invoke(sender, e);
+        }
+        protected virtual void OnPointerUp(object sender, PointerButtonEventArgs e)
+        {
+            PointerUp?.Invoke(sender, e);
+        }
+        protected virtual void OnPointerMove(object sender, PointerMoveEventArgs e)
+        {
+            PointerMove?.Invoke(sender, e);
+        }
+        protected virtual void OnContainerInitalized(object sender, EventArgs e)
+        {
+            ContainerInitalized?.Invoke(sender, e);
+        }
+        protected virtual void OnBeforeInitalizers(object sender, EventArgs e)
+        {
+            BeforeInitalizers?.Invoke(sender, e);
+        }
+        protected virtual void OnAfterInitalizers(object sender, EventArgs e)
+        {
+            AfterInitalizers?.Invoke(sender, e);
+        }
+        protected virtual void OnBeforeRenderers(object sender, EventArgs e)
+        {
+            BeforeRenderers?.Invoke(sender, e);
+        }
+        protected virtual void OnAfterRenderers(object sender, EventArgs e)
+        {
+            AfterRenderers?.Invoke(sender, e);
+        }
+        protected virtual void OnBeforeUpdaters(object sender, EventArgs e)
+        {
+            BeforeUpdaters?.Invoke(sender, e);
+        }
+        protected virtual void OnAfterUpdaters(object sender, EventArgs e)
+        {
+            AfterUpdaters?.Invoke(sender, e);
+        }
+        protected virtual void OnContainerStarted(object sender, EventArgs e)
+        {
+            ContainerStarted?.Invoke(sender, e);
+        }
+        protected virtual void OnContainerClosed(object sender, EventArgs e)
+        {
+            ContainerClosed?.Invoke(sender, e);
+        }
+        protected virtual void OnTickTimerStarted(object sender, EventArgs e)
+        {
+            TickTimerStarted?.Invoke(sender, e);
+        }
+        protected virtual void OnBeforeTickers(object sender, EventArgs e)
+        {
+            BeforeTickers?.Invoke(sender, e);
+        }
+        protected virtual void OnAfterTickers(object sender, EventArgs e)
+        {
+            AfterTickers?.Invoke(sender, e);
+        }
+
+        #endregion
 
         public bool PointerGrabbed
         {
@@ -59,6 +149,19 @@ namespace Minecraft.Graphics.Windowing
         private string _title = "Render Window";
         private bool _isFullscreen;
         private bool _pointerGrabbed;
+        private bool _disposed;
+        private Vector2i _size = new(854, 480);
+
+        public Vector2i Size
+        {
+            get => _gameWindow?.Size ?? _size;
+            set
+            {
+                _size = value;
+                if (_gameWindow != null)
+                    _gameWindow.Size = value;
+            }
+        }
 
         public string Title
         {
@@ -104,21 +207,29 @@ namespace Minecraft.Graphics.Windowing
             }
         }
 
-        private readonly Timer _gameTickTimer = new Timer(50);
+        public bool PointerActivated { get; private set; }
+
+        private readonly Timer _gameTickTimer = new(50);
 
         public void ReloadWindow()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(RenderWindow));
+
             _gameWindow?.Dispose();
 
             _gameWindow =
                 new GameWindow(
                         new GameWindowSettings
                         {
-                            RenderFrequency = _renderFreq, UpdateFrequency = _updateFreq, IsMultiThreaded = true
+                            RenderFrequency = _renderFreq,
+                            UpdateFrequency = _updateFreq,
+                            IsMultiThreaded = true
                         },
                         new NativeWindowSettings
-                            {Title = _title, Size = (854, 480), NumberOfSamples = 4})
-                    {VSync = VSyncMode.Off, CursorGrabbed = _pointerGrabbed};
+                        { Title = _title, Size = _size, NumberOfSamples = 4 })
+                { VSync = VSyncMode.Off, CursorGrabbed = _pointerGrabbed };
+            OnContainerInitalized(this, EventArgs.Empty);
             _gameWindow.Load += GameWindow_Load;
             _gameWindow.RenderThreadStarted += GameWindow_RenderThreadStarted;
             _gameWindow.RenderFrame += GameWindow_RenderFrame;
@@ -129,15 +240,30 @@ namespace Minecraft.Graphics.Windowing
             _gameWindow.MouseMove += GameWindow_MouseMove;
             _gameWindow.KeyDown += GameWindow_KeyDown;
             _gameWindow.KeyUp += GameWindow_KeyUp;
+            _gameWindow.MouseEnter += GameWindow_MouseEnter;
+            _gameWindow.MouseLeave += GameWindow_MouseLeave; ;
             _gameTickTimer.Elapsed += GameTickTimerOnElapsed;
             _gameWindow.Run();
+        }
+
+        private void GameWindow_MouseLeave()
+        {
+            PointerActivated = false;
+        }
+
+        private void GameWindow_MouseEnter()
+        {
+            PointerActivated = true;
         }
 
         private void GameTickTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             Logger.SetThreadName("ClientTickThread");
+            OnBeforeTickers(this, EventArgs.Empty);
             foreach (var ticker in Tickers)
                 ticker.Tick();
+
+            OnAfterTickers(this, EventArgs.Empty);
         }
 
         private static void GameWindow_RenderThreadStarted()
@@ -147,13 +273,13 @@ namespace Minecraft.Graphics.Windowing
 
         private void GameWindow_KeyUp(KeyboardKeyEventArgs obj)
         {
-            KeyUp?.Invoke(new MKeyboardKeyEventArgs((MKeys) obj.Key, obj.ScanCode, (MKeyModifiers) obj.Modifiers,
+            OnKeyUp(this, new MKeyboardKeyEventArgs((MKeys)obj.Key, obj.ScanCode, (MKeyModifiers)obj.Modifiers,
                 obj.IsRepeat));
         }
 
         private void GameWindow_KeyDown(KeyboardKeyEventArgs obj)
         {
-            KeyDown?.Invoke(new MKeyboardKeyEventArgs((MKeys) obj.Key, obj.ScanCode, (MKeyModifiers) obj.Modifiers,
+            OnKeyDown(this, new MKeyboardKeyEventArgs((MKeys)obj.Key, obj.ScanCode, (MKeyModifiers)obj.Modifiers,
                 obj.IsRepeat));
         }
 
@@ -162,19 +288,19 @@ namespace Minecraft.Graphics.Windowing
             _pointerState.PreviousPosition = _pointerState.Position;
             _pointerState.Position = obj.Position;
             _pointerState.Delta = obj.Delta;
-            PointerMove?.Invoke(new PointerMoveEventArgs(obj.Position, obj.Delta));
+            OnPointerMove(this, new PointerMoveEventArgs(obj.Position, obj.Delta));
         }
 
         private void GameWindow_MouseUp(MouseButtonEventArgs obj)
         {
-            PointerUp?.Invoke(new PointerButtonEventArgs((PointerButton) obj.Button, (InputAction) obj.Action,
-                (KeyModifiers) obj.Modifiers));
+            OnPointerUp(this, new PointerButtonEventArgs((PointerButton)obj.Button, (InputAction)obj.Action,
+                (MKeyModifiers)obj.Modifiers));
         }
 
         private void GameWindow_MouseDown(MouseButtonEventArgs obj)
         {
-            PointerDown?.Invoke(new PointerButtonEventArgs((PointerButton) obj.Button, (InputAction) obj.Action,
-                (KeyModifiers) obj.Modifiers));
+            OnPointerDown(this, new PointerButtonEventArgs((PointerButton)obj.Button, (InputAction)obj.Action,
+                (MKeyModifiers)obj.Modifiers));
         }
 
         private void GameWindow_Unload()
@@ -189,26 +315,26 @@ namespace Minecraft.Graphics.Windowing
             _gameWindow.MouseMove -= GameWindow_MouseMove;
             _gameWindow.KeyDown -= GameWindow_KeyDown;
             _gameWindow.KeyUp -= GameWindow_KeyUp;
+            _gameWindow.MouseEnter -= GameWindow_MouseEnter;
+            _gameWindow.MouseLeave -= GameWindow_MouseLeave;
             _gameTickTimer.Elapsed -= GameTickTimerOnElapsed;
             _gameTickTimer.Stop();
 
             _pointerState = null;
             KeyboardState = null;
-            
-            static void DisposeObject(object obj)
-            {
-                if (obj is IDisposable disposable)
-                    disposable.Dispose();
-            }
 
             foreach (var obj in Initializers.Cast<object>().Concat(Renderers).Concat(Updaters))
-                DisposeObject(obj);
+                if (obj is IDisposable disposable)
+                    disposable.Dispose();
         }
 
         private void GameWindow_UpdateFrame(FrameEventArgs obj)
         {
             PreviousUpdateTime = obj.Time;
+            OnBeforeUpdaters(this, EventArgs.Empty);
             foreach (var updatable in Updaters) updatable.Update();
+            OnAfterUpdaters(this, EventArgs.Empty);
+
             _pointerState.Delta = Vector2.Zero;
             _pointerState.PreviousPosition = _pointerState.Position;
         }
@@ -216,7 +342,9 @@ namespace Minecraft.Graphics.Windowing
         private void GameWindow_RenderFrame(FrameEventArgs obj)
         {
             PreviousRenderTime = obj.Time;
+            OnBeforeRenderers(this, EventArgs.Empty);
             foreach (var renderable in Renderers) renderable.Render();
+            OnAfterRenderers(this, EventArgs.Empty);
 
             _gameWindow.SwapBuffers();
         }
@@ -227,25 +355,30 @@ namespace Minecraft.Graphics.Windowing
             _pointerState = new WindowPointerState(_gameWindow.MouseState);
             KeyboardState = new WindowKeyboardState(_gameWindow.KeyboardState);
             _gameWindow.WindowState = _isFullscreen ? WindowState.Fullscreen : WindowState.Normal;
+
+            OnContainerStarted(this, EventArgs.Empty);
+
+            OnBeforeInitalizers(this, EventArgs.Empty);
             foreach (var initializer in Initializers) initializer.Initialize();
+            OnAfterInitalizers(this, EventArgs.Empty);
 
             _gameTickTimer.Start();
+            OnTickTimerStarted(this, EventArgs.Empty);
         }
 
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
+            GC.SuppressFinalize(this);
             _gameWindow?.Dispose();
             _gameTickTimer.Dispose();
-        }
-
-        ~RenderWindow()
-        {
-            Dispose();
         }
 
         public void Close()
         {
             _gameWindow.Close();
+            OnContainerClosed(this, EventArgs.Empty);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Minecraft.Resources
             return resource
                 .GetAssets()
                 .Where(asset => asset.Type == type)
-                .FirstOrDefault(asset => asset.NamedIdentifier == fullname);
+                .FirstOrDefault(asset => asset.NamedIdentifier.Equals(fullname));
         }
 
         public static Language GetLanguage(this Resource resource, string id)

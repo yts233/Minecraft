@@ -3,30 +3,31 @@ using OpenTK.Graphics.OpenGL;
 namespace Minecraft.Graphics.Shading
 {
     /// <summary>
-    ///     着色器连接器
+    /// 着色器连接器
     /// </summary>
     public class ShaderBuilder
     {
+        private static Logger<ShaderBuilder> _logger = Logger.GetLogger<ShaderBuilder>();
+
         /// <summary>
-        ///     创建着色器连接器
+        /// 创建着色器连接器
         /// </summary>
         public ShaderBuilder()
         {
-            Logger.Info<ShaderBuilder>($"Create shader: {ShaderProgram}");
+            _logger.Info($"Create shader: {ShaderProgram}");
         }
 
         /// <summary>
-        ///     着色器程序
+        /// 着色器程序
         /// </summary>
         public int ShaderProgram { get; } = GL.CreateProgram();
 
         /// <summary>
-        ///     获取该着色器连接器是否已被链接
+        /// 获取该着色器连接器是否已被链接
         /// </summary>
         public bool Linked { get; private set; }
 
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private int _attachShader(ShaderType type, string source, int oldValue)
+        private int AttachShader(ShaderType type, string source, int oldValue)
         {
             _checkProgramLinked();
             if (oldValue != -1) throw new ShaderException("Shader has already been created.");
@@ -39,7 +40,7 @@ namespace Minecraft.Graphics.Shading
 
             GL.AttachShader(ShaderProgram, shader);
             GL.DeleteShader(shader);
-            Logger.Info<ShaderBuilder>($"{type}: {shader} attached");
+            _logger.Info($"{type}: {shader} attached");
             return shader;
         }
 
@@ -48,7 +49,7 @@ namespace Minecraft.Graphics.Shading
             _checkProgramLinked();
             if (shader != -1) GL.DetachShader(ShaderProgram, shader);
 
-            Logger.Info<ShaderBuilder>($"Shader: {shader} detached");
+            _logger.Info($"Shader: {shader} detached");
             return -1;
         }
 
@@ -58,7 +59,7 @@ namespace Minecraft.Graphics.Shading
         }
 
         /// <summary>
-        ///     链接着色器
+        /// 链接着色器
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ShaderException">着色器程序链接失败</exception>
@@ -70,7 +71,7 @@ namespace Minecraft.Graphics.Shading
             if (success == 0) throw new ShaderException($"Program: {GL.GetProgramInfoLog(ShaderProgram)}");
 
             Linked = true;
-            Logger.Info<ShaderBuilder>($"Shader program: {ShaderProgram} linked");
+            _logger.Info($"Shader program: {ShaderProgram} linked");
             return new Shader(this);
         }
 
@@ -92,28 +93,28 @@ namespace Minecraft.Graphics.Shading
 
         public ShaderBuilder AttachComputeShader(string source)
         {
-            return (ComputeShaderHandle = _attachShader(ShaderType.ComputeShader, source, ComputeShaderHandle)) != -1
+            return (ComputeShaderHandle = AttachShader(ShaderType.ComputeShader, source, ComputeShaderHandle)) != -1
                 ? this
                 : null;
         }
 
         public ShaderBuilder AttachFragmentShader(string source)
         {
-            return (FragmentShaderHandle = _attachShader(ShaderType.FragmentShader, source, FragmentShaderHandle)) != -1
+            return (FragmentShaderHandle = AttachShader(ShaderType.FragmentShader, source, FragmentShaderHandle)) != -1
                 ? this
                 : null;
         }
 
         public ShaderBuilder AttachGeometryShader(string source)
         {
-            return (GeometryShaderHandle = _attachShader(ShaderType.GeometryShader, source, GeometryShaderHandle)) != -1
+            return (GeometryShaderHandle = AttachShader(ShaderType.GeometryShader, source, GeometryShaderHandle)) != -1
                 ? this
                 : null;
         }
 
         public ShaderBuilder AttachVertexShader(string source)
         {
-            return (VertexShaderHandle = _attachShader(ShaderType.VertexShader, source, VertexShaderHandle)) != -1
+            return (VertexShaderHandle = AttachShader(ShaderType.VertexShader, source, VertexShaderHandle)) != -1
                 ? this
                 : null;
         }
@@ -121,7 +122,7 @@ namespace Minecraft.Graphics.Shading
         public ShaderBuilder AttachFragmentShaderArb(string source)
         {
             return (FragmentShaderArbHandle =
-                _attachShader(ShaderType.FragmentShaderArb, source, FragmentShaderArbHandle)) != -1
+                AttachShader(ShaderType.FragmentShaderArb, source, FragmentShaderArbHandle)) != -1
                 ? this
                 : null;
         }
@@ -129,7 +130,7 @@ namespace Minecraft.Graphics.Shading
         public ShaderBuilder AttachGeometryShaderExt(string source)
         {
             return (GeometryShaderExtHandle =
-                _attachShader(ShaderType.GeometryShaderExt, source, GeometryShaderExtHandle)) != -1
+                AttachShader(ShaderType.GeometryShaderExt, source, GeometryShaderExtHandle)) != -1
                 ? this
                 : null;
         }
@@ -137,7 +138,7 @@ namespace Minecraft.Graphics.Shading
         public ShaderBuilder AttachTessControlShader(string source)
         {
             return (TessControlShaderHandle =
-                _attachShader(ShaderType.TessControlShader, source, TessControlShaderHandle)) != -1
+                AttachShader(ShaderType.TessControlShader, source, TessControlShaderHandle)) != -1
                 ? this
                 : null;
         }
@@ -145,14 +146,14 @@ namespace Minecraft.Graphics.Shading
         public ShaderBuilder AttachTessEvaluationShader(string source)
         {
             return (TessEvaluationShaderHandle =
-                _attachShader(ShaderType.TessEvaluationShader, source, TessEvaluationShaderHandle)) != -1
+                AttachShader(ShaderType.TessEvaluationShader, source, TessEvaluationShaderHandle)) != -1
                 ? this
                 : null;
         }
 
         public ShaderBuilder AttachVertexShaderArb(string source)
         {
-            return (VertexShaderArbHandle = _attachShader(ShaderType.VertexShaderArb, source, VertexShaderArbHandle)) !=
+            return (VertexShaderArbHandle = AttachShader(ShaderType.VertexShaderArb, source, VertexShaderArbHandle)) !=
                    -1
                 ? this
                 : null;

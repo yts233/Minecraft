@@ -8,7 +8,7 @@ namespace Minecraft.Data.Common.Chunking
     /// </summary>
     /// <remarks>每个高度图都储存了被储存为9位（即取值范围为[0,256]）的256个数值，来表示相应的高度。 </remarks>
     [NbtCompound]
-    public class ChuckHeightMaps
+    public class ChunkHeightMaps
     {
         /// <summary>
         /// 最高的能阻挡移动或含有液体的方块。

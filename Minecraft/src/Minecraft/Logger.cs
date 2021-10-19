@@ -55,7 +55,7 @@ namespace Minecraft
                         throw new ArgumentOutOfRangeException(nameof(level), level, null);
                 }
                 var @string = new StringBuilder();
-                @string.Append($"[{time:H:mm:ss}] [{senderType.Name}]");
+                @string.Append($"[{time:H:mm:ss}] [{senderType?.Name}]");
                 @string.Append(
                     $" [{threadName}/{level.ToString().ToUpper()}]");
                 @string.Append($": {log}");
@@ -350,7 +350,12 @@ namespace Minecraft
             Log(log, LogLevel.Debug, threadName, time);
         }
 
-        public void HelloWorld(string programName)
+        /// <summary>
+        /// Log "Hello Program"
+        /// </summary>
+        /// <param name="programName"></param>
+        /// <remarks>Everything starts with "Hello world"</remarks>
+        public void HelloWorld(string programName = "World")
         {
             Info($"Hello {programName}");
         }

@@ -10,7 +10,7 @@ namespace Minecraft.Data.Common.Chunking
     /// 区块数据
     /// </summary>
     [NbtCompound]
-    public class ChuckData
+    public class ChunkData
     {
         /// <summary>
         /// 该区块的X坐标。
@@ -53,16 +53,16 @@ namespace Minecraft.Data.Common.Chunking
         public sbyte[] Biomes { get; set; } = new sbyte[1024];
 
         [NbtTag(Name = "HeightMaps", Type = NbtTagType.Compound)]
-        public ChuckHeightMaps HeightMaps { get; set; } = new ChuckHeightMaps();
+        public ChunkHeightMaps HeightMaps { get; set; } = new ChunkHeightMaps();
 
         [NbtTag(Name = "CarvingMasks", Type = NbtTagType.Compound)]
-        public ChuckCarvingMasks CarvingMasks { get; set; } = new ChuckCarvingMasks();
+        public ChunkCarvingMasks CarvingMasks { get; set; } = new ChunkCarvingMasks();
 
         /// <summary>
         /// 一组复合标签，每个标签都包含一组子区块的描述。
         /// </summary>
         [NbtTag(Name = "Sections", Type = NbtTagType.List)]
-        public ICollection<ChuckSection> Sections { get; set; } = new List<ChuckSection>();
+        public ICollection<ChunkSection> Sections { get; set; } = new List<ChunkSection>();
 
         [NbtTag(Name = "Entities", Type = NbtTagType.List)]
         public ICollection<Entity> Entities { get; set; } = new List<Entity>();

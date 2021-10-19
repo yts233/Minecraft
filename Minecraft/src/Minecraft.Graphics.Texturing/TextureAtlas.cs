@@ -198,7 +198,7 @@ namespace Minecraft.Graphics.Texturing
             return _spaces.TryGetValue(key, out value);
         }
 
-        public Box2 this[object key] => _spaces[key];
+        public Box2 this[object key] => _spaces[key.ToString()];
 
         public IEnumerable<object> Keys => _spaces.Keys;
 

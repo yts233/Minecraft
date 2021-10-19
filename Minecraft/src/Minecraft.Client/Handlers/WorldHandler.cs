@@ -8,11 +8,16 @@ using System.Text;
 
 namespace Minecraft.Client.Handlers
 {
+    internal interface IEditableValidateHandler:IValidHandler
+    {
+
+    }
     internal class WorldHandler : IWorldHandler
     {
         private readonly MinecraftClientAdapter _adapter;
         private readonly IClientPlayerHandler _player;
         private readonly Dictionary<int, IEntityHandler> _entities = new();
+        private readonly Dictionary<(int x, int z), IChunkHandler> _chunks = new Dictionary<(int x, int z), IChunkHandler>();
 
         public WorldHandler(MinecraftClientAdapter adapter, IClientPlayerHandler player)
         {
@@ -25,6 +30,8 @@ namespace Minecraft.Client.Handlers
 
         private void Adapter_Joined(object sender, (int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, int worldCount, NamedIdentifier[] worldNames, Data.Nbt.Tags.NbtCompound dimensionCodec, Data.Nbt.Tags.NbtCompound dimension, NamedIdentifier worldName, long hashedSeed, int maxPlayers, int viewDistance, bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) e)
         {
+            //TODO: reset the world
+            _entities.Clear();
             _entities.Add(e.entityId, _player);
         }
 
@@ -34,7 +41,7 @@ namespace Minecraft.Client.Handlers
             {
                 if (_entities.TryGetValue(id, out var handler))
                 {
-                    handler.IsValid = false;
+                    //((EntityHandler)handler).IsValid = false;
                     _entities.Remove(id);
                 }
             }
@@ -57,6 +64,12 @@ namespace Minecraft.Client.Handlers
         public IReadOnlyCollection<IEntityHandler> GetEntities()
         {
             return _entities.Values;
+        }
+
+        public IChunkHandler GetChunk(int x, int z)
+        {
+            _chunks.TryGetValue((x, z), out var chunk);
+            return chunk;
         }
     }
 }

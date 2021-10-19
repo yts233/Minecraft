@@ -2,18 +2,14 @@
 
 namespace Minecraft.Graphics.Transforming
 {
-    public class ViewTransformProvider : Matrix4Provider, IMatrixCalculator<Matrix4,Vector4>
+    internal class ViewTransformProvider : Matrix4Provider, IViewTransformProvider
     {
-        public ViewTransformProvider()
-        {
-        }
-
         public ViewTransformProvider(ICamera camera)
         {
             Camera = camera;
         }
 
-        public ICamera Camera { get; set; }
+        public ICamera Camera { get; }
 
         public void CalculateMatrix()
         {

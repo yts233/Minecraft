@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace Minecraft.Graphics.Arraying
 {
     /// <summary>
-    ///     元素堆
+    /// 元素堆
     /// </summary>
     public class ElementArray : IVertexArray, IEnumerable<uint>
     {
@@ -15,13 +15,15 @@ namespace Minecraft.Graphics.Arraying
         private readonly int _elementBufferObject;
         private readonly uint[] _elements;
 
+        private static Logger<ElementArray> _logger = Logger.GetLogger<ElementArray>();
+
         /// <summary>
-        ///     顶点堆
+        /// 顶点堆
         /// </summary>
         private readonly IVertexArrayHandle _vertexArrayHandle;
 
         /// <summary>
-        ///     创建元素堆
+        /// 创建元素堆
         /// </summary>
         /// <param name="vertexArray">顶点堆</param>
         /// <param name="elements">元素堆</param>
@@ -35,7 +37,7 @@ namespace Minecraft.Graphics.Arraying
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, _elements.Length * sizeof(uint), _elements,
                 BufferUsageHint.StaticDraw);
-            Logger.Info<ElementArray>($"Create an element array:{_elementBufferObject}");
+            _logger.Info($"Create an element array:{_elementBufferObject}");
         }
 
         IEnumerator<uint> IEnumerable<uint>.GetEnumerator()
@@ -46,7 +48,7 @@ namespace Minecraft.Graphics.Arraying
         int IHandle.Handle => _vertexArrayHandle.Handle;
 
         /// <summary>
-        ///     绑定此顶点堆
+        /// 绑定此顶点堆
         /// </summary>
         public void Bind()
         {
@@ -59,7 +61,7 @@ namespace Minecraft.Graphics.Arraying
         }
 
         /// <summary>
-        ///     渲染
+        /// 渲染
         /// </summary>
         public void Render()
         {
@@ -67,7 +69,7 @@ namespace Minecraft.Graphics.Arraying
         }
 
         /// <summary>
-        ///     渲染
+        /// 渲染
         /// </summary>
         /// <param name="index">起始元素</param>
         /// <param name="count">元素数</param>
@@ -83,7 +85,7 @@ namespace Minecraft.Graphics.Arraying
         }
 
         /// <summary>
-        ///     获取不包含原数组的元素堆
+        /// 获取不包含原数组的元素堆
         /// </summary>
         /// <remarks>理论上会减少资源占用</remarks>
         /// <returns>元素堆的Handle</returns>

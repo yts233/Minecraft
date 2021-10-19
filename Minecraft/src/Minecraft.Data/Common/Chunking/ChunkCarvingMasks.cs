@@ -4,7 +4,7 @@ using Minecraft.Data.Nbt.Serialization;
 namespace Minecraft.Data.Common.Chunking
 {
     [NbtCompound]
-    public class ChuckCarvingMasks
+    public class ChunkCarvingMasks
     {
         [NbtTag(Name = "AIR", Type = NbtTagType.ByteArray)]
         public sbyte[] Air { get; set; }

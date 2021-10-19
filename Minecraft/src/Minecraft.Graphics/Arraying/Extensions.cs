@@ -7,7 +7,7 @@ namespace Minecraft.Graphics.Arraying
     public static class Extensions
     {
         /// <summary>
-        ///     将当前的顶点堆转换为元素堆
+        /// 将当前的顶点堆转换为元素堆
         /// </summary>
         /// <param name="array">顶点堆</param>
         /// <param name="elements">元素</param>

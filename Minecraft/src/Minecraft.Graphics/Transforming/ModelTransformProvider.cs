@@ -2,7 +2,7 @@
 
 namespace Minecraft.Graphics.Transforming
 {
-    public class ModelTransformProvider : Matrix4Provider, IMatrixCalculator<Matrix4, Vector4>
+    internal class ModelTransformProvider : Matrix4Provider, IModelTransformProvider
     {
         public IModel Model { get; set; }
 

@@ -7,36 +7,12 @@ using Minecraft.Numerics;
 using Minecraft.Extensions;
 using Minecraft.Client;
 using static Demo.MinecraftClientConsole.Shared;
+using Demo.MinecraftClientConsole.Graphics;
 //test server: mc.oxygenstudio.cn
 // connect mc.oxygenstudio.cn
+// connect s1.zhaomc.net
 namespace Demo.MinecraftClientConsole
 {
-    static class Shared
-    {
-        public static void Print(object obj, ConsoleColor? color = null)
-        {
-            var s = obj.ToString();
-            lock (Console.Out)
-            {
-                if (color != null)
-                    Console.ForegroundColor = color.Value;
-                Console.Write(s);
-                Console.ResetColor();
-            }
-        }
-
-        public static void Println(object obj, ConsoleColor? color = null)
-        {
-            var s = obj.ToString();
-            lock (Console.Out)
-            {
-                if (color != null)
-                    Console.ForegroundColor = color.Value;
-                Console.WriteLine(s);
-                Console.ResetColor();
-            }
-        }
-    }
 
     class Program
     {
@@ -50,14 +26,20 @@ namespace Demo.MinecraftClientConsole
         private static MinecraftClient _client;
         private static readonly Logger<CmdLet> _cmdLetLogger = Logger.GetLogger<CmdLet>();
 
+		public static void CreateClient(string userName)
+		{
+			//initalize client
+            _client = new MinecraftClient(userName);
+            _client.Disconnected += (_, e) => Console.WriteLine($"Disconnected. Reason: {e}");
+            _client.ChatReceived += (_, e) => Console.WriteLine(e);
+		}
+
         public static async Task Main(string[] args)
         {
             Logger.SetThreadName("MainThread");
             Logger.SetExceptionHandler();
             Println("Hello, Minecraft Client Console!");
-            //initalize client
-            _client = new MinecraftClient("MCConsoleTest");
-            _client.Disconnected += (_, e) => Console.WriteLine($"Disconnected. Reason: {e}");
+            CreateClient("MCClientTest");
             LoadCommands();
             Println("type help for commands");
             while (true)
@@ -148,7 +130,7 @@ namespace Demo.MinecraftClientConsole
                 if (args.Length == 1 && !string.IsNullOrEmpty(args[0]))
                     userName = args[0];
                 await _client.Disconnect();
-                _client = new MinecraftClient(userName);
+                CreateClient(userName);
                 await Task.CompletedTask;
             }, "[username=MCConsoleTest] 重新创建MinecraftClient实例");
             AddCommand("protocol", async args =>
@@ -206,7 +188,7 @@ namespace Demo.MinecraftClientConsole
             AddCommand("send", async args =>
             {
                 var msg = string.Join(' ', args);
-                await _client.Chat(msg);
+                await _client.SendChatMessage(msg);
             }, "<message> 向服务器发送聊天或指令");
 
             #region Packets
@@ -248,6 +230,77 @@ namespace Demo.MinecraftClientConsole
                 }
                 await Task.CompletedTask;
             }, "获取所有实体");
+            AddCommand("interactentity", async args =>
+            {
+                if (!_client.IsJoined)
+                    return;
+                if (args.Length == 0)
+                {
+                    ShowHelp("interactentity");
+                    return;
+                }
+                if (!int.TryParse(args[0], out var entityId))
+                {
+                    ShowHelp("interactentity");
+                    return;
+                }
+                var entity = _client.GetWorld().GetEntities().FirstOrDefault(e => e.EntityId == entityId);
+                if (entity == null)
+                {
+                    Println("找不到指定的实体！", ConsoleColor.Red);
+                    return;
+                }
+                switch (args.Length)
+                {
+                    case 1:
+                        await _client.GetPlayer().Attack(entity, false);
+                        break;
+                    case 2:
+                        {
+                            if (!int.TryParse(args[1], out var hand))
+                            {
+                                ShowHelp("interactentity");
+                                return;
+                            }
+                            await _client.GetPlayer().Interact(entity, (Hand)hand, false);
+                            break;
+                        }
+
+                    case 5:
+                        {
+                            if (!float.TryParse(args[1], out var x) || !float.TryParse(args[1], out var y) || !float.TryParse(args[1], out var z) || !int.TryParse(args[1], out var hand))
+                            {
+                                ShowHelp("interactentity");
+                                return;
+                            }
+                            await _client.GetPlayer().Interact(entity, (x, y, z), (Hand)hand, false);
+                            break;
+                        }
+
+                    default:
+                        ShowHelp("interactentity");
+                        return;
+                }
+                await Task.CompletedTask;
+            }, "{<entityid> 攻击实体} | [target: x y z] <hand> 与实体交互");
+            #endregion
+
+            #region Graphics
+
+            AddCommand("graphicspositioncontroller", async _ =>
+            {
+                static async void GraphicsThread()
+                {
+                    await Task.Yield();
+                    ClientPositionController controller = null;
+                    await RunOnGraphicsThreadAsync(() => controller = new ClientPositionController(_client));
+                    controller.Run();
+                }
+
+                GraphicsThread();
+                await Task.CompletedTask;
+            }, "创建图形化坐标控制器");
+
             #endregion
 
             AddCommand("clear", async _ =>

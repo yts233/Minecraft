@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Timers;
 using Minecraft;
+using Minecraft.Data;
 using Minecraft.Graphics.Arraying;
+using Minecraft.Graphics.Blocking;
 using Minecraft.Graphics.Renderers.Debuggers.Axis;
 using Minecraft.Graphics.Renderers.Environments.Clouding;
 using Minecraft.Graphics.Rendering;
@@ -28,28 +30,33 @@ namespace Test.OpenGL.Test
             Logger.SetExceptionHandler();
             Logger.EnableMemoryMonitor();
             Logger.SetThreadName("MainThread");
-            Logger.Info<Program>("Hello Minecraft!");
+            Logger.GetLogger<Program>().HelloWorld("Minecraft");
 
 
             // 加载资源和窗体
             var resource = new VanillaResource();
             var window = new RenderWindow
             {
-                IsFullScreen = true,
+                IsFullScreen = false,
                 PointerGrabbed = true,
-                RenderFrequency = 30
+                RenderFrequency = 60
             };
             var windowViewportInvoker = new WindowViewportInvoker(window);
             IEye eye = new Eye
             {
                 Position = (-1, 0, -1),
-                DepthFar = 2048F
+                DepthFar = 512F
             };
             eye.LookAt((0F, 0F, 0F));
-            var viewProvider = new ViewTransformProvider(eye);
-            var projectionProvider = new PerspectiveTransformProvider(eye);
+            var viewProvider = eye.GetViewTransformProvider();
+            var projectionProvider = eye.GetPerspectiveTransformProvider();
             var cloudRenderer = new CloudRenderer(eye, viewProvider, projectionProvider, resource);
             var axisRenderer = new AxisRenderer(viewProvider, projectionProvider);
+            var chunk = new EmptyChunk();
+            TextureAtlas atlases = null;
+            for (var i = 0; i < 16; i++)
+                chunk.SetBlock(i, 0, i, "structure_block_corner");
+            var chunkRenderer = new ChunkRenderer(chunk, () => atlases, viewProvider, projectionProvider);
 
             // 设置视图
             windowViewportInvoker.SizeChanged += e =>
@@ -80,8 +87,8 @@ namespace Test.OpenGL.Test
                 ticks = 0;
                 window.Title = $"Render Window - FPS: {fps} ({ups})  TPS: {tps}";
                 Logger.SetThreadName("RenderInfoThread");
-                Logger.Info<RenderMonitor>($"FPS: {fps} ({ups})");
-                Logger.Info<TickMonitor>($"TPS: {tps}");
+                Logger.GetLogger<RenderMonitor>().Info($"FPS: {fps} ({ups})");
+                Logger.GetLogger<TickMonitor>().Info($"TPS: {tps}");
             };
             renderTimer.Start();
             var memTimer = new Timer(5000);
@@ -98,10 +105,10 @@ namespace Test.OpenGL.Test
                     updates++;
 
                     if (window.PreviousRenderTime >= renderWarnTime)
-                        Logger.Warn<Program>(
+                        Logger.GetLogger<Program>().Warn(
                             $"Render time: {window.PreviousRenderTime}");
                     if (window.PreviousUpdateTime >= renderWarnTime)
-                        Logger.Warn<Program>(
+                        Logger.GetLogger<Program>().Warn(
                             $"Update time: {window.PreviousUpdateTime}");
                 })
                 .AddRenderer(() => frames++);
@@ -123,20 +130,20 @@ namespace Test.OpenGL.Test
                     var time1 = DateTime.Now;
                     var assets = resource.GetAssets().Where(asset =>
                         asset.Type == AssetType.Texture &&
-                        asset.Name.StartsWith("block/") &&
-                        asset.Name.EndsWith(".png"));
+                        asset.NamedIdentifier.Name.StartsWith("block/") &&
+                        asset.NamedIdentifier.Name.EndsWith(".png"));
                     var textureBuilder = new TextureAtlasBuilder();
                     var i = 0;
                     foreach (var asset in assets)
                     {
                         using var stream = asset.OpenRead();
-                        Logger.Info<Program>(asset.FullName);
+                        Logger.GetLogger<Program>().Info(asset.NamedIdentifier.FullName);
                         var bImg = new Image(stream);
                         var isSingle = bImg.FrameCount == 1;
                         var q = 0;
                         foreach (var image in bImg)
                         {
-                            textureBuilder.Add(isSingle ? asset.FullName : $"{asset.FullName}{{{q}}}", image);
+                            textureBuilder.Add(isSingle ? asset.NamedIdentifier.FullName : $"{asset.NamedIdentifier.FullName}{{{q}}}", image);
                             i++;
                             q++;
                             if (i == 4096)
@@ -147,7 +154,7 @@ namespace Test.OpenGL.Test
                             break;
                     }
 
-                    var texture = textureBuilder.Build();
+                    atlases = textureBuilder.Build();
 
                     var provider = new TestVertexArrayProvider();
 
@@ -157,16 +164,17 @@ namespace Test.OpenGL.Test
                     const int j = 32;
                     var uvs = new Box2[j];
                     for (i = 0; i < j; i++)
-                        uvs[i] = texture[$"minecraft:block/fire_1.png{{{i}}}"];
-                    animation = new UvAnimation(arr, texture, uvs, 1,
+                        uvs[i] = atlases[$"minecraft:block/fire_1.png{{{i}}}"];
+                    animation = new UvAnimation(arr, atlases, uvs, 1,
                         new UvOffsets(6 * sizeof(float),
                             14 * sizeof(float),
                             22 * sizeof(float),
                             30 * sizeof(float)));
-                    Logger.Info<Program>($"Textures loaded {(DateTime.Now - time1).TotalMilliseconds} ms");
+                    Logger.GetLogger<Program>().Info($"Textures loaded {(DateTime.Now - time1).TotalMilliseconds} ms");
                 })
                 .AddInitializer(cloudRenderer)
-                .AddInitializer(axisRenderer);
+                .AddInitializer(axisRenderer)
+                .AddInitializer(chunkRenderer);
 
             // 更新输入设备状态
             window.AddUpdater(() =>
@@ -206,35 +214,36 @@ namespace Test.OpenGL.Test
                     testShader.View = viewProvider.GetMatrix();
                     testShader.Projection = projectionProvider.GetMatrix();
                 })
-                .AddRenderer(() =>
+                /*.AddRenderer(() =>
                 {
                     testShader.Use();
                     testRenderer.Render();
-                })
-                .AddRenderer(() =>
+                })*/
+                /*.AddRenderer(() =>
                 {
                     testShader.Use();
                     animation.Bind();
                     animation.Render();
-                })
+                })*/
                 .AddUpdater(() => { cloudRenderer.Update(); })
                 .AddRenderer(() =>
                 {
-                    cloudRenderer.Bind();
                     cloudRenderer.Render();
-                });
-                //.AddRenderer(() =>
-                //{
-                //    GL.Clear(ClearBufferMask.DepthBufferBit);
-                //    axisRenderer.Bind();
-                //    axisRenderer.Render();
-                //});
+                })
+                .AddRenderer(chunkRenderer)
+                .AddRenderer(() =>
+                {
+                    //GL.Clear(ClearBufferMask.DepthBufferBit);
+                    //axisRenderer.Render();
+                })
+                ;
 
             window.AddTicker(() => ticks++)
-                .AddTicker(() => animation.Tick());
+                .AddTicker(() => animation.Tick())
+                .AddTicker(chunkRenderer);
 
             window.ReloadWindow();
-            
+
             Logger.WaitForLogging();
         }
     }

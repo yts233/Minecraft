@@ -12,6 +12,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
 {
     public class CloudRenderer : ICompletedRenderer
     {
+        private static Logger<CloudRenderer> _logger = Logger.GetLogger<CloudRenderer>();
         private readonly Vector3[,] _cloudColorMap = new Vector3[256, 256];
         private readonly bool[,] _cloudLayoutMap = new bool[256, 256];
 
@@ -49,7 +50,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
 
         public void Initialize()
         {
-            Logger.Info<CloudRenderer>("Loaded cloud.");
+            _logger.Info("Loaded cloud.");
             _shader = new CloudShader();
             _cloudVertexArray = new CloudVertexArrayProvider().ToElementArray().GetHandle();
         }
@@ -60,6 +61,9 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
 
         public void Render()
         {
+            _shader.Use();
+            _cloudVertexArray.Bind();
+
             // clouds
             var centerX = (int) _eye.Position.X / 12;
             var centerZ = (int) _eye.Position.Z / 12 + _offsetZ;
@@ -70,7 +74,7 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
             var maxZ = centerZ + _cloudDistance;
 
             // shader
-            _shader.Offset = _offsetZ * 12 + _minOffsetZ / 120F;
+            _shader.Offset = _offsetZ * 12 + _minOffsetZ / 60F;
             _shader.View = _viewMatrix.GetMatrix();
             _shader.Projection = _projectionMatrix.GetMatrix();
             _shader.CenterPosition = _eye.Position;
@@ -79,9 +83,6 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
             {
                 for (var x = minX; x < maxX; x++)
                 {
-                    /*
-                     * �����Ż��˴�����
-                     */
                     var cx = x & 0xFF;
                     var cz = z & 0xFF;
                     if (!_cloudLayoutMap[cz, cx])
@@ -106,17 +107,11 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         {
             _cloudDistance = (int) _eye.DepthFar / 12 + 2;
             _minOffsetZ++;
-            if (_minOffsetZ != 1440) return;
+            if (_minOffsetZ != 720) return;
             _minOffsetZ = 0;
             _offsetZ++;
             if (_offsetZ == 256)
                 _offsetZ = 0;
-        }
-
-        public void Bind()
-        {
-            _shader.Use();
-            _cloudVertexArray.Bind();
         }
 
         public void Dispose()

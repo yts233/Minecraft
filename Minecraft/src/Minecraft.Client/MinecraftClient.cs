@@ -135,6 +135,11 @@ namespace Minecraft.Client
                 _world = null;
                 _player = null;
             };
+            _adapter.Chat += (sender, e) =>
+            {
+                //TODO: Use ChatEventArgs and Minecraft.Text.RichText
+                ChatReceived?.Invoke(sender, e.jsonData);
+            };
             _player = new ClientPlayerEntityHandler(_adapter);
             _world = new WorldHandler(_adapter, _player);
             await _adapter.Connect();
@@ -158,7 +163,7 @@ namespace Minecraft.Client
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task Chat(string message)
+        public async Task SendChatMessage(string message)
         {
             if (!IsJoined)
                 throw new InvalidOperationException("You cannot chat until join the server");
@@ -167,6 +172,7 @@ namespace Minecraft.Client
 
         #region Events
         public event EventHandler<string> Disconnected;
+        public event EventHandler<string/*TODO: Use ChatEventArgs and Minecraft.Text.RichText*/> ChatReceived;
         #endregion
 
         /// <summary>

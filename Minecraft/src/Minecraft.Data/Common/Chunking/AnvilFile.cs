@@ -36,7 +36,7 @@ namespace Minecraft.Data.Common.Chunking
         /// <param name="index"></param>
         /// <returns>offset and length per 4KB</returns>
         /// <exception cref="IndexOutOfRangeException">index is less than zero or great than 1024</exception>
-        public (int offset,int length) GetChuckLocation(int index)
+        public (int offset,int length) GetChunkLocation(int index)
         {
             if (index < 0 || index >= 1024)
                 throw new IndexOutOfRangeException();

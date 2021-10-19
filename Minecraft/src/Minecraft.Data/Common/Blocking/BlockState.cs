@@ -10,8 +10,9 @@ namespace Minecraft.Data.Common.Blocking
     /// 一个方块状态。
     /// </summary>
     [NbtCompound]
-    public class BlockState : ICloneable, IEquatable<BlockState>,IEquatable<NamedIdentifier>
+    public class BlockState : ICloneable, IEquatable<BlockState>, IEquatable<NamedIdentifier>
     {
+
         public BlockState()
         {
         }
@@ -57,7 +58,7 @@ namespace Minecraft.Data.Common.Blocking
 
         public bool Equals(BlockState other)
         {
-            return other != null
+            return other is object
                    && other.Name.Equals(Name)
                    && other.Properties
                        .OrderBy(kvp => kvp.Key)
@@ -92,6 +93,11 @@ namespace Minecraft.Data.Common.Blocking
                 Properties);
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         public static implicit operator BlockState(string name)
         {
             return new BlockState(name);
@@ -100,16 +106,6 @@ namespace Minecraft.Data.Common.Blocking
         public static implicit operator BlockState(NamedIdentifier name)
         {
             return new BlockState(name);
-        }
-
-        public static bool operator ==(BlockState left, NamedIdentifier right)
-        {
-            return left != null && left.Equals(right);
-        }
-
-        public static bool operator !=(BlockState left, NamedIdentifier right)
-        {
-            return left != null && !left.Equals(right);
         }
     }
 }

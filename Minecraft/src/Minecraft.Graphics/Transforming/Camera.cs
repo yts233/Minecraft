@@ -7,7 +7,7 @@ namespace Minecraft.Graphics.Transforming
         public Vector3 Position { get; set; }
 
         /// <summary>
-        ///     Rotation angle (in degree)
+        /// Rotation angle (in degree)
         /// </summary>
         public Vector2 Rotation { get; set; }
     }

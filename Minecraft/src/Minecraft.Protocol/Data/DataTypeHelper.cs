@@ -184,7 +184,7 @@ namespace Minecraft.Protocol.Data
             return byteArray;
         }
 
-        public static ByteArray WriteVarEnum(this ByteArray byteArray, Enum value)
+        public static ByteArray WriteVarIntEnum(this ByteArray byteArray, Enum value)
         {
             byteArray.Write((VarInt)(int)(EmptyEnum)value);
             return byteArray;
@@ -271,6 +271,16 @@ namespace Minecraft.Protocol.Data
             return new Vector3d { X = byteArray.ReadDouble(), Y = byteArray.ReadDouble(), Z = byteArray.ReadDouble() };
         }
 
+        public static Vector3f ReadVector3f(this ByteArray byteArray)
+        {
+            return new Vector3f { X = byteArray.ReadFloat(), Y = byteArray.ReadFloat(), Z = byteArray.ReadFloat() };
+        }
+
+        public static Vector3i ReadVector3i(this ByteArray byteArray)
+        {
+            return byteArray.Read<Position>();
+        }
+
         public static Rotation ReadRotation(this ByteArray byteArray)
         {
             return new Rotation { Yaw = byteArray.ReadFloat(), Pitch = byteArray.ReadFloat() };
@@ -281,16 +291,25 @@ namespace Minecraft.Protocol.Data
             return new Rotation { Yaw = byteArray.ReadAngle(), Pitch = byteArray.ReadAngle() };
         }
 
-        public static Vector3i ReadVector3i(this ByteArray byteArray)
-        {
-            return byteArray.Read<Position>();
-        }
-
         public static ByteArray Write(this ByteArray byteArray, Vector3d value)
         {
             byteArray.Write(value.X);
             byteArray.Write(value.Y);
             byteArray.Write(value.Z);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, Vector3f value)
+        {
+            byteArray.Write(value.X);
+            byteArray.Write(value.Y);
+            byteArray.Write(value.Z);
+            return byteArray;
+        }
+
+        public static ByteArray Write(this ByteArray byteArray, Vector3i value)
+        {
+            byteArray.Write((Position)value);
             return byteArray;
         }
 
@@ -305,12 +324,6 @@ namespace Minecraft.Protocol.Data
         {
             byteArray.WriteAngle(value.Yaw);
             byteArray.WriteAngle(value.Pitch);
-            return byteArray;
-        }
-
-        public static ByteArray WriteVector3i(this ByteArray byteArray, Vector3i value)
-        {
-            byteArray.Write((Position)value);
             return byteArray;
         }
 

@@ -1,4 +1,5 @@
 ﻿using Minecraft.Numerics;
+using System.Threading.Tasks;
 
 namespace Minecraft.Client.Handlers
 {
@@ -8,6 +9,8 @@ namespace Minecraft.Client.Handlers
         private readonly IControlablePositionHandler _positionHandler;
         private Uuid _uuid;
         private int _entityId;
+        private int _serverChunkX;
+        private int _serverChunkZ;
 
         public ClientPlayerEntityHandler(MinecraftClientAdapter adapter)
         {
@@ -16,6 +19,13 @@ namespace Minecraft.Client.Handlers
             _adapter.Logined += Adapter_Logined;
             _adapter.Joined += Adapter_Joined;
             _adapter.Disconnected += Adapter_Disconnected;
+            _adapter.UpdateViewPosition += Adapter_UpdateViewPosition;
+        }
+
+        private void Adapter_UpdateViewPosition(object sender, (int chunkX, int chunkZ) e)
+        {
+            _serverChunkX = e.chunkX;
+            _serverChunkZ = e.chunkZ;
         }
 
         private void Adapter_Disconnected(object sender, string e)
@@ -25,6 +35,7 @@ namespace Minecraft.Client.Handlers
 
         private void Adapter_Joined(object sender, (int entityId, bool isHardcore, Gamemode gamemode, Gamemode previousGamemode, int worldCount, NamedIdentifier[] worldNames, Data.Nbt.Tags.NbtCompound dimensionCodec, Data.Nbt.Tags.NbtCompound dimension, NamedIdentifier worldName, long hashedSeed, int maxPlayers, int viewDistance, bool reducedDebugInfo, bool enableRespawnScreen, bool isDebug, bool isFlat) e)
         {
+            //TODO: reset the player
             // the player is valid now;
             IsValid = true;
             _entityId = e.entityId;
@@ -50,6 +61,9 @@ namespace Minecraft.Client.Handlers
 
         public Rotation Rotation => _positionHandler.Rotation;
 
+        public int ServerChunkX => _serverChunkX;
+        public int ServerChunkZ => _serverChunkZ;
+
         public bool OnGround => _positionHandler.OnGround;
 
         public bool IsValid { get; set; } = false;
@@ -57,6 +71,21 @@ namespace Minecraft.Client.Handlers
         public IControlablePositionHandler GetPositionHandler()
         {
             return _positionHandler;
+        }
+
+        public Task Attack(IEntityHandler entity, bool sneaking)
+        {
+            return _adapter.SendInteractEntityPacket(entity.EntityId, sneaking);
+        }
+
+        public Task Interact(IEntityHandler entity, Hand hand, bool sneaking)
+        {
+            return _adapter.SendInteractEntityPacket(entity.EntityId, hand, sneaking);
+        }
+
+        public Task Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking)
+        {
+            return _adapter.SendInteractEntityPacket(entity.EntityId, target, hand, sneaking);
         }
     }
 }

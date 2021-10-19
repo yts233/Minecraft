@@ -42,6 +42,9 @@ namespace Minecraft.Numerics
             return new Rotation { Yaw = value.yaw, Pitch = value.pitch };
         }
 
+        /// <summary>
+        /// normalize the yaw (-180F~180F) and pitch (-89.9F~89.9F)
+        /// </summary>
         public void Normalize()
         {
             var yaw = Yaw;
@@ -100,5 +103,11 @@ namespace Minecraft.Numerics
             Pitch *= other;
         }
 
+        void IVector2<float>.Normalize()
+        {
+            var len = Length;
+            Yaw /= len;
+            Pitch /= len;
+        }
     }
 }

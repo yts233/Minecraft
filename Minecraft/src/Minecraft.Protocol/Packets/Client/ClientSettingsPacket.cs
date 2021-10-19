@@ -29,7 +29,7 @@ namespace Minecraft.Protocol.Packets.Client
 
         public SkinPart DisplayedSkinParts { get; set; }
 
-        public Hand MainHand { get; set; }
+        public HandSide MainHand { get; set; }
 
         /// <summary>
         /// Disables filtering of text on signs and written book titles.
@@ -44,7 +44,7 @@ namespace Minecraft.Protocol.Packets.Client
             ChatMode = (ChatMode)content.ReadVarInt();
             ChatColors = content.ReadBoolean();
             DisplayedSkinParts = (SkinPart)content.ReadUnsignedByte();
-            MainHand = (Hand)content.ReadVarInt();
+            MainHand = (HandSide)content.ReadVarInt();
             DisableTextFiltering = content.ReadBoolean();
         }
 

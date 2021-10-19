@@ -3,7 +3,7 @@ using System;
 namespace Minecraft.Graphics
 {
     /// <summary>
-    ///     图形引发的异常
+    /// 图形引发的异常
     /// </summary>
     public class GraphicException : Exception
     {

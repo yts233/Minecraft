@@ -7,7 +7,7 @@ namespace Minecraft.Data.Common.Chunking
     /// 区块
     /// </summary>
     [NbtCompound]
-    public class Chuck
+    public class Chunk
     {
         /// <summary>
         /// 该区块NBT结构的版本。
@@ -19,6 +19,6 @@ namespace Minecraft.Data.Common.Chunking
         /// 区块数据。
         /// </summary>
         [NbtTag(Name = "Level", Type = NbtTagType.Compound)]
-        public ChuckData Data { get; set; }
+        public ChunkData Data { get; set; }
     }
 }

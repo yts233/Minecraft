@@ -105,6 +105,10 @@ namespace Minecraft.Client
         /// </summary>
         public event EventHandler<(int count, int[] entityIds)> EntitiesDestroyed;
         /// <summary>
+        /// 客户端所在区块位置更新
+        /// </summary>
+        public event EventHandler<(int chunkX, int chunkZ)> UpdateViewPosition;
+        /// <summary>
         /// 断开连接
         /// </summary>
         /// <remarks>附带原因</remarks>
@@ -120,7 +124,7 @@ namespace Minecraft.Client
         /// <summary>
         /// 客户端设置
         /// </summary>
-        public (string locale, sbyte viewDistance, ChatMode chatMode, bool chatColors, SkinPart displayedSkinParts, Hand mainHand, bool disableTextFiltering) ClientSettings { get; set; } = ("en_US", 4, ChatMode.Enabled, true, SkinPart.All, Hand.Right, true);
+        public (string locale, sbyte viewDistance, ChatMode chatMode, bool chatColors, SkinPart displayedSkinParts, HandSide mainHand, bool disableTextFiltering) ClientSettings { get; set; } = ("en_US", 4, ChatMode.Enabled, true, SkinPart.All, HandSide.Right, true);
 
         /// <summary>
         /// 提交客户端设置
@@ -130,7 +134,7 @@ namespace Minecraft.Client
         {
             var (locale, viewDistance, chatMode, chatColors, displayedSkinParts, mainHand, disableTextFiltering) = ClientSettings;
             await Task.Yield();
-            _protocolAdapter.WritePacket(new ClientSettingsPacket
+            await _protocolAdapter.WritePacketAsync(new ClientSettingsPacket
             {
                 Locale = locale,
                 ViewDistance = viewDistance,
@@ -153,8 +157,7 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendChatPacket(string message)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new ClientChatMessagePacket { Message = message });
+            await _protocolAdapter.WritePacketAsync(new ClientChatMessagePacket { Message = message });
         }
 
         /// <summary>
@@ -166,8 +169,7 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendVehicleMovePacket(Vector3d position, Rotation rotation)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new VehicleMovePacket { Position = position, Rotation = rotation });
+            await _protocolAdapter.WritePacketAsync(new VehicleMovePacket { Position = position, Rotation = rotation });
         }
 
         /// <summary>
@@ -179,8 +181,7 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendPlayerPositionPacket(Vector3d position, bool onGround)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new PlayerPositionPacket { Position = position, OnGround = onGround });
+            await _protocolAdapter.WritePacketAsync(new PlayerPositionPacket { Position = position, OnGround = onGround });
         }
 
         /// <summary>
@@ -190,8 +191,7 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendPlayerRotationPacket(Rotation rotation, bool onGround)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
+            await _protocolAdapter.WritePacketAsync(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
         }
 
         /// <summary>
@@ -203,8 +203,7 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendPlayerPositionAndRotationPacket(Vector3d position, Rotation rotation, bool onGround)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
+            await _protocolAdapter.WritePacketAsync(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
         }
 
         /// <summary>
@@ -214,8 +213,44 @@ namespace Minecraft.Client
         /// <returns></returns>
         public async Task SendPlayerMovementPacket(bool onGround)
         {
-            await Task.Yield();
-            _protocolAdapter.WritePacket(new PlayerMovementPacket { OnGround = onGround });
+            await _protocolAdapter.WritePacketAsync(new PlayerMovementPacket { OnGround = onGround });
+        }
+
+        /// <summary>
+        /// 发送交互数据包
+        /// </summary>
+        /// <remarks>交互类型为攻击</remarks>
+        /// <param name="entityId"></param>
+        /// <param name="sneaking"></param>
+        /// <returns></returns>
+        public async Task SendInteractEntityPacket(int entityId, bool sneaking)
+        {
+            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Attack, Sneaking = sneaking });
+        }
+
+        /// <summary>
+        /// 发送交互数据包
+        /// </summary>
+        /// <param name="entityId"></param>
+        /// <param name="hand"></param>
+        /// <param name="sneaking"></param>
+        /// <returns></returns>
+        public async Task SendInteractEntityPacket(int entityId, Hand hand, bool sneaking)
+        {
+            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Interact, Hand = hand, Sneaking = sneaking });
+        }
+
+        /// <summary>
+        /// 发送交互数据包
+        /// </summary>
+        /// <param name="entityId"></param>
+        /// <param name="target"></param>
+        /// <param name="hand"></param>
+        /// <param name="sneaking"></param>
+        /// <returns></returns>
+        public async Task SendInteractEntityPacket(int entityId, Vector3f target, Hand hand, bool sneaking)
+        {
+            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.InteractAt, Target = target, Hand = hand, Sneaking = sneaking });
         }
 
         #endregion
@@ -250,12 +285,11 @@ namespace Minecraft.Client
             await _tcpClient.ConnectAsync(_hostname, _port);
             IsConnected = true;
             _connecting = false;
-            _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), Protocol.Packets.PacketBoundTo.Server);
+            _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), PacketBoundTo.Server);
             Connected?.Invoke(this, (_hostname, _port));
 
             async Task LoginStart()
             {
-                await Task.Yield();
 
                 // C→S: Handshake State=2
                 await _protocolAdapter.WritePacketAsync(new HandshakePacket
@@ -384,6 +418,9 @@ namespace Minecraft.Client
                             break;
                         case DestroyEntitiesPacket packet:
                             EntitiesDestroyed?.Invoke(this, (packet.Count, packet.EntityIds));
+                            break;
+                        case UpdateViewPositionPacket packet:
+                            UpdateViewPosition?.Invoke(this, (packet.ChunkX, packet.ChunkZ));
                             break;
                     }
                 }
