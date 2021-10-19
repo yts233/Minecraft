@@ -57,7 +57,7 @@ namespace Test.OpenGL.ChunkRenderTest
             pointerInput.ZeroOnInactivate = true;
             pointerInput.Sensibility = 0.1F;
             cameraMotivatorRenderer.PositionInput = keyInput.GetSmoothAxisInput();
-            cameraMotivatorRenderer.RotationInput = pointerInput.GetSmoothAxisInput(speed: 1F);
+            cameraMotivatorRenderer.RotationInput = pointerInput.GetSmoothAxisInput(speed: 0.8F);
             this.AddObject(new ViewportRenderer(this));
             this.AddUpdater(() => _eye.Aspect = ClientSize.Y == 0 ? 1.0F : (float)ClientSize.X / ClientSize.Y);
             this.AddUpdater(cameraMotivatorRenderer);
