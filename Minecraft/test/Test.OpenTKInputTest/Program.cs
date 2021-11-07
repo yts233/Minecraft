@@ -62,7 +62,10 @@ void main(){
         public Renderer(IAxisInput axisInput)
         {
             _axisInput = axisInput;
-            _camera = new Camera();
+            _camera = new Camera
+            {
+                
+            };
             _cameraMotivator = new CameraMotivatorRenderer(_camera);
             _cameraMotivator.Controlable = true;
             _cameraMotivator.PositionInput = axisInput;
@@ -75,7 +78,7 @@ void main(){
             _shader = new Shader();
             static IEnumerable<float> CirecleVertices()
             {
-                for (var i = 0; i < 360; i += 45)
+                for (var i = 0; i < 360; i++)
                 {
                     const double deg = Math.PI / 180D;
                     yield return (float)Math.Cos(deg * i);
@@ -105,8 +108,8 @@ void main(){
             _circle.Bind();
             _circle.Render(PrimitiveType.LineLoop);
             _arrow.Bind();
-            //_arrow.VertexSubData(sizeof(float) * 2, sizeof(float) * 2, new[] { _axisInput.Value.X, _axisInput.Value.Z });
-            _arrow.VertexSubData(sizeof(float) * 2, sizeof(float) * 2, new[] { _camera.Position.X, _camera.Position.Z });
+            _arrow.VertexSubData(sizeof(float) * 2, sizeof(float) * 2, new[] { _axisInput.Value.X, _axisInput.Value.Z });
+            //_arrow.VertexSubData(sizeof(float) * 2, sizeof(float) * 2, new[] { _camera.Position.X, _camera.Position.Z });
             _arrow.Render(PrimitiveType.Lines);
         }
 
@@ -147,7 +150,7 @@ void main(){
             axis.PositiveZKey = Keys.W;
             axis.NegativeZKey = Keys.S;
             //axis.IsOctagon = true;
-            var smoothAxis = axis.GetSmoothAxisInput();
+            var smoothAxis = axis.CreateSmoothAxisInput();
 
             var renderer = new Renderer(smoothAxis);
             window.AddRenderer(() =>
@@ -157,8 +160,8 @@ void main(){
                 GL.Viewport(0, 0, window.ClientSize.X, window.ClientSize.Y);
             });
             //window.AddUpdater(smoothAxis.Update);
-            window.AddObject(renderer);
-            window.ReloadWindow();
+            window.AddRenderObject(renderer);
+            window.Run();
         }
     }
 }

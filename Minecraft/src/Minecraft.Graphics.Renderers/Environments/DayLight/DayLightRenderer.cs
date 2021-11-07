@@ -11,7 +11,7 @@ namespace Minecraft.Graphics.Renderers.Environments.DayLight
         private readonly IMatrixProvider<Matrix4,Vector4> _viewMatrix;
         private readonly IMatrixProvider<Matrix4,Vector4> _projectionMatrix;
         private readonly Resource _resource;
-        private TextureAtlas _textureAtlas;
+        private ITextureAtlas _textureAtlas;
         private int _dayTime;
 
         public DayLightRenderer(IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix, Resource resource)

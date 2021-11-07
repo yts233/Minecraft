@@ -48,7 +48,11 @@ namespace Minecraft.Graphics.Windowing
 
         void IInitializer.Initialize()
         {
-            AutoUpdate();
+            if (_auto)
+            {
+                Location = (0, 0);
+                Size = _window.ClientSize;
+            }
         }
 
         void IRenderable.Render()
@@ -62,18 +66,13 @@ namespace Minecraft.Graphics.Windowing
 
         void IUpdatable.Update()
         {
-            AutoUpdate();
-        }
-
-        public event Action<Vector2i> SizeChanged;
-
-        private void AutoUpdate()
-        {
             if (_auto)
             {
                 Location = (0, 0);
                 Size = _window.ClientSize;
             }
         }
+
+        public event Action<Vector2i> SizeChanged;
     }
 }

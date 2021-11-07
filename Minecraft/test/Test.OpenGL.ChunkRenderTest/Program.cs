@@ -1,5 +1,6 @@
 ﻿using Minecraft;
 using Minecraft.Graphics.Rendering;
+using Minecraft.Graphics.Windowing;
 using System;
 
 namespace Test.OpenGL.ChunkRenderTest
@@ -10,10 +11,17 @@ namespace Test.OpenGL.ChunkRenderTest
         {
             Logger.SetThreadName("MainThread");
             Logger.GetLogger<Program>().HelloWorld("ChunkRenderTest");
-            new MainWindow()
+            MainWindow window = null;
+            RenderWindow.GlfwThread.Start();
+            RenderWindow.GlfwThread.Invoke(() =>
             {
-                Title = "Hello ChunkRenderTest"
-            }.ReloadWindow();
+                window = new MainWindow()
+                {
+                    Title = "Hello ChunkRenderTest"
+                };
+            });
+            window.Run();
+            RenderWindow.GlfwThread.Stop();
         }
     }
 }

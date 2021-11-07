@@ -4,7 +4,7 @@ namespace Minecraft.Graphics.Rendering
 {
     public static class Extensions
     {
-        public static IRenderContainer AddObject(this IRenderContainer renderContainer, object obj)
+        public static IRenderContainer AddRenderObject(this IRenderContainer renderContainer, object obj)
         {
             if (obj is IInitializer initializer) renderContainer.AddInitializer(initializer);
 
@@ -32,34 +32,46 @@ namespace Minecraft.Graphics.Rendering
             renderContainer.Renderers.Add(renderer);
             return renderContainer;
         }
-        
+
         public static IGameTickContainer AddTicker(this IGameTickContainer gameTickContainer, ITickable ticker)
         {
             gameTickContainer.Tickers.Add(ticker);
             return gameTickContainer;
         }
-        
-        public static IRenderContainer AddInitializer(this IRenderContainer renderContainer, Action action)
+
+        public static IRenderContainer AddInitializer(this IRenderContainer renderContainer, Action callback)
         {
-            renderContainer.AddInitializer(new CustomInitializer(action));
+            renderContainer.AddInitializer(new CustomInitializer(callback));
             return renderContainer;
         }
 
-        public static IRenderContainer AddUpdater(this IRenderContainer renderContainer, Action action)
+        public static IRenderContainer AddUpdater(this IRenderContainer renderContainer, Action callback)
         {
-            renderContainer.AddUpdater(new CustomUpdater(action));
+            renderContainer.AddUpdater(new CustomUpdater(callback));
             return renderContainer;
         }
 
-        public static IRenderContainer AddRenderer(this IRenderContainer renderContainer, Action action)
+        public static IRenderContainer AddRenderer(this IRenderContainer renderContainer, Action callback)
         {
-            renderContainer.AddRenderer(new CustomRenderer(action));
+            renderContainer.AddRenderer(new CustomRenderer(callback));
             return renderContainer;
         }
 
-        public static IGameTickContainer AddTicker(this IGameTickContainer gameTickContainer, Action action)
+        public static IGameTickContainer AddTicker(this IGameTickContainer gameTickContainer, Action callback)
         {
-            gameTickContainer.AddTicker(new CustomTicker(action));
+            gameTickContainer.AddTicker(new CustomTicker(callback));
+            return gameTickContainer;
+        }
+
+        public static IGameTickContainer AddIntervalTicker(this IGameTickContainer gameTickContainer, int interval, ITickable ticker)
+        {
+            gameTickContainer.AddTicker(new TimerTicker(interval, ticker.Tick));
+            return gameTickContainer;
+        }
+
+        public static IGameTickContainer AddIntervalTicker(this IGameTickContainer gameTickContainer, int interval, Action callback)
+        {
+            gameTickContainer.AddTicker(new TimerTicker(interval, callback));
             return gameTickContainer;
         }
     }

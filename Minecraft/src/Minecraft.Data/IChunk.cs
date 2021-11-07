@@ -4,6 +4,7 @@
     {
         int X { get; }
         int Z { get; }
+        IWorld World { get; }
         /// <summary>
         /// If no non-air block
         /// </summary>

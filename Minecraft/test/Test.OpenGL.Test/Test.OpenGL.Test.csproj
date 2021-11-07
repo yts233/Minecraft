@@ -12,7 +12,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\Minecraft.Graphics.Blocking\Minecraft.Graphics.Blocking.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
-      <ProjectReference Include="..\..\src\Minecraft.Graphics.Texturing\Minecraft.Graphics.Texturing.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Input\Minecraft.Input.csproj" />
       <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft\Minecraft.csproj" />

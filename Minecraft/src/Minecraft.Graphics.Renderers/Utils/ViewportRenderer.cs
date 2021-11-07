@@ -1,10 +1,6 @@
 ﻿using Minecraft.Graphics.Rendering;
-using Minecraft.Graphics.Transforming;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Minecraft.Graphics.Renderers.Utils
 {

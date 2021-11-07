@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Minecraft
 {
+    public static class ThreadHelper
+    {
+        public static IThreadDispatcher NewThread(string threadName = null)
+        {
+            return new ThreadDispatcher() { ThreadName = threadName };
+        }
+    }
 #if false
     public class ObjectTransformer : IDisposable
     {

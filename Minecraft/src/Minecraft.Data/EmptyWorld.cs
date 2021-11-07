@@ -5,12 +5,14 @@ using System.Text;
 
 namespace Minecraft.Data
 {
-    public class EmptyWorld : IWorld, IBlockEditor
+    public class EmptyWorld : IEditableWorld
     {
         private readonly List<IChunk> _chunks = new List<IChunk>();
 
-        public bool AddChunk(int x, int z, IChunk chunk)
+        public bool AddChunk(IChunk chunk)
         {
+            var x = chunk.X;
+            var z = chunk.Z;
             if (HasChunk(x, z))
                 return false;
             _chunks.Add(chunk);
@@ -69,7 +71,7 @@ namespace Minecraft.Data
         {
             if (y < 0x00 || y > 0xff)
                 return false;
-            return (GetChunk(x >> 4, z >> 4) is IBlockEditor editor) && editor.SetBlock(x & 0x03, y, z & 0x03, block);
+            return (GetChunk(x >> 4, z >> 4) is IBlockEditor editor) && editor.SetBlock(x & 0x0F, y, z & 0x0F, block);
         }
     }
 }

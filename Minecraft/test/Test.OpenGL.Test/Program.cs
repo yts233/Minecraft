@@ -53,7 +53,7 @@ namespace Test.OpenGL.Test
             var cloudRenderer = new CloudRenderer(eye, viewProvider, projectionProvider, resource);
             var axisRenderer = new AxisRenderer(viewProvider, projectionProvider);
             var chunk = new EmptyChunk();
-            TextureAtlas atlases = null;
+            ITextureAtlas atlases = null;
             for (var i = 0; i < 16; i++)
                 chunk.SetBlock(i, 0, i, "structure_block_corner");
             var chunkRenderer = new ChunkRenderer(chunk, () => atlases, viewProvider, projectionProvider);
@@ -114,10 +114,10 @@ namespace Test.OpenGL.Test
                 .AddRenderer(() => frames++);
 
             // 初始化窗口
-            window.AddObject(new WindowInitializer());
+            window.AddRenderObject(new WindowInitializer());
 
             // 更新视图
-            window.AddObject(windowViewportInvoker);
+            window.AddRenderObject(windowViewportInvoker);
 
             TestShader testShader = null;
             IRenderable testRenderer = null;
@@ -207,7 +207,7 @@ namespace Test.OpenGL.Test
                 });
 
             // 渲染
-            window.AddObject(new ClearRenderer())
+            window.AddRenderObject(new ClearRenderer())
                 .AddRenderer(() =>
                 {
                     testShader.Use();
@@ -242,7 +242,7 @@ namespace Test.OpenGL.Test
                 .AddTicker(() => animation.Tick())
                 .AddTicker(chunkRenderer);
 
-            window.ReloadWindow();
+            window.Run();
 
             Logger.WaitForLogging();
         }

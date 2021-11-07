@@ -10,7 +10,5 @@
         /// <returns></returns>
         IChunk GetChunk(int x, int z);
         bool HasChunk(int x, int z);
-        bool AddChunk(int x, int z, IChunk chunk);
-        bool RemoveChunk(int x, int z);
     }
 }

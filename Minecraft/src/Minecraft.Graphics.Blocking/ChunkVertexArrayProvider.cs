@@ -2,11 +2,12 @@
 using Minecraft.Data.Common.Blocking;
 using Minecraft.Graphics.Arraying;
 using Minecraft.Graphics.Texturing;
+using OpenTK.Mathematics;
 using System.Collections.Generic;
 
 namespace Minecraft.Graphics.Blocking
 {
-    public class ChunkVertexArrayProvider : IVertexArrayProvider<BlockVertex>, ICalculator
+    internal class ChunkVertexArrayProvider : IVertexArrayProvider<BlockVertex>, ICalculator
     {
         private static readonly float[] Vertices = new[] {
             //      顶点坐标        纹理坐标            法线
@@ -45,38 +46,63 @@ namespace Minecraft.Graphics.Blocking
         private static readonly uint[] Indices = new uint[] {
             0,1,2,
             2,3,0,
-
-            4,5,6,
-            6,7,4,
-
-            8,9,10,
-            10,11,8,
-
-            12,13,14,
-            14,15,12,
-
-            16,17,18,
-            18,19,16,
-
-            20,21,22,
-            22,23,20
+            //
+            //4,5,6,
+            //6,7,4,
+            //
+            //8,9,10,
+            //10,11,8,
+            //
+            //12,13,14,
+            //14,15,12,
+            //
+            //16,17,18,
+            //18,19,16,
+            //
+            //20,21,22,
+            //22,23,20
         };
 
         private uint[] _indices;
         private BlockVertex[] _vertices;
         private readonly IChunk _chunk;
-        private readonly TextureAtlas _texture;
+        private readonly ITextureAtlas _texture;
 
-        public ChunkVertexArrayProvider(IChunk chunk, TextureAtlas texture)
+        public ChunkVertexArrayProvider(IChunk chunk, ITextureAtlas texture)
         {
             _chunk = chunk;
             _texture = texture;
+        }
+
+        private void AddVertices(int face, List<uint> indices, List<BlockVertex> vertices, int bx, int by, int bz, ref Box2 uv, ref uint count)
+        {
+            var offset = face * 8 * 4;
+            //var index = face * 6;
+            for (int i = 0; i < 6; i++)
+                indices.Add(Indices[i] + count);
+            count += 4;
+            for (int i = 0; i < 4; i++)
+            {
+                var vertex = new BlockVertex
+                {
+                    X = Vertices[offset++] + bx,
+                    Y = Vertices[offset++] + by,
+                    Z = Vertices[offset++] + bz,
+                    U = Vertices[offset++] == 0.0F ? uv.Min.X : uv.Max.X,
+                    V = Vertices[offset++] == 0.0F ? uv.Min.Y : uv.Max.Y,
+                    NX = Vertices[offset++],
+                    NY = Vertices[offset++],
+                    NZ = Vertices[offset++]
+                };
+                vertices.Add(vertex);
+            }
         }
 
         public void Calculate()
         {
             var vertices = new List<BlockVertex>();
             var indices = new List<uint>();
+            var count = 0U;
             for (var y = 0; y < 256; y++)
             {
                 for (var z = 0; z < 16; z++)
@@ -91,41 +117,25 @@ namespace Minecraft.Graphics.Blocking
                         var bz = (_chunk.Z << 0x04) | z;
 
                         var uv = _texture[new NamedIdentifier(block.Name.Namespace, "block/" + block.Name.Name + ".png")];
-                        void AddVertices(int face)
-                        {
-                            var offset = face * 8 * 4;
-                            var index = face * 6;
-                            indices.AddRange(Indices[index..(index + 6)]);
-                            var vertex = new BlockVertex
-                            {
-                                X = Vertices[offset++] + bx,
-                                Y = Vertices[offset++] + by,
-                                Z = Vertices[offset++] + bz,
-                                U = Vertices[offset++] == 0.0F ? uv.Min.X : uv.Max.X,
-                                V = Vertices[offset++] == 0.0F ? uv.Min.Y : uv.Max.Y,
-                                NX = Vertices[offset++],
-                                NY = Vertices[offset++],
-                                NZ = Vertices[offset++]
-                            };
-                            vertices.Add(vertex);
-                        }
+
                         if (!_chunk.IsTile(x, y, z - 1))
-                            AddVertices(0);
+                            AddVertices(0, indices, vertices, bx, by, bz, ref uv, ref count);
                         if (!_chunk.IsTile(x, y, z + 1))
-                            AddVertices(1);
+                            AddVertices(1, indices, vertices, bx, by, bz, ref uv, ref count);
                         if (!_chunk.IsTile(x - 1, y, z))
-                            AddVertices(2);
+                            AddVertices(2, indices, vertices, bx, by, bz, ref uv, ref count);
                         if (!_chunk.IsTile(x + 1, y, z))
-                            AddVertices(3);
+                            AddVertices(3, indices, vertices, bx, by, bz, ref uv, ref count);
                         if (!_chunk.IsTile(x, y - 1, z))
-                            AddVertices(4);
+                            AddVertices(4, indices, vertices, bx, by, bz, ref uv, ref count);
                         if (!_chunk.IsTile(x, y + 1, z))
-                            AddVertices(5);
+                            AddVertices(5, indices, vertices, bx, by, bz, ref uv, ref count);
                     }
                 }
             }
             _vertices = vertices.ToArray();
             _indices = indices.ToArray();
+            Logger.GetLogger<ChunkVertexArrayProvider>().Info($"Chunk {_chunk.X}, {_chunk.Z} Calculated.");
         }
 
         public IEnumerable<uint> GetIndices()

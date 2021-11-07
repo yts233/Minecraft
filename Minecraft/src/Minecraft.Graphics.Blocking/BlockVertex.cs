@@ -3,7 +3,7 @@
 namespace Minecraft.Graphics.Blocking
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct BlockVertex
+    internal struct BlockVertex
     {
         public float X;
         public float Y;
@@ -23,6 +23,11 @@ namespace Minecraft.Graphics.Blocking
             NX = nx;
             NY = ny;
             NZ = nz;
+        }
+
+        public override string ToString()
+        {
+            return $"({X}, {Y}, {Z}), tex({U}, {V}), nor({NX}, {NY}, {NZ})";
         }
     }
 }

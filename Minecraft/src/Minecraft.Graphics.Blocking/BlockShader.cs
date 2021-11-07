@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Blocking
 {
-    public class BlockShader : ShaderBase, IViewShader, IProjectionShader, IModelShader
+    internal class BlockShader : ShaderBase, IViewShader, IProjectionShader, IModelShader
     {
         private readonly int _modelPosition;
         private readonly int _viewPosition;

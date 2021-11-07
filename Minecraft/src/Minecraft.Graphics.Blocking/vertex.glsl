@@ -13,7 +13,7 @@ void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0F);
     //gl_Position = vec4(aPos, 1.0F);
-    texCoord = vec2(aTex.x, 1.0F - aTex.y);
+    texCoord = vec2(aTex.x, aTex.y);
     const float amb = 0.7F;
     const float dlig = 0.3F;
     const vec3 lightDir = normalize(vec3(1.0F,3.0F,2.0F));

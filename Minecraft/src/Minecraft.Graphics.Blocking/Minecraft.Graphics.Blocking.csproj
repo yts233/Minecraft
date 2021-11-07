@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Minecraft.Graphics.Texturing\Minecraft.Graphics.Texturing.csproj" />
         <ProjectReference Include="..\Minecraft.Graphics\Minecraft.Graphics.csproj" />
         <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Data\Minecraft.Data.csproj" />
         <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft\Minecraft.csproj" />

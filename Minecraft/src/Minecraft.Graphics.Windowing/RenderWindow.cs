@@ -14,8 +14,32 @@ using MKeys = Minecraft.Input.Keys;
 
 namespace Minecraft.Graphics.Windowing
 {
+    /// <summary>
+    /// 一个简单的图形窗口
+    /// </summary>
+    /// <remarks>
+    /// <para>请在<see cref="GlfwThread"/>内创建<see cref="RenderWindow"/>实例</para>
+    /// </remarks>
     public class RenderWindow : IRenderWindowContainer
     {
+        /// <summary>
+        /// Glfw线程
+        /// </summary>
+        /// <remarks>提供一个可以创建<see cref="RenderWindow"/>实例的Glfw线程。若关闭此线程，将无法创建渲染窗体</remarks>
+        public static IThreadDispatcher GlfwThread { get; } = ThreadHelper.NewThread(threadName: "GlfwThread");
+
+        public static T InvokeOnGlfwThread<T>(Func<T> callback) where T : class
+        {
+            T value = null;
+            GlfwThread.Invoke(() => value = callback());
+            return value;
+        }
+
+        public static void InvokeOnGlfwThread(Action callback)
+        {
+            GlfwThread.Invoke(callback);
+        }
+
         private GameWindow _gameWindow;
         private WindowPointerState _pointerState;
         private double _renderFreq = 60, _updateFreq = 60;
@@ -23,7 +47,6 @@ namespace Minecraft.Graphics.Windowing
         public Vector2i Location => _gameWindow.Location;
 
         public IKeyboardState KeyboardState { get; private set; }
-
 
         #region Events
 
@@ -141,7 +164,7 @@ namespace Minecraft.Graphics.Windowing
 
         public ICollection<ITickable> Tickers { get; } = new List<ITickable>();
 
-        public Vector2i ClientSize => _gameWindow.ClientSize;
+        public Vector2i ClientSize => _gameWindow.ClientRectangle.Size;
 
         public double PreviousRenderTime { get; private set; }
         public double PreviousUpdateTime { get; private set; }
@@ -149,6 +172,7 @@ namespace Minecraft.Graphics.Windowing
         private string _title = "Render Window";
         private bool _isFullscreen;
         private bool _pointerGrabbed;
+        private bool _initalized = false;
         private bool _disposed;
         private Vector2i _size = new(854, 480);
 
@@ -211,24 +235,44 @@ namespace Minecraft.Graphics.Windowing
 
         private readonly Timer _gameTickTimer = new(50);
 
-        public void ReloadWindow()
+        /// <summary>
+        /// 显示窗口
+        /// </summary>
+        /// <remarks>将会堵塞线程，请勿在<see cref="GlfwThread"/>中执行</remarks>
+        public void Run()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(RenderWindow));
 
-            _gameWindow?.Dispose();
+            _initalized = true;
+            GlfwThread.Invoke(() => _gameWindow?.Close());
+            _gameTickTimer?.Stop();
+            //_gameWindow?.Dispose();
 
+            //GlfwThread.Invoke(() => _gameWindow =
+            //    new GameWindow(
+            //            new GameWindowSettings
+            //            {
+            //                RenderFrequency = _renderFreq,
+            //                UpdateFrequency = _updateFreq,
+            //                IsMultiThreaded = true
+            //            },
+            //            new NativeWindowSettings
+            //            { Title = _title, Size = _size, NumberOfSamples = 4 })
+            //    { VSync = VSyncMode.Off, CursorGrabbed = _pointerGrabbed });
+            //
             _gameWindow =
-                new GameWindow(
-                        new GameWindowSettings
-                        {
-                            RenderFrequency = _renderFreq,
-                            UpdateFrequency = _updateFreq,
-                            IsMultiThreaded = true
-                        },
-                        new NativeWindowSettings
-                        { Title = _title, Size = _size, NumberOfSamples = 4 })
-                { VSync = VSyncMode.Off, CursorGrabbed = _pointerGrabbed };
+               new GameWindow(
+                       new GameWindowSettings
+                       {
+                           RenderFrequency = _renderFreq,
+                           UpdateFrequency = _updateFreq,
+                           IsMultiThreaded = true
+                       },
+                       new NativeWindowSettings
+                       { Title = _title, Size = _size, NumberOfSamples = 0 })
+               { VSync = VSyncMode.Off, CursorGrabbed = _pointerGrabbed };
+
             OnContainerInitalized(this, EventArgs.Empty);
             _gameWindow.Load += GameWindow_Load;
             _gameWindow.RenderThreadStarted += GameWindow_RenderThreadStarted;
@@ -241,8 +285,10 @@ namespace Minecraft.Graphics.Windowing
             _gameWindow.KeyDown += GameWindow_KeyDown;
             _gameWindow.KeyUp += GameWindow_KeyUp;
             _gameWindow.MouseEnter += GameWindow_MouseEnter;
-            _gameWindow.MouseLeave += GameWindow_MouseLeave; ;
+            _gameWindow.MouseLeave += GameWindow_MouseLeave;
             _gameTickTimer.Elapsed += GameTickTimerOnElapsed;
+            var logger = Logger.GetLogger<RenderWindow>();
+            logger.Info("Reload window");
             _gameWindow.Run();
         }
 
@@ -266,9 +312,15 @@ namespace Minecraft.Graphics.Windowing
             OnAfterTickers(this, EventArgs.Empty);
         }
 
-        private static void GameWindow_RenderThreadStarted()
+        private void GameWindow_RenderThreadStarted()
         {
             Logger.SetThreadName("RenderThread");
+
+            OnBeforeInitalizers(this, EventArgs.Empty);
+            foreach (var initializer in Initializers) initializer.Initialize();
+            OnAfterInitalizers(this, EventArgs.Empty);
+
+            _initalized = true;
         }
 
         private void GameWindow_KeyUp(KeyboardKeyEventArgs obj)
@@ -323,13 +375,15 @@ namespace Minecraft.Graphics.Windowing
             _pointerState = null;
             KeyboardState = null;
 
-            foreach (var obj in Initializers.Cast<object>().Concat(Renderers).Concat(Updaters))
-                if (obj is IDisposable disposable)
-                    disposable.Dispose();
+            //foreach (var obj in Initializers.Cast<object>().Concat(Renderers).Concat(Updaters))
+            //    if (obj is IDisposable disposable)
+            //        disposable.Dispose();
         }
 
         private void GameWindow_UpdateFrame(FrameEventArgs obj)
         {
+            if (!_initalized)
+                return;
             PreviousUpdateTime = obj.Time;
             OnBeforeUpdaters(this, EventArgs.Empty);
             foreach (var updatable in Updaters) updatable.Update();
@@ -358,10 +412,6 @@ namespace Minecraft.Graphics.Windowing
 
             OnContainerStarted(this, EventArgs.Empty);
 
-            OnBeforeInitalizers(this, EventArgs.Empty);
-            foreach (var initializer in Initializers) initializer.Initialize();
-            OnAfterInitalizers(this, EventArgs.Empty);
-
             _gameTickTimer.Start();
             OnTickTimerStarted(this, EventArgs.Empty);
         }
@@ -372,12 +422,16 @@ namespace Minecraft.Graphics.Windowing
             _disposed = true;
             GC.SuppressFinalize(this);
             _gameWindow?.Dispose();
-            _gameTickTimer.Dispose();
+            _gameTickTimer?.Dispose();
         }
 
+        // TODO: fix bugs
         public void Close()
         {
+            if (_gameWindow == null || _gameWindow.Exists)
+                return;
             _gameWindow.Close();
+            _gameTickTimer.Stop();
             OnContainerClosed(this, EventArgs.Empty);
         }
     }

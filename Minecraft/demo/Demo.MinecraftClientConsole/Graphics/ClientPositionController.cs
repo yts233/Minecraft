@@ -37,7 +37,7 @@ namespace Demo.MinecraftClientConsole.Graphics
                 var width = Math.Min(_window.ClientSize.X, _window.ClientSize.Y);
                 GL.Viewport(0, 0, width, width);
             });
-            _window.AddObject(_renderer);
+            _window.AddRenderObject(_renderer);
             _window.KeyDown += (_,obj) => _renderer.OnKeyDown(obj);
             _window.KeyUp += (_,obj) => _renderer.OnKeyUp(obj);
         }
@@ -47,7 +47,7 @@ namespace Demo.MinecraftClientConsole.Graphics
             using var _tickProvider = new Timer(50);
             _tickProvider.Elapsed += (_, _) => _renderer.Tick();
             _tickProvider.Start();
-            _window.ReloadWindow();
+            _window.Run();
             _tickProvider.Stop();
         }
 

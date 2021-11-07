@@ -2,7 +2,7 @@
 {
     public static class Extensions
     {
-        public static ISmoothAxisInput GetSmoothAxisInput(this IAxisInput input, float speed = 0.125F)
+        public static ISmoothAxisInput CreateSmoothAxisInput(this IAxisInput input, float speed = 0.125F)
         {
             return new SmoothAxisInput(input)
             {

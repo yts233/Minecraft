@@ -20,7 +20,7 @@ namespace Minecraft.Graphics.Renderers.Utils
         public bool Controlable { get; set; }
         public IAxisInput PositionInput { get; set; }
         public IAxisInput RotationInput { get; set; }
-        public float Speed { get; set; } = 0.0125F;
+        public float Speed { get; set; } = 0.025F;
         public Vector3 GlobalVelocity
         {
             get => _global;
@@ -40,11 +40,13 @@ namespace Minecraft.Graphics.Renderers.Utils
                     return; // avoid to recalculate
                 _local = value;
                 _lastCameraRotation = _camera.Rotation;
-                if (_type == CameraType.Flight)
-                    _local2Global = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(_camera.Rotation.Y)) * Matrix3.CreateRotationX(MathHelper.DegreesToRadians(_camera.Rotation.X)) * value;
+                if (Type == CameraType.Flight)
+                    _local2Global = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(_camera.Rotation.X))
+                        * Matrix3.CreateRotationX(MathHelper.DegreesToRadians(-_camera.Rotation.Y))
+                        * value;
                 else
                 {
-                    var tmp = Matrix2.CreateRotation(_camera.Rotation.X) * new Vector2(value.X, -value.Z);
+                    var tmp = Matrix2.CreateRotation(MathHelper.DegreesToRadians(_camera.Rotation.X)) * new Vector2(value.X, -value.Z);
                     _local2Global = new Vector3(tmp.X, value.Y, -tmp.Y);
                 }
                 _resultant = _global + _local2Global;
@@ -63,8 +65,6 @@ namespace Minecraft.Graphics.Renderers.Utils
                 _resultant = value;
             }
         }
-
-        private CameraType _type = CameraType.Flight;
 
         public CameraType Type { get; set; } = CameraType.Flight;
 

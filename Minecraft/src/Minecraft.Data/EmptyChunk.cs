@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Minecraft.Data
 {
-    public class EmptyChunk : IChunk, IBlockEditor
+    public class EmptyChunk : IEditableChunk
     {
         public int X { get; set; }
 

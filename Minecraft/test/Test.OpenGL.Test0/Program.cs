@@ -187,10 +187,10 @@ void main(){
                 var width = Math.Min(window.ClientSize.X, window.ClientSize.Y);
                 GL.Viewport(0, 0, width, width);
             });
-            window.AddObject(renderer);
+            window.AddRenderObject(renderer);
             window.KeyDown += (_, obj) => renderer.OnKeyDown(obj);
             window.KeyUp += (_, obj) => renderer.OnKeyUp(obj);
-            window.ReloadWindow();
+            window.Run();
         }
 
     }

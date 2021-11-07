@@ -75,6 +75,16 @@ namespace Minecraft.Numerics
             Z /= len;
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is Vector3d vector3d && vector3d.X == X && vector3d.Y == Y && vector3d.Z == Z;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
+
         public static implicit operator Vector3d((double x, double y, double z) value)
         {
             return new Vector3d { X = value.x, Y = value.y, Z = value.z };

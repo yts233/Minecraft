@@ -7,20 +7,21 @@ namespace Minecraft.Graphics.Texturing
     {
         private readonly int _handle;
 
-        public EmptyTexture(int width, int height)
+        public EmptyTexture(int width, int height, bool grid = false)
         {
             _handle = GL.GenTexture();
             var image = new Image(width, height);
-            image.InitializeEmptyImage();
+            if (grid)
+                image.InitializeEmptyImage();
             GL.BindTexture(TextureTarget.Texture2D, _handle);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
-                (int) TextureWrapMode.ClampToEdge);
+                (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
-                (int) TextureWrapMode.ClampToEdge);
+                (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.NearestMipmapNearest);
+                (int)TextureMinFilter.NearestMipmapNearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Nearest);
+                (int)TextureMagFilter.Nearest);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
                 PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
