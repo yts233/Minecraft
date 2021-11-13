@@ -13,11 +13,7 @@ namespace Minecraft.Graphics.Windowing
         private Vector2i _location;
         private Vector2i _size;
 
-        public WindowViewportInvoker()
-        {
-        }
-
-        public WindowViewportInvoker(RenderWindow window) : this()
+        public WindowViewportInvoker(RenderWindow window)
         {
             _window = window;
             _auto = true;

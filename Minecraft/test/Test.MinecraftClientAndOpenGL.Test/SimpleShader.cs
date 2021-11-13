@@ -1,7 +1,7 @@
 ﻿using Minecraft.Graphics.Shading;
 using OpenTK.Mathematics;
 
-namespace Test.OpenGL.ChunkRenderTest
+namespace Test.MinecraftClientAndOpenGL.Test
 {
     class SimpleShader : ShaderBase
     {

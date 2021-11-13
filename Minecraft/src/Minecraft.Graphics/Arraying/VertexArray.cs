@@ -74,7 +74,7 @@ namespace Minecraft.Graphics.Arraying
                 GL.EnableVertexAttribArray(pointer.Index);
             }
 
-            _logger.Info($"Create an vertex array:{_vertexArrayObject}");
+            //_logger.Info($"Create an vertex array:{_vertexArrayObject}");
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()

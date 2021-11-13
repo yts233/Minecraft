@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Minecraft.Protocol\Minecraft.Protocol.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft\Minecraft.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
   </ItemGroup>
+
 </Project>

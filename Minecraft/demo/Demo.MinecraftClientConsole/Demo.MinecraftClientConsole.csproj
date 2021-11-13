@@ -11,8 +11,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Minecraft.Client\Minecraft.Client.csproj" />
-      <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
-      <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
+      <ProjectReference Include="..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
+      <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
     </ItemGroup>
 
 </Project>

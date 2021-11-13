@@ -17,8 +17,8 @@ namespace Test.Data.Blocks.Test
             var chuck = new EmptyChunk();
             var rand = new Random();
             for (var i = 0; i < 10; i++)
-                chuck.SetBlock(rand.Next(15), rand.Next(256), rand.Next(15), VanillaBlockIds.DiamondBlock);
-            foreach (var (x, y, z, block) in chuck.EnumerateBlocks().Where(b => b.block.Equals(VanillaBlockIds.DiamondBlock)))
+                chuck.SetBlock(rand.Next(15), rand.Next(256), rand.Next(15), VanillaBlocks.DiamondBlock);
+            foreach (var (x, y, z, block) in chuck.EnumerateBlocks().Where(b => b.block.Equals(VanillaBlocks.DiamondBlock)))
                 Logger.GetLogger<Program>().Info($"{(x, y, z)}: {block.Name}");
 
             Logger.GetLogger<Program>().Info($"Testing collections");

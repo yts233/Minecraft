@@ -44,7 +44,7 @@ namespace Minecraft.Graphics.Blocking
             _shader = new BlockShader();
             _shader.Model = Matrix4.Identity;
             _atlas = _atlasProvider();
-            _chunkVertexArrayProvider = new ChunkVertexArrayProvider(_chunk, _atlas);
+            _chunkVertexArrayProvider = new ChunkVertexArrayProvider(_chunk, _atlasProvider);
             Logger.GetLogger<ChunkRenderer>().Info($"Initalized {_chunk.X}, {_chunk.Z}");
             GenerateMeshes();
         }
@@ -54,9 +54,17 @@ namespace Minecraft.Graphics.Blocking
             _shader.Use();
             if (_needUpdate)
             {
-                _vertex?.DisposeAll();
-                _vertex = _chunkVertexArrayProvider.ToElementArray().GetHandle();
-                _needUpdate = false;
+                if (_chunkVertexArrayProvider == null)
+                {
+                    _chunkVertexArrayProvider = new ChunkVertexArrayProvider(_chunk, _atlasProvider);
+                    _chunkVertexArrayProvider.Calculate();
+                }
+                else
+                {
+                    _vertex?.DisposeAll();
+                    _vertex = _chunkVertexArrayProvider.ToElementArray().GetHandle();
+                    _needUpdate = false;
+                }
             }
             if (_vertex == null)
                 return;
@@ -83,7 +91,7 @@ namespace Minecraft.Graphics.Blocking
         {
             ChunkRendererThread.Invoke(() =>
             {
-                _chunkVertexArrayProvider.Calculate();
+                _chunkVertexArrayProvider?.Calculate();
                 _needUpdate = true;
             }, true);
         }

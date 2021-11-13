@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="D:\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft\Minecraft.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft\Minecraft.csproj" />
   </ItemGroup>
 
 </Project>

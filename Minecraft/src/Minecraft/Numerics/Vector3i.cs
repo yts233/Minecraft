@@ -9,9 +9,9 @@ namespace Minecraft.Numerics
         public int Y { get; set; }
         public int Z { get; set; }
 
-        public int LengthPow2 => X * X + Y * Y + Z * Z;
+        public int LengthSquared => X * X + Y * Y + Z * Z;
 
-        public int Length => (int)Math.Sqrt(LengthPow2);
+        public int Length => (int)Math.Sqrt(LengthSquared);
 
         int IList<int>.this[int index]
         {

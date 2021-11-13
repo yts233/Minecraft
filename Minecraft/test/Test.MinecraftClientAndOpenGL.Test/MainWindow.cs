@@ -17,6 +17,7 @@ using Minecraft.Resources.Vanilla.VillageAndPillage;
 using System.Linq;
 using Minecraft.Protocol.Data;
 using System.Threading.Tasks;
+using Minecraft.Graphics.Arraying;
 
 namespace Test.MinecraftClientAndOpenGL.Test
 {
@@ -29,11 +30,12 @@ namespace Test.MinecraftClientAndOpenGL.Test
         private readonly IPerspectiveTransformProvider _perspectiveTransformProvider;
         private readonly IEditableWorld _world;
         private readonly WorldRenderer _worldRenderer;
-        private readonly MinecraftClient _client;
         private readonly IThreadDispatcher _clientThread;
+        private readonly MinecraftClient _client;
         private readonly string _serverAddress;
         private readonly ushort _serverPort;
         private ITextureAtlas _atlases;
+        private IElementArrayHandle _triangle;
         private VanillaResource _resource;
 
         public MainWindow(string serverAddress = "localhost", ushort serverPort = 25565)
@@ -74,7 +76,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
             this.AddUpdater(() => Title = _camera.Position.ToString());
             this.AddIntervalTicker(20, () =>
             {
-                _worldRenderer.MarkUpdate();
+                //_worldRenderer.MarkUpdate();
             });
             _serverAddress = serverAddress;
             _serverPort = serverPort;
@@ -115,6 +117,35 @@ namespace Test.MinecraftClientAndOpenGL.Test
             }
 
             _atlases = textureBuilder.Build();
+
+            _triangle = new ElementArray(new VertexArray<float>(new[] {
+                -.5F,-.5F, 1F,0F,0F,
+                .5F,-.5F, 0F,1F,0F,
+                .5F,.5F, 0F,0F,1F,
+                -.5F,.5F, 0F,1F,0F
+            }, new VertexAttributePointer[] {
+                new()
+                {
+                    Index=0,
+                    Normalized=false,
+                    Offset=0,
+                    Size=2,
+                    Type=VertexAttribePointerType.Float
+                },
+                new ()
+                {
+                    Index=1,
+                    Normalized=false,
+                    Offset=2*sizeof(float),
+                    Size=3,
+                    Type=VertexAttribePointerType.Float
+                }
+            }).GetHandle(), new uint[] {
+                0,1,2,
+                0,2,3
+            }).GetHandle();
+
+            _shader = new SimpleShader();
 
             _logger.Info("Finished building texture atlases.");
 
@@ -157,6 +188,36 @@ namespace Test.MinecraftClientAndOpenGL.Test
         }
 
         private Minecraft.Numerics.Vector3d _lastServerPosition;
+        private SimpleShader _shader;
+
+        protected override void OnBeforeRenderers(object sender, EventArgs e)
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            _shader.Use();
+            _shader.View = _viewMatrixProvider.GetMatrix();
+            _shader.Projection = _perspectiveTransformProvider.GetMatrix();
+
+            _triangle.Bind();
+
+            if (_client.IsJoined)
+            {
+                foreach (var entity in _client.GetWorld().GetEntities().ToList())
+                {
+                    (double x, double y, double z) = entity.Position;
+                    _shader.Model = Matrix4.CreateTranslation(((float)x, (float)y, (float)z));
+                    _triangle.Render();
+                }
+            }
+            _shader.Model = Matrix4.CreateTranslation((0, 0, 0));
+            _triangle.Render();
+            _shader.Model = Matrix4.CreateTranslation((10, 0, 0));
+            _triangle.Render();
+            _shader.Model = Matrix4.CreateTranslation((0, 0, 10));
+            _triangle.Render();
+
+            base.OnBeforeRenderers(sender, e);
+        }
 
         protected override void OnBeforeUpdaters(object sender, EventArgs e)
         {
@@ -166,32 +227,33 @@ namespace Test.MinecraftClientAndOpenGL.Test
 
             if (_client.IsJoined)
             {
-                foreach (var entity in _client.GetWorld().GetEntities())
-                {
-                    var x = (int)entity.Position.X;
-                    var y = (int)entity.Position.Y;
-                    var z = (int)entity.Position.Z;
-                    if (!_world.HasChunk(x >> 0x04, z >> 0x04))
-                    {
-                        _world.AddChunk(new EmptyChunk()
-                        {
-                            World = _world,
-                            X = x >> 0x04,
-                            Z = z >> 0x04
-                        });
-                    }
-                    _world.SetBlock(x, y, z, "diamond_block");
-                    _camera.LookAt((x, y, z));
-                }
-
+                //    foreach (var entity in _client.GetWorld().GetEntities())
+                //    {
+                //        var x = (int)entity.Position.X;
+                //        var y = (int)entity.Position.Y;
+                //        var z = (int)entity.Position.Z;
+                //        if (!_world.HasChunk(x >> 0x04, z >> 0x04))
+                //        {
+                //            _world.AddChunk(new EmptyChunk()
+                //            {
+                //                World = _world,
+                //                X = x >> 0x04,
+                //                Z = z >> 0x04
+                //            });
+                //        }
+                //        _world.SetBlock(x, y, z, "diamond_block");
+                //        _camera.LookAt((x, y, z));
+                //    }
+                //
                 var player = _client.GetPlayer();
-
-                _worldRenderer.CenterChunkX = player.ServerChunkX;
-                _worldRenderer.CenterChunkZ = player.ServerChunkZ;
+                //
+                //    _worldRenderer.CenterChunkX = player.ServerChunkX;
+                //    _worldRenderer.CenterChunkZ = player.ServerChunkZ;
+                //
 
                 if (!_lastServerPosition.Equals(player.Position))
                 {
-                    (double x, double y, double z) = player.Position;
+                    (double x, double y, double z) = _lastServerPosition = player.Position;
                     _camera.Position = new Vector3((float)x, (float)y, (float)z);
                 }
             }
@@ -207,10 +269,10 @@ namespace Test.MinecraftClientAndOpenGL.Test
                 var player = _client.GetPlayer();
                 var delta = _lastServerPosition;
                 delta.Delta(player.Position);
-                if (delta.LengthPow2 <= 15.0F)
+                if (delta.LengthSquared <= 15.0F)
                 {
                     (float x, float y, float z) = _camera.Position;
-                    player.GetPositionHandler().SetPosition((x, y, z), true);
+                    player.GetPositionHandler().SetPosition((x, y, z), onGround: true);
                 }
             }
             base.OnBeforeTickers(sender, e);

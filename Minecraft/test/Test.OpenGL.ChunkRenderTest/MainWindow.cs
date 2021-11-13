@@ -1,5 +1,6 @@
 ﻿using Minecraft;
 using Minecraft.Data;
+using Minecraft.Data.Vanilla;
 using Minecraft.Graphics.Arraying;
 using Minecraft.Graphics.Blocking;
 using Minecraft.Graphics.Renderers.Utils;
@@ -39,9 +40,9 @@ namespace Test.OpenGL.ChunkRenderTest
             _world.AddChunk(new EmptyChunk() { X = 0, Z = 0, World = _world });
             _world.AddChunk(new EmptyChunk() { X = 0, Z = 1, World = _world });
             _world.AddChunk(new EmptyChunk() { X = 1, Z = 0, World = _world });
-            _world.Fill(0, 0, 0, 31, 0, 31, "bedrock");
-            _world.Fill(0, 1, 0, 31, 10, 31, "dirt");
-            _world.Fill(0, 11, 0, 31, 11, 31, "diamond_block");
+            _world.Fill(0, 0, 0, 31, 0, 31, VanillaBlocks.Bedrock);
+            _world.Fill(0, 1, 0, 31, 10, 31, VanillaBlocks.Dirt);
+            _world.Fill(0, 11, 0, 31, 11, 31, VanillaBlocks.DiamondBlock);
             _viewTransform = _eye.GetViewTransformProvider();
             _projectionTransform = _eye.GetPerspectiveTransformProvider();
             _worldRenderer = new WorldRenderer(_world, () => _atlases, _viewTransform, _projectionTransform)
@@ -77,7 +78,7 @@ namespace Test.OpenGL.ChunkRenderTest
             this.AddTicker(_performanceWatcherRenderer);
             this.AddUpdater(() => _eye.Aspect = ClientSize.Y == 0 ? 1.0F : (float)ClientSize.X / ClientSize.Y);
             this.AddUpdater(cameraMotivatorRenderer);
-            this.AddRenderObject(_worldRenderer);
+            //this.AddRenderObject(_worldRenderer);
             this.AddIntervalTicker(20, () => Title = $"ChunkRenderTest - FPS: {_performanceWatcherRenderer.LastRenderTimes} ({_performanceWatcherRenderer.LastUpdateTimes})");
 
             //this.AddIntervalTicker(100, _chunkRenderer.Update); // update the chunk
@@ -157,12 +158,18 @@ namespace Test.OpenGL.ChunkRenderTest
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            //_shader.Use();
-            //_shader.View = _viewTransform.GetMatrix();
-            //_shader.Projection = _projectionTransform.GetMatrix();
-            //
-            //_triangle.Bind();
-            //_triangle.Render();
+            _shader.Use();
+            _shader.View = _viewTransform.GetMatrix();
+            _shader.Projection = _projectionTransform.GetMatrix();
+
+            _triangle.Bind();
+
+            _shader.Model = Matrix4.CreateTranslation((0, 0, 0));
+            _triangle.Render();
+            _shader.Model = Matrix4.CreateTranslation((10, 0, 0));
+            _triangle.Render();
+            _shader.Model = Matrix4.CreateTranslation((0, 0, 10));
+            _triangle.Render();
 
             base.OnBeforeRenderers(sender, e);
         }
@@ -173,11 +180,6 @@ namespace Test.OpenGL.ChunkRenderTest
             _projectionTransform.Calculate();
             //Console.WriteLine(_eye.Rotation);
             base.OnBeforeUpdaters(sender, e);
-        }
-
-        protected override void OnKeyDown(object sender, KeyboardKeyEventArgs e)
-        {
-            base.OnKeyDown(sender, e);
         }
 
     }

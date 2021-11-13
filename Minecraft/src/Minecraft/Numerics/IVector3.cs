@@ -109,7 +109,7 @@ namespace Minecraft.Numerics
         void Scale(T other);
         void Normalize();
 
-        T LengthPow2 { get; }
+        T LengthSquared { get; }
         T Length { get; }
     }
 }

@@ -15,7 +15,7 @@ namespace Test.OpenGL.ChunkRenderTest
             RenderWindow.GlfwThread.Start();
             RenderWindow.GlfwThread.Invoke(() =>
             {
-                window = new MainWindow()
+                window = new MainWindow
                 {
                     Title = "Hello ChunkRenderTest"
                 };

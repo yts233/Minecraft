@@ -1,25 +1,28 @@
 ﻿using Minecraft.Protocol.Data;
-#if false
+
 namespace Minecraft.Protocol.Packets.Server
 {
     public class ChunkDataPacket : Packet
     {
-        // TODO: edit class
         public override int PacketId => 0x22;
 
         public override PacketBoundTo BoundTo => PacketBoundTo.Client;
 
         public override ProtocolState State => ProtocolState.Play;
 
-        protected override void _ReadFromStream(ByteArray content)
-        {
+        public int ChunkX { get; set; }
+        public int ChunkZ { get; set; }
+        public bool[] PrimaryBitMask { get; set; }
 
+        protected override void ReadFromStream_(ByteArray content)
+        {
+            
+            throw new System.NotImplementedException();
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void WriteToStream_(ByteArray content)
         {
-
+            throw new System.NotImplementedException();
         }
     }
 }
-#endif

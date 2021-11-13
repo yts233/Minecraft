@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
   </ItemGroup>
 
 </Project>

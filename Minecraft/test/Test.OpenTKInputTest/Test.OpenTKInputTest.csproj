@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
-    <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
-    <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
-    <ProjectReference Include="C:\Users\Ye_Tianshun\Source\Repos\Minecraft\Minecraft\src\Minecraft.Input\Minecraft.Input.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Input\Minecraft.Input.csproj" />
   </ItemGroup>
 
 </Project>

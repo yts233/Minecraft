@@ -37,7 +37,7 @@ namespace Minecraft.Graphics.Arraying
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, _elements.Length * sizeof(uint), _elements,
                 BufferUsageHint.StaticDraw);
-            _logger.Info($"Create an element array:{_elementBufferObject}");
+            //_logger.Info($"Create an element array:{_elementBufferObject}");
         }
 
         IEnumerator<uint> IEnumerable<uint>.GetEnumerator()

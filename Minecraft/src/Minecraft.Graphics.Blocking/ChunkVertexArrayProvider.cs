@@ -3,6 +3,7 @@ using Minecraft.Data.Common.Blocking;
 using Minecraft.Graphics.Arraying;
 using Minecraft.Graphics.Texturing;
 using OpenTK.Mathematics;
+using System;
 using System.Collections.Generic;
 
 namespace Minecraft.Graphics.Blocking
@@ -66,12 +67,12 @@ namespace Minecraft.Graphics.Blocking
         private uint[] _indices;
         private BlockVertex[] _vertices;
         private readonly IChunk _chunk;
-        private readonly ITextureAtlas _texture;
+        private readonly Func<ITextureAtlas> _atlasProvider;
 
-        public ChunkVertexArrayProvider(IChunk chunk, ITextureAtlas texture)
+        public ChunkVertexArrayProvider(IChunk chunk, Func<ITextureAtlas> atlasProvider)
         {
             _chunk = chunk;
-            _texture = texture;
+            _atlasProvider = atlasProvider;
         }
 
         private void AddVertices(int face, List<uint> indices, List<BlockVertex> vertices, int bx, int by, int bz, ref Box2 uv, ref uint count)
@@ -100,6 +101,7 @@ namespace Minecraft.Graphics.Blocking
 
         public void Calculate()
         {
+            var texture = _atlasProvider();
             var vertices = new List<BlockVertex>();
             var indices = new List<uint>();
             var count = 0U;
@@ -116,7 +118,7 @@ namespace Minecraft.Graphics.Blocking
                         var by = y;
                         var bz = (_chunk.Z << 0x04) | z;
 
-                        var uv = _texture[new NamedIdentifier(block.Name.Namespace, "block/" + block.Name.Name + ".png")];
+                        var uv = texture[new NamedIdentifier(block.Name.Namespace, "block/" + block.Name.Name + ".png")];
 
                         if (!_chunk.IsTile(x, y, z - 1))
                             AddVertices(0, indices, vertices, bx, by, bz, ref uv, ref count);

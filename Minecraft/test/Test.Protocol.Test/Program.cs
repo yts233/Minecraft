@@ -7,7 +7,8 @@ using Minecraft.Protocol;
 using Minecraft.Protocol.Packets;
 using Minecraft.Protocol.Packets.Client;
 using Minecraft.Protocol.Packets.Server;
-
+using ClientChatMessagePacket = Minecraft.Protocol.Packets.Client.ChatMessagePacket;
+using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePacket;
 namespace Test.Protocol.Test
 {
     internal class Program
@@ -39,8 +40,8 @@ namespace Test.Protocol.Test
                 Console.WriteLine(packet.GetPropertyInfoString());
                 Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
             }
-            await TestPacket(new KeepAlivePacket { KeepAliveId = 1234567 }, true);
-            await TestPacket(new KeepAliveResponsePacket { KeepAliveId = 1234567 }, true);
+            await TestPacket(new ServerChatMessagePacket { JsonData = "aaaaaaaaa啊啊啊啊啊" }, true);
+            await TestPacket(new ClientChatMessagePacket { Message = "aaaaaaaaa啊啊啊啊啊" }, true);
         }
     }
 }
