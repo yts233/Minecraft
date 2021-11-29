@@ -21,9 +21,9 @@ using Minecraft.Graphics.Arraying;
 
 namespace Test.MinecraftClientAndOpenGL.Test
 {
-    class MainWindow : RenderWindow
+    class MainWindow : SimpleRenderWindowContainer
     {
-        private static Logger<MainWindow> _logger = Logger.GetLogger<MainWindow>();
+        private static readonly Logger<MainWindow> _logger = Logger.GetLogger<MainWindow>();
 
         private readonly IEye _camera;
         private readonly IViewTransformProvider _viewMatrixProvider;
@@ -38,7 +38,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
         private IElementArrayHandle _triangle;
         private VanillaResource _resource;
 
-        public MainWindow(string serverAddress = "localhost", ushort serverPort = 25565)
+        public MainWindow(string serverAddress = "localhost", ushort serverPort = 25566)
         {
             _camera = new Eye();
             _viewMatrixProvider = _camera.GetViewTransformProvider();
@@ -49,7 +49,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
                 CachedDistance = 8,
                 ViewDistance = 4
             };
-            _clientThread = ThreadHelper.NewThread("ClientThread");
+            _clientThread = ThreadHelper.CreateDispatcher("ClientThread");
             _client = new MinecraftClient("MCCOpenGLTest");
             var cameraMotivator = new CameraMotivatorRenderer(_camera)
             {
@@ -155,20 +155,20 @@ namespace Test.MinecraftClientAndOpenGL.Test
                 {
                     _logger.Warn(e);
                     _logger.Info("Relogin in 5 seconds...");
-                    _ = Task.Delay(5000).Then(() => _client.Connect(_serverAddress, _serverPort)).HandleException(ex => _logger.Warn(ex));
+                    _ = Task.Delay(5000).Then(async () =>
+                    {
+                        _client.Connect(_serverAddress, _serverPort);
+                        await Task.CompletedTask;
+                    }).HandleException(ex => _logger.Warn(ex));
                 };
                 _client.ChatReceived += (sender, e) =>
                 {
                     _logger.Info(e);
                 };
 
-                _ = _client.ServerListPing(_serverAddress, _serverPort).Then(async result =>
-                {
-                    _logger.Info(result.GetPropertyInfoString());
-                    await Task.CompletedTask;
-                });
+                _logger.Info(_client.ServerListPing(_serverAddress, _serverPort).GetPropertyInfoString());
 
-                _ = _client.Connect(_serverAddress, _serverPort).HandleException(ex => _logger.Warn(ex));
+                _client.Connect(_serverAddress, _serverPort);
 
                 while (true)
                 {
@@ -177,10 +177,15 @@ namespace Test.MinecraftClientAndOpenGL.Test
                         continue;
                     if (input == "#exit")
                     {
-                        _ = _client.Disconnect().HandleException(ex => _logger.Warn(ex));
+                        _client.Disconnect();
                         return;
                     }
-                    _ = _client.SendChatMessage(input).HandleException(ex => _logger.Warn(ex));
+                    if (input == "#cls")
+                    {
+                        Console.Clear();
+                        continue;
+                    }
+                    _client.SendChatMessage(input);
                 }
             }, async: true);
 
@@ -251,7 +256,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
                 //    _worldRenderer.CenterChunkZ = player.ServerChunkZ;
                 //
 
-                if (!_lastServerPosition.Equals(player.Position))
+                if (!_lastServerPosition.Equals(player?.Position))
                 {
                     (double x, double y, double z) = _lastServerPosition = player.Position;
                     _camera.Position = new Vector3((float)x, (float)y, (float)z);

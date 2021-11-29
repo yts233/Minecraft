@@ -13,10 +13,10 @@ namespace Test.Protocol.Test
 {
     internal class Program
     {
-        private static async Task Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            static async Task TestPacket(Packet packet, bool compressed = false)
+            static void TestPacket(Packet packet, bool compressed = false)
             {
                 var stream = new MemoryStream();
                 Console.WriteLine(packet.GetPropertyInfoString());
@@ -26,7 +26,9 @@ namespace Test.Protocol.Test
                     Threshold = 1,
                     AutoHandleSpecialPacket = false
                 };
-                await adapter.WritePacketAsync(packet);
+                adapter.Start();
+                adapter.WritePacket(packet);
+                adapter.WaitUntilAllPacketsSent();
                 Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
                 adapter = new ProtocolAdapter(stream, adapter.RemoteBoundTo)
                 {
@@ -35,13 +37,14 @@ namespace Test.Protocol.Test
                     Threshold = 1,
                     AutoHandleSpecialPacket = false
                 };
+                adapter.Start();
                 stream.Position = 0;
-                packet = await adapter.ReadPacketAsync();
+                packet = adapter.ReadPacket();
                 Console.WriteLine(packet.GetPropertyInfoString());
                 Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
             }
-            await TestPacket(new ServerChatMessagePacket { JsonData = "aaaaaaaaa啊啊啊啊啊" }, true);
-            await TestPacket(new ClientChatMessagePacket { Message = "aaaaaaaaa啊啊啊啊啊" }, true);
+            TestPacket(new ServerChatMessagePacket { JsonData = "aaaaaaaaa啊啊啊啊啊" }, true);
+            TestPacket(new ClientChatMessagePacket { Message = "aaaaaaaaa啊啊啊啊啊" }, true);
         }
     }
 }

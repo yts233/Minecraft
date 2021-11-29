@@ -8,6 +8,7 @@ using Minecraft.Extensions;
 using Minecraft.Client;
 using static Demo.MinecraftClientConsole.Shared;
 using Demo.MinecraftClientConsole.Graphics;
+using Minecraft.Graphics.Windowing;
 //test server: mc.oxygenstudio.cn
 // connect mc.oxygenstudio.cn
 // connect s1.zhaomc.net
@@ -16,7 +17,7 @@ namespace Demo.MinecraftClientConsole
 
     class Program
     {
-        private delegate Task Command(string[] args);
+        private delegate void Command(string[] args);
 
         private delegate void CmdLet();
 
@@ -26,15 +27,15 @@ namespace Demo.MinecraftClientConsole
         private static MinecraftClient _client;
         private static readonly Logger<CmdLet> _cmdLetLogger = Logger.GetLogger<CmdLet>();
 
-		public static void CreateClient(string userName)
-		{
-			//initalize client
+        public static void CreateClient(string userName)
+        {
+            //initalize client
             _client = new MinecraftClient(userName);
             _client.Disconnected += (_, e) => Console.WriteLine($"Disconnected. Reason: {e}");
             _client.ChatReceived += (_, e) => Console.WriteLine(e);
-		}
+        }
 
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             Logger.SetThreadName("MainThread");
             Logger.SetExceptionHandler();
@@ -62,6 +63,12 @@ namespace Demo.MinecraftClientConsole
                 //Console.CursorLeft = 8;
                 //Println(input, ConsoleColor.Yellow);
 
+                if (input.StartsWith('/'))
+                {
+                    _client.SendChatMessage(input);
+                    continue;
+                }
+
                 var cmd = input.Split(' ');
                 var commandName = cmd[0];
                 var commandParams = cmd.Skip(1).ToArray();
@@ -73,7 +80,7 @@ namespace Demo.MinecraftClientConsole
 
                 try
                 {
-                    await Commands[commandName].command(commandParams);
+                    Commands[commandName].command(commandParams);
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +102,7 @@ namespace Demo.MinecraftClientConsole
 
         private static void LoadCommands()
         {
-            AddCommand("help", async args =>
+            AddCommand("help", args =>
             {
                 if (args.Length > 1)
                 {
@@ -112,14 +119,12 @@ namespace Demo.MinecraftClientConsole
                 }
                 Println("Minecraft Client Console 命令", ConsoleColor.Yellow);
                 foreach (var commandName in Commands.Keys) ShowHelp(commandName);
-                await Task.CompletedTask;
             }, "[command] 获取帮助");
-            AddCommand("echo", async args =>
+            AddCommand("echo", args =>
             {
                 Println(string.Join(' ', args));
-                await Task.CompletedTask;
             }, "回声输出");
-            AddCommand("newclient", async args =>
+            AddCommand("newclient", args =>
             {
                 if (args.Length > 1)
                 {
@@ -129,11 +134,10 @@ namespace Demo.MinecraftClientConsole
                 var userName = "MCConsoleTest";
                 if (args.Length == 1 && !string.IsNullOrEmpty(args[0]))
                     userName = args[0];
-                await _client.Disconnect();
+                _client.Disconnect();
                 CreateClient(userName);
-                await Task.CompletedTask;
             }, "[username=MCConsoleTest] 重新创建MinecraftClient实例");
-            AddCommand("protocol", async args =>
+            AddCommand("protocol", args =>
             {
                 if (args.Length != 1)
                 {
@@ -142,9 +146,8 @@ namespace Demo.MinecraftClientConsole
                 }
                 var protocolNumber = int.Parse(args[0]);
                 _client.SwitchProtocolVersion(protocolNumber);
-                await Task.CompletedTask;
             }, "<version_number> 改变协议版本号");
-            AddCommand("ping", async args =>
+            AddCommand("ping", args =>
             {
                 var defaultPort = false;
                 if (args.Length == 1)
@@ -160,11 +163,11 @@ namespace Demo.MinecraftClientConsole
                 var hostname = args[0];
                 var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
 
-                var result = await _client.ServerListPing(hostname, port);
+                var result = _client.ServerListPing(hostname, port);
 
                 Println($"from {hostname}:{port}, ping: {result.Delay}ms\n游戏版本: {result.VersionName}\n协议版本号: {result.ProtocolVersion}\n在线人数: {result.OnlinePlayerCount}/{result.MaxPlayerCount}\n{result.Description}");
             }, "<hostname> [port=25565] 请求一次服务器列表ping");
-            AddCommand("connect", async args =>
+            AddCommand("connect", args =>
             {
                 var defaultPort = false;
                 if (args.Length == 1)
@@ -179,20 +182,28 @@ namespace Demo.MinecraftClientConsole
 
                 var hostname = args[0];
                 var port = defaultPort ? (ushort)25565 : ushort.Parse(args[1]);
-                await _client.Connect(hostname, port);
+                _client.Connect(hostname, port);
                 /*_client.GetAdapter().PlayerPosition += (_, e) =>
                 {
                     e.position
                 };*/
             }, "<hostname> [port=25565] 连接到服务器，并切换到 InServer");
-            AddCommand("send", async args =>
+            AddCommand("disconnect", args =>
+            {
+                _client.Disconnect();
+            }, "断开与服务器的连接");
+            AddCommand("reconnect", args =>
+            {
+                _client.Reconnect();
+            }, "重新连接到服务器");
+            AddCommand("send", args =>
             {
                 var msg = string.Join(' ', args);
-                await _client.SendChatMessage(msg);
+                _client.SendChatMessage(msg);
             }, "<message> 向服务器发送聊天或指令");
 
             #region Packets
-            AddCommand("vehiclemove", async args =>
+            AddCommand("vehiclemove", args =>
             {
                 if (args.Length == 5
                 && double.TryParse(args[0], out var x)
@@ -201,11 +212,11 @@ namespace Demo.MinecraftClientConsole
                 && float.TryParse(args[3], out var yaw)
                 && float.TryParse(args[4], out var pitch))
 #pragma warning disable CS0618 // 类型或成员已过时
-                    await _client.GetAdapter().SendVehicleMovePacket((x, y, z), (yaw, pitch));
+                    _client.GetAdapter().SendVehicleMovePacket((x, y, z), (yaw, pitch));
 #pragma warning restore CS0618 // 类型或成员已过时
                 else ShowHelp("vehiclemove");
             }, "<x> <y> <z> <yaw> <pitch> 向服务器发送VehicleMovePacket");
-            AddCommand("playerposition", async args =>
+            AddCommand("playerposition", args =>
             {
                 if (args.Length == 4
                 && double.TryParse(args[0], out var x)
@@ -213,14 +224,14 @@ namespace Demo.MinecraftClientConsole
                 && double.TryParse(args[2], out var z)
                 && bool.TryParse(args[3], out var onGround))
 #pragma warning disable CS0618 // 类型或成员已过时
-                    await _client.GetAdapter().SendPlayerPositionPacket((x, feetY, z), onGround);
+                    _client.GetAdapter().SendPlayerPositionPacket((x, feetY, z), onGround);
 #pragma warning restore CS0618 // 类型或成员已过时
                 else ShowHelp("playerposition");
             }, "<x> <feety> <z> <onGround> 向服务器发送PlayerPositionPacket");
             #endregion
 
             #region InGame
-            AddCommand("entities", async _ =>
+            AddCommand("entities", _ =>
             {
                 if (!_client.IsJoined)
                     return;
@@ -228,9 +239,8 @@ namespace Demo.MinecraftClientConsole
                 {
                     Console.WriteLine(entity.GetPropertyInfoString());
                 }
-                await Task.CompletedTask;
             }, "获取所有实体");
-            AddCommand("interactentity", async args =>
+            AddCommand("interactentity", args =>
             {
                 if (!_client.IsJoined)
                     return;
@@ -253,7 +263,7 @@ namespace Demo.MinecraftClientConsole
                 switch (args.Length)
                 {
                     case 1:
-                        await _client.GetPlayer().Attack(entity, false);
+                        _client.GetPlayer().Attack(entity, false);
                         break;
                     case 2:
                         {
@@ -262,7 +272,7 @@ namespace Demo.MinecraftClientConsole
                                 ShowHelp("interactentity");
                                 return;
                             }
-                            await _client.GetPlayer().Interact(entity, (Hand)hand, false);
+                            _client.GetPlayer().Interact(entity, (Hand)hand, false);
                             break;
                         }
 
@@ -273,7 +283,7 @@ namespace Demo.MinecraftClientConsole
                                 ShowHelp("interactentity");
                                 return;
                             }
-                            await _client.GetPlayer().Interact(entity, (x, y, z), (Hand)hand, false);
+                            _client.GetPlayer().Interact(entity, (x, y, z), (Hand)hand, false);
                             break;
                         }
 
@@ -281,37 +291,30 @@ namespace Demo.MinecraftClientConsole
                         ShowHelp("interactentity");
                         return;
                 }
-                await Task.CompletedTask;
             }, "{<entityid> 攻击实体} | [target: x y z] <hand> 与实体交互");
             #endregion
 
             #region Graphics
 
-            AddCommand("graphicspositioncontroller", async _ =>
+            AddCommand("graphicspositioncontroller", _ =>
             {
-                static async void GraphicsThread()
+                static void GraphicsThread()
                 {
-                    await Task.Yield();
-                    ClientPositionController controller = null;
-                    await RunOnGraphicsThreadAsync(() => controller = new ClientPositionController(_client));
-                    controller.Run();
+                    SimpleRenderWindowContainer.InvokeOnGlfwThread(() => new ClientPositionController(_client)).Run();
                 }
 
-                GraphicsThread();
-                await Task.CompletedTask;
+                ThreadHelper.StartThread(GraphicsThread, "GraphicsPositionControllerThread");
             }, "创建图形化坐标控制器");
 
             #endregion
 
-            AddCommand("clear", async _ =>
+            AddCommand("clear", _ =>
             {
                 Console.Clear();
-                await Task.CompletedTask;
             }, "清空控制台缓冲区");
-            AddCommand("exit", async _ =>
+            AddCommand("exit", _ =>
             {
                 Environment.Exit(0);
-                await Task.CompletedTask;
             }, "退出此 Minecraft Client Console");
         }
     }

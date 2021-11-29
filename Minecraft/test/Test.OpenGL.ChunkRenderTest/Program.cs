@@ -9,11 +9,12 @@ namespace Test.OpenGL.ChunkRenderTest
     {
         static void Main(string[] args)
         {
+            Logger.SetExceptionHandler();
             Logger.SetThreadName("MainThread");
             Logger.GetLogger<Program>().HelloWorld("ChunkRenderTest");
             MainWindow window = null;
-            RenderWindow.GlfwThread.Start();
-            RenderWindow.GlfwThread.Invoke(() =>
+            SimpleRenderWindowContainer.GlfwThread.Start();
+            SimpleRenderWindowContainer.GlfwThread.Invoke(() =>
             {
                 window = new MainWindow
                 {
@@ -21,7 +22,7 @@ namespace Test.OpenGL.ChunkRenderTest
                 };
             });
             window.Run();
-            RenderWindow.GlfwThread.Stop();
+            SimpleRenderWindowContainer.GlfwThread.Stop();
         }
     }
 }

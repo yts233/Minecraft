@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Test.OpenGL.ChunkRenderTest
 {
-    class MainWindow : RenderWindow
+    class MainWindow : SimpleRenderWindowContainer
     {
         private static Logger<MainWindow> _logger = Logger.GetLogger<MainWindow>();
         private IElementArrayHandle _triangle;
@@ -78,7 +78,7 @@ namespace Test.OpenGL.ChunkRenderTest
             this.AddTicker(_performanceWatcherRenderer);
             this.AddUpdater(() => _eye.Aspect = ClientSize.Y == 0 ? 1.0F : (float)ClientSize.X / ClientSize.Y);
             this.AddUpdater(cameraMotivatorRenderer);
-            //this.AddRenderObject(_worldRenderer);
+            this.AddRenderObject(_worldRenderer);
             this.AddIntervalTicker(20, () => Title = $"ChunkRenderTest - FPS: {_performanceWatcherRenderer.LastRenderTimes} ({_performanceWatcherRenderer.LastUpdateTimes})");
 
             //this.AddIntervalTicker(100, _chunkRenderer.Update); // update the chunk

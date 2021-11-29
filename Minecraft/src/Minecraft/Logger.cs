@@ -21,10 +21,10 @@ namespace Minecraft
         private static readonly object _logThreadLock = new object();
 
         private delegate void MemoryMonitor();
-        private delegate void ExceptionHandler();
+        private delegate void CrashHandler();
         private static LogOutputDelegate _output;
         private static readonly Logger<MemoryMonitor> _memoryLogger = GetLogger<MemoryMonitor>();
-        private static readonly Logger<ExceptionHandler> _exceptLogger = GetLogger<ExceptionHandler>();
+        private static readonly Logger<CrashHandler> _exceptLogger = GetLogger<CrashHandler>();
 #if EnableLogTask
         private static readonly Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)> _logQueue = new Queue<(string log, LogLevel level, string threadName, Type senderType, DateTime time)>();
 #else
@@ -190,7 +190,7 @@ namespace Minecraft
 
         private static void HandleException(Exception exception)
         {
-            _exceptLogger.Fatal(exception);
+            _exceptLogger.Fatal($"Oops, the program crashes due to an unhanded exception. This could be an error, or you are not running the program correctly. Here are some details for the unhandled exception.\n\n{exception}\n\nYou called for help, but nobody comes. =)");
             WaitForLogging();
 #if !DEBUG //防止调试器的异常处理不起作用
             Environment.Exit(1);

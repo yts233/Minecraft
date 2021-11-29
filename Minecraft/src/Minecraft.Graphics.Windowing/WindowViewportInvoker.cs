@@ -8,12 +8,12 @@ namespace Minecraft.Graphics.Windowing
     public class WindowViewportInvoker : IRenderable, IUpdatable, IInitializer
     {
         private readonly bool _auto;
-        private readonly RenderWindow _window;
+        private readonly SimpleRenderWindowContainer _window;
         private bool _changed;
         private Vector2i _location;
         private Vector2i _size;
 
-        public WindowViewportInvoker(RenderWindow window)
+        public WindowViewportInvoker(SimpleRenderWindowContainer window)
         {
             _window = window;
             _auto = true;

@@ -38,44 +38,6 @@ namespace Demo.MinecraftClientConsole
             }
         }
 
-        public static void StartGraphicsThread()
-        {
-            _logger.Info("Started graphics thread");
-            new Thread(() =>
-            {
-                while (true)
-                {
-                    while (_graphicsThreadDelegates.TryDequeue(out var ele))
-                    {
-                        ele.action?.Invoke();
-                        ele.callback?.Invoke();
-                    }
-                    Thread.Sleep(1); //cpu break
-                }
-            })
-            { Name = "GraphicsThread" }.Start();
-            _graphicsThreadStarted = true;
-        }
-
-        public static void RunOnGraphicsThread(Action action, Action callback = null)
-        {
-            if (!_graphicsThreadStarted)
-                StartGraphicsThread();
-            _graphicsThreadDelegates.Enqueue((action, callback));
-        }
-
-        public static async Task RunOnGraphicsThreadAsync(Action action)
-        {
-            await Task.Yield();
-            if (!_graphicsThreadStarted)
-                StartGraphicsThread();
-            var source = new TaskCompletionSource();
-            _graphicsThreadDelegates.Enqueue((action, () =>
-            {
-                source.SetResult();
-            }
-            ));
-            await source.Task;
-        }
+        public static IThreadDispatcher RenderThread { get; } = ThreadHelper.CreateDispatcher("RenderThread");
     }
 }

@@ -14,8 +14,8 @@ namespace Minecraft.Client.Handlers
             return GetPositionHandler();
         }
 
-        Task Attack(IEntityHandler entity, bool sneaking);
-        Task Interact(IEntityHandler entity, Hand hand, bool sneaking);
-        Task Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking);
+        void Attack(IEntityHandler entity, bool sneaking);
+        void Interact(IEntityHandler entity, Hand hand, bool sneaking);
+        void Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking);
     }
 }

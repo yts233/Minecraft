@@ -9,7 +9,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
         static void Main(string[] args)
         {
             Logger.GetLogger<Program>().HelloWorld();
-            var window = RenderWindow.InvokeOnGlfwThread(() => new MainWindow("s1.zhaomc.net"));
+            var window = SimpleRenderWindowContainer.InvokeOnGlfwThread(() => new MainWindow());
             while (true)
                 window.Run();
         }

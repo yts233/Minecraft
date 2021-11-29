@@ -53,7 +53,7 @@ namespace Minecraft.Client
         /// <param name="hostname">主机名</param>
         /// <param name="port">端口</param>
         /// <returns></returns>
-        public async Task<ServerListPingResult> ServerListPing(string hostname, ushort port)
+        public ServerListPingResult ServerListPing(string hostname, ushort port)
         {
             if (State != MinecraftClientState.InTitle)
                 throw new InvalidOperationException($"invalid client state {State}, it should be {MinecraftClientState.InTitle}.");
@@ -70,10 +70,10 @@ namespace Minecraft.Client
             ProtocolAdapter adapter = null;
             try
             {
-                await Task.Yield();
                 client = new TcpClient();
-                await client.ConnectAsync(hostname, port);
+                client.Connect(hostname, port);
                 adapter = new ProtocolAdapter(client.GetStream(), PacketBoundTo.Server);
+                adapter.Start();
                 _ = Task.Run(async () => // timeout
                 {
                     await Task.Delay(timeout);
@@ -84,20 +84,20 @@ namespace Minecraft.Client
                         _logger.Warn($"{hostname}:{port} timed out");
                     }
                 });
-                await adapter.WritePacketAsync(new HandshakePacket //handshake
+                adapter.WritePacket(new HandshakePacket //handshake
                 {
                     NextState = ProtocolState.Status,
                     ProtocolVersion = _protocolVersion,
                     ServerAddress = hostname,
                     ServerPort = port
                 });
-                await adapter.WritePacketAsync(new StatusRequestPacket());
-                var statusResponsePacket = (StatusResponsePacket)await adapter.ReadPacketAsync();
+                adapter.WritePacket(new StatusRequestPacket());
+                var statusResponsePacket = (StatusResponsePacket)adapter.ReadPacket();
                 handshaked = true;
                 result.LoadContent(statusResponsePacket.Content);
                 time1 = DateTime.Now;
-                await adapter.WritePacketAsync(new StatusPingPacket { Payload = time1.ToUnixTimeStamp() });
-                if ((StatusPongPacket)await adapter.ReadPacketAsync() != null)
+                adapter.WritePacket(new StatusPingPacket { Payload = time1.ToUnixTimeStamp() });
+                if ((StatusPongPacket)adapter.ReadPacket() != null)
                     result.Delay = (int)(DateTime.Now - time1).TotalMinutes;
                 adapter.Close();
             }
@@ -116,16 +116,31 @@ namespace Minecraft.Client
             return result;
         }
 
+        private string _lastServerHostname;
+        private ushort _lastServerPort;
+
+        /// <summary>
+        /// 重新连接到服务器
+        /// </summary>
+        public void Reconnect()
+        {
+            if (_lastServerHostname == null)
+                throw new InvalidOperationException("You should connect first before reconnect.");
+            Connect(_lastServerHostname, _lastServerPort);
+        }
+
         /// <summary>
         /// 连接到服务器
         /// </summary>
         /// <param name="hostname"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public async Task Connect(string hostname, ushort port)
+        public void Connect(string hostname, ushort port)
         {
+            _lastServerHostname = hostname;
+            _lastServerPort = port;
             if (State == MinecraftClientState.InGame)
-                await _adapter.Disconnect();
+                _adapter.Disconnect();
             _logger.Info($"Connecting {hostname}, {port}");
             _adapter = new MinecraftClientAdapter(hostname, port, this);
             _adapter.Disconnected += (sender, e) =>
@@ -142,7 +157,7 @@ namespace Minecraft.Client
             };
             _player = new ClientPlayerEntityHandler(_adapter);
             _world = new WorldHandler(_adapter, _player);
-            await _adapter.Connect();
+            _adapter.Connect();
             State = MinecraftClientState.InGame;
         }
 
@@ -150,11 +165,11 @@ namespace Minecraft.Client
         /// 断开与服务器的连接
         /// </summary>
         /// <returns></returns>
-        public async Task Disconnect()
+        public void Disconnect()
         {
             if (State != MinecraftClientState.InGame)
                 return;
-            await _adapter.Disconnect();
+            _adapter.Disconnect();
             State = MinecraftClientState.InTitle;
         }
 
@@ -163,11 +178,11 @@ namespace Minecraft.Client
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task SendChatMessage(string message)
+        public void SendChatMessage(string message)
         {
             if (!IsJoined)
                 throw new InvalidOperationException("You cannot chat until join the server");
-            await _adapter.SendChatPacket(message);
+            _adapter.SendChatPacket(message);
         }
 
         #region Events

@@ -136,7 +136,7 @@ namespace Minecraft.Graphics.Texturing
         public ITextureAtlas Build()
         {
             var textureAtlas = new TextureAtlas(_imageDictionary, _extraDictionary, 1 << _maxHeight.GetBitsCount());
-            textureAtlas.GenerateMipmaps();
+            textureAtlas.GenerateMipmaps2D();
             return textureAtlas;
         }
     }

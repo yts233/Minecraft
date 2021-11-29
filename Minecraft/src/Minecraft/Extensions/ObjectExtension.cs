@@ -14,12 +14,12 @@ namespace Minecraft.Extensions
             var type = obj.GetType();
             @string.Append(type.FullName);
             @string.Append(':');
-            foreach(var property in type.GetProperties())
+            foreach (var property in type.GetProperties())
             {
                 @string.AppendLine();
                 @string.Append(property.Name);
                 @string.Append(": ");
-                @string.Append(property.GetValue(obj).ToString());
+                @string.Append(property.GetValue(obj)?.ToString() ?? null);
             }
             return @string.ToString();
         }

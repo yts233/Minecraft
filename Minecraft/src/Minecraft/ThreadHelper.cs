@@ -1,14 +1,28 @@
 ﻿using System.IO;
 using System.Text;
 using System.Runtime.Serialization.Formatters.Binary;
+using System;
+using System.Threading;
 
 namespace Minecraft
 {
     public static class ThreadHelper
     {
-        public static IThreadDispatcher NewThread(string threadName = null)
+        public static IThreadDispatcher CreateDispatcher(string threadName = null)
         {
             return new ThreadDispatcher() { ThreadName = threadName };
+        }
+
+        public static Thread StartThread(ThreadStart callback, string threadName = null, bool isBackground = false)
+        {
+            var thread = new Thread(callback)
+            {
+                IsBackground = isBackground
+            };
+            if (threadName != null)
+                thread.Name = threadName;
+            thread.Start();
+            return thread;
         }
     }
 #if false

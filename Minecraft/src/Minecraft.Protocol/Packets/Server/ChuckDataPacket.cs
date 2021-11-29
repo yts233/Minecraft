@@ -17,12 +17,12 @@ namespace Minecraft.Protocol.Packets.Server
         protected override void ReadFromStream_(ByteArray content)
         {
             
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         protected override void WriteToStream_(ByteArray content)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
     }
 }

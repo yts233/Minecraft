@@ -18,15 +18,15 @@ namespace Minecraft.Graphics.Windowing
     /// 一个简单的图形窗口
     /// </summary>
     /// <remarks>
-    /// <para>请在<see cref="GlfwThread"/>内创建<see cref="RenderWindow"/>实例</para>
+    /// <para>请在<see cref="GlfwThread"/>内创建<see cref="SimpleRenderWindowContainer"/>实例</para>
     /// </remarks>
-    public class RenderWindow : IRenderWindowContainer
+    public class SimpleRenderWindowContainer : IRenderWindowContainer
     {
         /// <summary>
         /// Glfw线程
         /// </summary>
-        /// <remarks>提供一个可以创建<see cref="RenderWindow"/>实例的Glfw线程。若关闭此线程，将无法创建渲染窗体</remarks>
-        public static IThreadDispatcher GlfwThread { get; } = ThreadHelper.NewThread(threadName: "GlfwThread");
+        /// <remarks>提供一个可以创建<see cref="SimpleRenderWindowContainer"/>实例的Glfw线程。若关闭此线程，将无法创建渲染窗体</remarks>
+        public static IThreadDispatcher GlfwThread { get; } = ThreadHelper.CreateDispatcher(threadName: "GlfwThread");
 
         public static T InvokeOnGlfwThread<T>(Func<T> callback) where T : class
         {
@@ -242,7 +242,7 @@ namespace Minecraft.Graphics.Windowing
         public void Run()
         {
             if (_disposed)
-                throw new ObjectDisposedException(nameof(RenderWindow));
+                throw new ObjectDisposedException(nameof(SimpleRenderWindowContainer));
 
             _initalized = true;
             GlfwThread.Invoke(() => _gameWindow?.Close());
@@ -287,7 +287,7 @@ namespace Minecraft.Graphics.Windowing
             _gameWindow.MouseEnter += GameWindow_MouseEnter;
             _gameWindow.MouseLeave += GameWindow_MouseLeave;
             _gameTickTimer.Elapsed += GameTickTimerOnElapsed;
-            var logger = Logger.GetLogger<RenderWindow>();
+            var logger = Logger.GetLogger<SimpleRenderWindowContainer>();
             logger.Info("Reload window");
             _gameWindow.Run();
         }

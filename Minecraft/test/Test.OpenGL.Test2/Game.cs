@@ -35,11 +35,11 @@ namespace Test.OpenGL.Test2
         void Run()
         {
             var a = new A();
-            ThreadHelper.NewThread("ThreadA").Invoke(() =>
+            ThreadHelper.CreateDispatcher("ThreadA").Invoke(() =>
             {
                 a.B();
             });
-            ThreadHelper.NewThread("ThreadA").Invoke(() =>
+            ThreadHelper.CreateDispatcher("ThreadA").Invoke(() =>
             {
                 a.C();
             });

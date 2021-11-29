@@ -1,6 +1,6 @@
-﻿//#define LogPacket
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -20,7 +20,7 @@ namespace Minecraft.Protocol
     public class ProtocolAdapter : IDisposable
     {
         private static readonly Logger<ProtocolAdapter> _logger = Logger.GetLogger<ProtocolAdapter>();
-        //private readonly Stream _baseStream;
+
         private readonly BufferedStream _receiveStream;
         private readonly BufferedStream _sendStream;
 
@@ -92,93 +92,255 @@ namespace Minecraft.Protocol
                     break;
                 case KeepAlivePacket keepAlivePacket:
                     if (!sending && AutoSendSpecialPacket)
-                        WritePacket(new KeepAliveResponsePacket { KeepAliveId = keepAlivePacket.KeepAliveId });
+                    {
+                        WriteImportantPacket(new KeepAliveResponsePacket { KeepAliveId = keepAlivePacket.KeepAliveId });
+                    }
                     break;
+            }
+        }
+
+        private bool _running;
+        private int _waitReceiveCount;
+        private int _waitSendCount;
+        private readonly Queue<Packet> _receivePacketQueue = new Queue<Packet>(),
+                                       _sendPacketQueue = new Queue<Packet>(),
+                                       _importantPacketQueue = new Queue<Packet>();
+
+        public void Start()
+        {
+            if (_running)
+            {
+                return;
+            }
+            _running = true;
+            ThreadHelper.StartThread(PacketReceivingThread, "NetworkThread-R", true);
+            ThreadHelper.StartThread(PacketSendingThread, "NetworkThread-W", true);
+        }
+        public void Stop()
+        {
+            if (!_running)
+            {
+                return;
+            }
+            _running = false;
+        }
+
+        public event EventHandler<Exception> ExceptionOccurred;
+        private void PacketReceivingThread()
+        {
+            try
+            {
+                while (_running)
+                {
+                    var packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, dp => dp);
+                    if (AutoHandleSpecialPacket)
+                    {
+                        HandleSpecialPacket(packet);
+                    }
+
+                    lock (_receivePacketQueue)
+                    {
+                        _receivePacketQueue.Enqueue(packet);
+                        if (_waitReceiveCount != 0)
+                        {
+                            Monitor.Pulse(_receivePacketQueue);
+                        }
+                    }
+                }
+            }
+            catch (EndOfStreamException)
+            {
+                _receivePacketQueue.Enqueue(null);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                ExceptionOccurred?.Invoke(this, ex);
+            }
+            finally
+            {
+                lock (_receivePacketQueue)
+                {
+                    if (_waitReceiveCount != 0)
+                    {
+                        Monitor.PulseAll(_receivePacketQueue);
+                    }
+                }
+                _running = false;
+                State = ProtocolState.Closed;
+            }
+        }
+        private void PacketSendingThread()
+        {
+            try
+            {
+                while (_running)
+                {
+                    var send = false;
+                    while (_sendPacketQueue.Count != 0 || _importantPacketQueue.Count != 0)
+                    {
+                        Packet packet = null;
+
+                        lock (_importantPacketQueue)
+                        {
+                            if (_importantPacketQueue.Count != 0)
+                            {
+                                packet = _importantPacketQueue.Dequeue();
+                            }
+                        }
+
+                        if (packet == null)
+                        {
+                            lock (_sendPacketQueue)
+                            {
+                                //Debug.Assert(_sendPacketQueue.Peek() != null);
+                                //something wrong here
+
+                                packet = _sendPacketQueue.Dequeue();
+
+                                if (packet == null)
+                                    continue;
+                            }
+                        }
+
+                        void WriteDataPacket(DataPacket dp)
+                        {
+                            if (Compressing)
+                            {
+                                dp.WriteCompressedToStream(_sendStream, Threshold);
+                            }
+                            else dp.WriteToStream(_sendStream);
+                            send = true;
+                        }
+
+                        if (packet is DataPacket dataPacket)
+                        {
+                            WriteDataPacket(dataPacket);
+                        }
+                        else
+                        {
+                            var content = new ByteArray(0);
+                            packet.WriteToStream(content);
+                            WriteDataPacket(new DataPacket(packet.PacketId, packet.BoundTo, content, State));
+                        }
+
+                        if (AutoHandleSpecialPacket)
+                        {
+                            HandleSpecialPacket(packet, true);
+                        }
+                    }
+                    if (send)
+                    {
+                        lock (_sendPacketQueue)
+                        {
+                            if (_waitSendCount != 0)
+                            {
+                                Monitor.PulseAll(_sendPacketQueue);
+                            }
+                            _waitSendCount = 0;
+                        }
+                        _sendStream.Flush();
+                    }
+                    Thread.Sleep(1); // cpu break
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                ExceptionOccurred?.Invoke(this, ex);
+            }
+            finally
+            {
+                _running = false;
+                State = ProtocolState.Closed;
+            }
+        }
+
+        public void WritePacket(Packet packet)
+        {
+
+            if (!_running)
+            {
+                Start();
+            }
+            if (State == ProtocolState.Any)
+            {
+                State = packet.State;
+            }
+
+            if (packet is null)
+            {
+                throw new ArgumentNullException(nameof(packet));
+            }
+
+            if (AutoHandleSpecialPacket)
+            {
+                HandleSpecialPacket(packet, true);
+            }
+
+            _sendPacketQueue.Enqueue(packet);
+        }
+
+        public void WriteImportantPacket(Packet packet)
+        {
+
+            if (!_running)
+            {
+                Start();
+            }
+            if (State == ProtocolState.Any)
+            {
+                State = packet.State;
+            }
+
+            if (packet is null)
+            {
+                throw new ArgumentNullException(nameof(packet));
+            }
+
+            if (AutoHandleSpecialPacket)
+            {
+                HandleSpecialPacket(packet, true);
+            }
+
+            _importantPacketQueue.Enqueue(packet);
+        }
+
+        public void WaitUntilAllPacketsSent()
+        {
+            lock (_sendPacketQueue)
+            {
+                if (_sendPacketQueue.Count != 0)
+                {
+                    _waitSendCount++;
+                    Monitor.Wait(_sendPacketQueue);
+                }
             }
         }
 
         public Packet ReadPacket()
         {
-            Packet packet = null;
-            try
+            if (!_running)
             {
-                lock (_receiveStream)
+                Start();
+            }
+            lock (_receivePacketQueue)
+            {
+                if (_receivePacketQueue.Count == 0)
                 {
-                    packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, dp => dp);
-#if LogPacket
-                    var s = packet.GetPropertyInfoString();
-                    if (s.Length > 512)
-                        s = packet.GetType().FullName;
-                    _logger.Info($"S->C {s}");
-                    //_logger.Info($"S->C {packet.GetType().FullName}");
-#endif
-                    if (AutoHandleSpecialPacket)
-                        HandleSpecialPacket(packet);
-                    return packet;
+                    _waitReceiveCount++;
+                    Monitor.Wait(_receivePacketQueue);
+                    _waitReceiveCount--;
                 }
+                _receivePacketQueue.TryDequeue(out var packet);
+                return packet;
             }
-            catch(Exception ex)
-            {
-                _logger.Error(ex);
-                return null;
-            }
-            //catch (EndOfStreamException)
-            //{
-            //    return null;
-            //}
-            finally
-            {
-                if (packet == null)
-                    State = ProtocolState.Closed;
-            }
-        }
-
-        public async Task<Packet> ReadPacketAsync()
-        {
-            await Task.Yield();
-            return ReadPacket();
-        }
-
-        public void WritePacket(Packet packet)
-        {
-            lock (_sendStream)
-            {
-                void WriteDataPacket(DataPacket dp)
-                {
-                    if (Compressing)
-                        dp.WriteCompressedToStream(_sendStream, Threshold);
-                    else dp.WriteToStream(_sendStream);
-                    _sendStream.Flush();
-                }
-
-                if (packet is DataPacket dataPacket) WriteDataPacket(dataPacket);
-                else
-                {
-#if LogPacket
-                    var s = packet.GetPropertyInfoString();
-                    if (s.Length > 512)
-                        s = packet.GetType().FullName;
-                    _logger.Info($"C->S {s}");
-                    //_logger.Info($"C->S {packet.GetType().FullName}");
-#endif
-                    var content = new ByteArray(0);
-                    packet.WriteToStream(content);
-                    WriteDataPacket(new DataPacket(packet.PacketId, packet.BoundTo, content, State));
-                }
-
-                if (AutoHandleSpecialPacket)
-                    HandleSpecialPacket(packet, true);
-            }
-        }
-
-        public async Task WritePacketAsync(Packet packet)
-        {
-            await Task.Yield();
-            WritePacket(packet);
         }
 
         public void Close()
         {
+            WaitUntilAllPacketsSent(); //sync
+
             _sendStream.Close();
             _receiveStream.Close();
             State = ProtocolState.Closed;

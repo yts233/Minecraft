@@ -14,7 +14,7 @@ namespace Minecraft.Graphics.Blocking
     /// <remarks>see <see cref="ChunkRendererThread"/></remarks>
     public class ChunkRenderer : ICompletedRenderer
     {
-        public static IThreadDispatcher ChunkRendererThread { get; } = ThreadHelper.NewThread("ChunkRendererThread");
+        public static IThreadDispatcher ChunkRendererThread { get; } = ThreadHelper.CreateDispatcher("ChunkRendererThread");
         private readonly IChunk _chunk;
         private readonly Func<ITextureAtlas> _atlasProvider;
         private readonly IMatrixProvider<Matrix4, Vector4> _viewMatrix;

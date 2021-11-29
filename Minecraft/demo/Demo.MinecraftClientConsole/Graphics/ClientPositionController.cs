@@ -22,12 +22,12 @@ namespace Demo.MinecraftClientConsole.Graphics
     {
         private readonly MinecraftClient _client;
         private readonly Renderer _renderer;
-        private readonly RenderWindow _window;
+        private readonly SimpleRenderWindowContainer _window;
 
         public ClientPositionController(MinecraftClient client)
         {
             _client = client;
-            _window = new RenderWindow
+            _window = new SimpleRenderWindowContainer
             {
                 Size = (200, 200)
             };

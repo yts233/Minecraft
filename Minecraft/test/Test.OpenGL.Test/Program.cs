@@ -35,7 +35,7 @@ namespace Test.OpenGL.Test
 
             // 加载资源和窗体
             var resource = new VanillaResource();
-            var window = new RenderWindow
+            var window = new SimpleRenderWindowContainer
             {
                 IsFullScreen = false,
                 PointerGrabbed = true,

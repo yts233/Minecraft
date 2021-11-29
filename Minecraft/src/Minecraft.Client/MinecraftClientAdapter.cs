@@ -130,11 +130,10 @@ namespace Minecraft.Client
         /// 提交客户端设置
         /// </summary>
         /// <returns></returns>
-        public async Task SubmitClientSettings()
+        public void SubmitClientSettings()
         {
             var (locale, viewDistance, chatMode, chatColors, displayedSkinParts, mainHand, disableTextFiltering) = ClientSettings;
-            await Task.Yield();
-            await _protocolAdapter.WritePacketAsync(new ClientSettingsPacket
+            _protocolAdapter.WritePacket(new ClientSettingsPacket
             {
                 Locale = locale,
                 ViewDistance = viewDistance,
@@ -155,9 +154,9 @@ namespace Minecraft.Client
         /// </summary>
         /// <param name="message">内容</param>
         /// <returns></returns>
-        public async Task SendChatPacket(string message)
+        public void SendChatPacket(string message)
         {
-            await _protocolAdapter.WritePacketAsync(new ClientChatMessagePacket { Message = message });
+            _protocolAdapter.WritePacket(new ClientChatMessagePacket { Message = message });
         }
 
         /// <summary>
@@ -167,9 +166,9 @@ namespace Minecraft.Client
         /// <param name="position"></param>
         /// <param name="rotation"></param>
         /// <returns></returns>
-        public async Task SendVehicleMovePacket(Vector3d position, Rotation rotation)
+        public void SendVehicleMovePacket(Vector3d position, Rotation rotation)
         {
-            await _protocolAdapter.WritePacketAsync(new VehicleMovePacket { Position = position, Rotation = rotation });
+            _protocolAdapter.WritePacket(new VehicleMovePacket { Position = position, Rotation = rotation });
         }
 
         /// <summary>
@@ -179,9 +178,9 @@ namespace Minecraft.Client
         /// <param name="position">玩家脚部的坐标，FeetY一般为HeadY-1.62</param>
         /// <param name="onGround"></param>
         /// <returns></returns>
-        public async Task SendPlayerPositionPacket(Vector3d position, bool onGround)
+        public void SendPlayerPositionPacket(Vector3d position, bool onGround)
         {
-            await _protocolAdapter.WritePacketAsync(new PlayerPositionPacket { Position = position, OnGround = onGround });
+            _protocolAdapter.WritePacket(new PlayerPositionPacket { Position = position, OnGround = onGround });
         }
 
         /// <summary>
@@ -189,9 +188,9 @@ namespace Minecraft.Client
         /// </summary>
         /// <param name="rotation"></param>
         /// <returns></returns>
-        public async Task SendPlayerRotationPacket(Rotation rotation, bool onGround)
+        public void SendPlayerRotationPacket(Rotation rotation, bool onGround)
         {
-            await _protocolAdapter.WritePacketAsync(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
+            _protocolAdapter.WritePacket(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
         }
 
         /// <summary>
@@ -201,9 +200,9 @@ namespace Minecraft.Client
         /// <param name="rotation"></param>
         /// <param name="onGround"></param>
         /// <returns></returns>
-        public async Task SendPlayerPositionAndRotationPacket(Vector3d position, Rotation rotation, bool onGround)
+        public void SendPlayerPositionAndRotationPacket(Vector3d position, Rotation rotation, bool onGround)
         {
-            await _protocolAdapter.WritePacketAsync(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
+            _protocolAdapter.WritePacket(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
         }
 
         /// <summary>
@@ -211,9 +210,9 @@ namespace Minecraft.Client
         /// </summary>
         /// <param name="onGround"></param>
         /// <returns></returns>
-        public async Task SendPlayerMovementPacket(bool onGround)
+        public void SendPlayerMovementPacket(bool onGround)
         {
-            await _protocolAdapter.WritePacketAsync(new PlayerMovementPacket { OnGround = onGround });
+            _protocolAdapter.WritePacket(new PlayerMovementPacket { OnGround = onGround });
         }
 
         /// <summary>
@@ -223,9 +222,9 @@ namespace Minecraft.Client
         /// <param name="entityId"></param>
         /// <param name="sneaking"></param>
         /// <returns></returns>
-        public async Task SendInteractEntityPacket(int entityId, bool sneaking)
+        public void SendInteractEntityPacket(int entityId, bool sneaking)
         {
-            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Attack, Sneaking = sneaking });
+            _protocolAdapter.WritePacket(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Attack, Sneaking = sneaking });
         }
 
         /// <summary>
@@ -235,9 +234,9 @@ namespace Minecraft.Client
         /// <param name="hand"></param>
         /// <param name="sneaking"></param>
         /// <returns></returns>
-        public async Task SendInteractEntityPacket(int entityId, Hand hand, bool sneaking)
+        public void SendInteractEntityPacket(int entityId, Hand hand, bool sneaking)
         {
-            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Interact, Hand = hand, Sneaking = sneaking });
+            _protocolAdapter.WritePacket(new InteractEntityPacket { EntityId = entityId, Type = InteractType.Interact, Hand = hand, Sneaking = sneaking });
         }
 
         /// <summary>
@@ -248,9 +247,9 @@ namespace Minecraft.Client
         /// <param name="hand"></param>
         /// <param name="sneaking"></param>
         /// <returns></returns>
-        public async Task SendInteractEntityPacket(int entityId, Vector3f target, Hand hand, bool sneaking)
+        public void SendInteractEntityPacket(int entityId, Vector3f target, Hand hand, bool sneaking)
         {
-            await _protocolAdapter.WritePacketAsync(new InteractEntityPacket { EntityId = entityId, Type = InteractType.InteractAt, Target = target, Hand = hand, Sneaking = sneaking });
+            _protocolAdapter.WritePacket(new InteractEntityPacket { EntityId = entityId, Type = InteractType.InteractAt, Target = target, Hand = hand, Sneaking = sneaking });
         }
 
         #endregion
@@ -276,77 +275,65 @@ namespace Minecraft.Client
         /// 连接到服务器
         /// </summary>
         /// <returns></returns>
-        public async Task Connect()
+        public void Connect()
         {
             if (IsConnected) throw new InvalidOperationException("The adapter is already connected");
             if (_connecting) throw new InvalidOperationException("The adapter is connecting");
             _connecting = true;
 
-            await _tcpClient.ConnectAsync(_hostname, _port);
+            _tcpClient.Connect(_hostname, _port);
             IsConnected = true;
             _connecting = false;
             _protocolAdapter = new ProtocolAdapter(_tcpClient.GetStream(), PacketBoundTo.Server);
+            _protocolAdapter.Start();
             Connected?.Invoke(this, (_hostname, _port));
 
-            async Task LoginStart()
+            // C→S: Handshake State=2
+            _protocolAdapter.WritePacket(new HandshakePacket
             {
-
-                // C→S: Handshake State=2
-                await _protocolAdapter.WritePacketAsync(new HandshakePacket
-                {
-                    NextState = ProtocolState.Login,
-                    ProtocolVersion = _protocolVersion,
-                    ServerAddress = _hostname,
-                    ServerPort = _port,
-                });
-
-                // C→S: Login Start
-                await _protocolAdapter.WritePacketAsync(new LoginStartPacket
-                {
-                    Name = _client._playerName
-                });
-
-                if (!_client._offlineMode)
-                {
-                    // S→C: Encryption Request
-                    // Client auth
-
-                    // C→S: Encryption Response
-                    // Server auth, both enable encryption
-                }
-            }
-
-            _ = PacketHandleTask();
-            _ = LoginStart().HandleException(ex =>
-            {
-                Exception?.Invoke(this, ex);
-                _logger.Warn($"Adapter stopped with exception: {(ex is SocketException ? ex.Message : ex)}");
+                NextState = ProtocolState.Login,
+                ProtocolVersion = _protocolVersion,
+                ServerAddress = _hostname,
+                ServerPort = _port,
             });
+
+            // C→S: Login Start
+            _protocolAdapter.WritePacket(new LoginStartPacket
+            {
+                Name = _client._playerName
+            });
+
+            /*if (!_client._offlineMode)
+            {
+                // S→C: Encryption Request
+                // Client auth
+
+                // C→S: Encryption Response
+                // Server auth, both enable encryption
+            }*/
+
+            ThreadHelper.StartThread(HandlePackets, "NetworkPacketWorker", true);
         }
 
-        public async Task Disconnect()
+        public void Disconnect()
         {
             if (!IsConnected || _stopping) return;
             _stopping = true;
             IsConnected = false;
-            _protocolAdapter.Dispose();
+            _protocolAdapter.Close();
             _tcpClient.Dispose();
             _stopping = false;
-            await Task.CompletedTask;
         }
 
         #endregion
 
-        #region Handler
-
-        private async Task PacketHandleTask()
+        private void HandlePackets()
         {
-            await Task.Yield();
             try
             {
                 while (IsConnected)
                 {
-                    var p = await _protocolAdapter.ReadPacketAsync();
+                    var p = _protocolAdapter.ReadPacket();
                     if (p == null)
                         break;
                     switch (p)
@@ -370,7 +357,7 @@ namespace Minecraft.Client
                             break;
                         case JoinGamePacket packet:
                             Joined?.Invoke(this, (packet.EntityId, packet.IsHardcore, packet.Gamemode, packet.PreviousGamemode, packet.WorldCount, packet.WorldNames, packet.DimensionCodec, packet.Dimension, packet.WorldName, packet.HashedSeed, packet.MaxPlayers, packet.ViewDistance, packet.ReducedDebugInfo, packet.EnableRespawnScreen, packet.IsDebug, packet.IsFlat));
-                            _ = SubmitClientSettings();
+                            SubmitClientSettings();
                             break;
                         case ServerDifficultyPacket packet:
                             ServerDiffculty?.Invoke(this, (packet.Difficulty, packet.DifficultyLocked));
@@ -382,17 +369,17 @@ namespace Minecraft.Client
                             HeldItemChange?.Invoke(this, packet.Slot);
                             break;
                         case PlayerPositionAndLookPacket packet:
-                            _ = _protocolAdapter.WritePacketAsync(new TeleportConfirmPacket { TeleportId = packet.TeleportId });
+                            _protocolAdapter.WritePacket(new TeleportConfirmPacket { TeleportId = packet.TeleportId });
                             if (!IsJoined)
                             {
                                 IsJoined = true;
-                                _ = _protocolAdapter.WritePacketAsync(new PlayerPositionAndRotationPacket
+                                _protocolAdapter.WritePacket(new PlayerPositionAndRotationPacket
                                 {
                                     Position = packet.Position,
                                     Rotation = packet.Rotation,
                                     OnGround = true
                                 });
-                                _ = _protocolAdapter.WritePacketAsync(new ClientStatusPacket
+                                _protocolAdapter.WritePacket(new ClientStatusPacket
                                 {
                                     ActionId = ClientStatusAction.PerformRespawn
                                 });
@@ -447,7 +434,5 @@ namespace Minecraft.Client
                 IsJoined = false;
             }
         }
-
-        #endregion
     }
 }

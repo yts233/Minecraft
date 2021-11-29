@@ -53,15 +53,15 @@ namespace Minecraft
                         if (_running)
                         {
                             Thread.CurrentThread.IsBackground = true;
+                            Thread.Sleep(1); // cpu break
                             continue;
                         }
-                        else break;
+                        else break; // exit the thread when all callbacks are invoked
                     Thread.CurrentThread.IsBackground = false;
                     value.action?.Invoke(); // invoke
                     if (value.wait)
                         Monitor.Pulse(_executeQueue);
                 }
-                Thread.Sleep(1); // cpu break
             }
 
             // stop

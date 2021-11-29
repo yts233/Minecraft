@@ -275,6 +275,8 @@ namespace Tool.NetworkDataRedirector
                     {
                         AutoSendSpecialPacket = false
                     };
+                    clientAdapter.Start();
+                    serverAdapter.Start();
                     //var lockB = new object();
                     Task serverTask = new(() =>
                             {

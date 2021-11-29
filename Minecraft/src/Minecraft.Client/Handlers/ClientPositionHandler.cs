@@ -31,7 +31,7 @@ namespace Minecraft.Client.Handlers
         private void Adapter_PlayerPosition(object sender, (Vector3d position, CoordKind xKind, CoordKind yKind, CoordKind zKind, int teleportId, bool dismountVehicle) e)
         {
             (Vector3d position, CoordKind xKind, CoordKind yKind, CoordKind zKind, _, _) = e;
-            _position.X= xKind == CoordKind.Relative ? _position.X + position.X : position.X;
+            _position.X = xKind == CoordKind.Relative ? _position.X + position.X : position.X;
             _position.Y = yKind == CoordKind.Relative ? _position.Y + position.Y : position.Y;
             _position.Z = zKind == CoordKind.Relative ? _position.Z + position.Z : position.Z;
         }
@@ -44,31 +44,31 @@ namespace Minecraft.Client.Handlers
             _rotation.Normalize();
         }
 
-        public async Task SetMovement(bool onGround)
+        public void SetMovement(bool onGround)
         {
-            await _adapter.SendPlayerMovementPacket(onGround);
+            _adapter.SendPlayerMovementPacket(onGround);
             _onGround = onGround;
         }
 
-        public async Task SetPosition(Vector3d position, bool onGround)
+        public void SetPosition(Vector3d position, bool onGround)
         {
-            await _adapter.SendPlayerPositionPacket(position, onGround);
+            _adapter.SendPlayerPositionPacket(position, onGround);
             _position = position;
             _onGround = onGround;
         }
 
-        public async Task SetRotation(Rotation rotation, bool onGround)
+        public void SetRotation(Rotation rotation, bool onGround)
         {
             rotation.Normalize();
-            await _adapter.SendPlayerRotationPacket(rotation, onGround);
+            _adapter.SendPlayerRotationPacket(rotation, onGround);
             _rotation = rotation;
             _onGround = onGround;
         }
 
-        public async Task SetPositionAndRotation(Vector3d position, Rotation rotation, bool onGround)
+        public void SetPositionAndRotation(Vector3d position, Rotation rotation, bool onGround)
         {
             rotation.Normalize();
-            await _adapter.SendPlayerPositionAndRotationPacket(position, rotation, onGround);
+            _adapter.SendPlayerPositionAndRotationPacket(position, rotation, onGround);
             _position = position;
             _rotation = rotation;
             _onGround = onGround;

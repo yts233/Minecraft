@@ -12,9 +12,9 @@ namespace Minecraft.Graphics.Texturing
         /// <param name="xOffset">x轴偏移量</param>
         /// <param name="yOffset">y轴偏移量</param>
         /// <returns></returns>
-        public static ITexture SubImage(this ITexture texture, Image image, int xOffset, int yOffset)
+        public static ITexture SubImage2D(this ITexture texture, Image image, int xOffset, int yOffset)
         {
-            GL.TextureSubImage2D(texture.Handle,
+            GL.TexSubImage2D(TextureTarget.Texture2D,
                 0,
                 xOffset, yOffset,
                 image.Width, image.Height,
@@ -33,10 +33,10 @@ namespace Minecraft.Graphics.Texturing
         /// <param name="width">图像宽度</param>
         /// <param name="height">图像高度</param>
         /// <returns></returns>
-        public static ITexture SubImage(this ITexture texture, byte[] data, int xOffset, int yOffset, int width,
+        public static ITexture SubImage2D(this ITexture texture, byte[] data, int xOffset, int yOffset, int width,
             int height)
         {
-            GL.TextureSubImage2D(texture.Handle,
+            GL.TexSubImage2D(TextureTarget.Texture2D,
                 0,
                 xOffset, yOffset,
                 width, height,
@@ -51,7 +51,7 @@ namespace Minecraft.Graphics.Texturing
         /// <remarks>请确保纹理已被绑定</remarks>
         /// <param name="texture">纹理</param>
         /// <returns></returns>
-        public static ITexture GenerateMipmaps(this ITexture texture)
+        public static ITexture GenerateMipmaps2D(this ITexture texture)
         {
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             return texture;

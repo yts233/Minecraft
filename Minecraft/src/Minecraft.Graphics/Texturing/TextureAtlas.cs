@@ -25,7 +25,7 @@ namespace Minecraft.Graphics.Texturing
 
             foreach (var (key, value) in images)
             {
-                this.SubImage(value.data, value.space.Min.X, value.space.Min.Y, value.width, value.height);
+                this.SubImage2D(value.data, value.space.Min.X, value.space.Min.Y, value.width, value.height);
                 spaces.Add(key, TranslateBox(value.space));
             }
 

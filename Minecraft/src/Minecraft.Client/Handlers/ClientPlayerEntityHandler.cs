@@ -73,19 +73,19 @@ namespace Minecraft.Client.Handlers
             return _positionHandler;
         }
 
-        public Task Attack(IEntityHandler entity, bool sneaking)
+        public void Attack(IEntityHandler entity, bool sneaking)
         {
-            return _adapter.SendInteractEntityPacket(entity.EntityId, sneaking);
+            _adapter.SendInteractEntityPacket(entity.EntityId, sneaking);
         }
 
-        public Task Interact(IEntityHandler entity, Hand hand, bool sneaking)
+        public void Interact(IEntityHandler entity, Hand hand, bool sneaking)
         {
-            return _adapter.SendInteractEntityPacket(entity.EntityId, hand, sneaking);
+            _adapter.SendInteractEntityPacket(entity.EntityId, hand, sneaking);
         }
 
-        public Task Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking)
+        public void Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking)
         {
-            return _adapter.SendInteractEntityPacket(entity.EntityId, target, hand, sneaking);
+            _adapter.SendInteractEntityPacket(entity.EntityId, target, hand, sneaking);
         }
     }
 }
