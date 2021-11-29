@@ -100,11 +100,32 @@ namespace Minecraft.Protocol.Packets
                     _logger.Debug($"packet 0x{packetId.ToString("X2")}, bound to {boundTo} hadn't been registered.");
 #endif
                 throw new PacketParseException(
-                        $"packet 0x{packetId.ToString("X2")}, bound to {boundTo} hadn't been registered.");
+                        $"packet 0x{packetId:X2}, bound to {boundTo} hadn't been registered.");
             }
             //_ = Logger.Debug<Packet>(result.GetType().FullName);
 
             return result;
+        }
+
+        /// <summary>
+        /// 尝试创建数据包
+        /// </summary>
+        /// <param name="packetId">包Id</param>
+        /// <param name="boundTo">绑定至</param>
+        /// <param name="state">协议状态</param>
+        /// <returns></returns>
+        public static bool TryCreatePacket(int packetId, PacketBoundTo boundTo, ProtocolState state, out Packet packet)
+        {
+            packet = RegisteredPackets.FirstOrDefault(packet => packet.PacketId == packetId
+                                                       && packet.BoundTo == boundTo
+                                                       && packet.State == state)?.CreateInstance();
+#if LogNotRegisteredPacketDebug
+            if (packet == null)
+            {
+                    _logger.Debug($"packet 0x{packetId.ToString("X2")}, bound to {boundTo} hadn't been registered.");
+            }
+#endif
+            return packet != null;
         }
 
         public event EventHandler<Packet> SentByAdapter;
@@ -155,6 +176,7 @@ namespace Minecraft.Protocol.Packets
             }
         }
 
+        [Obsolete]
         public static Packet ReadPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
            Func<bool> compressed, Func<int> threshold, Func<DataPacket, Packet> unregisteredPacketReceivedHandler = null)
         {
@@ -172,6 +194,23 @@ namespace Minecraft.Protocol.Packets
                     return unregisteredPacketReceivedHandler.Invoke(dataPacket);
                 }
             }
+        }
+
+        /// <summary>
+        /// 读取并尝试解析数据包
+        /// </summary>
+        /// <remarks>如果失败，则packet为DataPacket</remarks>
+        /// <param name="stream"></param>
+        /// <param name="origin"></param>
+        /// <param name="state"></param>
+        /// <param name="compressed"></param>
+        /// <param name="threshold"></param>
+        /// <param name="packet"></param>
+        /// <returns>是否成功解析数据包</returns>
+        public static bool TryReadParsedPacket(Stream stream, PacketBoundTo origin, Func<ProtocolState> state,
+           Func<bool> compressed, Func<int> threshold, out Packet packet)
+        {
+            return ReadDataPacket(stream, origin, state, compressed, threshold).TryParse(out packet);
         }
 
         /// <summary>

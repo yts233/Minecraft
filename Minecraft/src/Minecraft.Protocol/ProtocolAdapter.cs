@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define LogSendReceivePacket
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -132,7 +134,7 @@ namespace Minecraft.Protocol
             {
                 while (_running)
                 {
-                    var packet = Packet.ReadPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, dp => dp);
+                    Packet.TryReadParsedPacket(_receiveStream, RemoteBoundTo, () => State == ProtocolState.Any ? ProtocolState.Handshaking : State, () => Compressing, () => Threshold, out var packet);
                     if (AutoHandleSpecialPacket)
                     {
                         HandleSpecialPacket(packet);
@@ -141,6 +143,14 @@ namespace Minecraft.Protocol
                     lock (_receivePacketQueue)
                     {
                         _receivePacketQueue.Enqueue(packet);
+#if LogSendReceivePacket
+                        if (packet is KeepAlivePacket)
+                        {
+                            _logger.Warn("Get keep alive packet.");
+                        }
+                        if (!(packet is DataPacket || packet is ChunkDataPacket))
+                            _logger.Debug($"Received packet 0x{Convert.ToString(packet.PacketId, 16).PadLeft(2, '0')}, {packet.GetType().FullName}");
+#endif
                         if (_waitReceiveCount != 0)
                         {
                             Monitor.Pulse(_receivePacketQueue);
@@ -186,6 +196,9 @@ namespace Minecraft.Protocol
                             if (_importantPacketQueue.Count != 0)
                             {
                                 packet = _importantPacketQueue.Dequeue();
+#if LogSendReceivePacket
+                                _logger.Error($"Sent important packet 0x{Convert.ToString(packet.PacketId, 16).PadLeft(2, '0')}, {packet.GetType().FullName}");
+#endif
                             }
                         }
 
@@ -197,7 +210,9 @@ namespace Minecraft.Protocol
                                 //something wrong here
 
                                 packet = _sendPacketQueue.Dequeue();
-
+#if LogSendReceivePacket
+                                _logger.Warn($"Sent packet 0x{Convert.ToString(packet.PacketId, 16).PadLeft(2, '0')}, {packet.GetType().FullName}");
+#endif
                                 if (packet == null)
                                     continue;
                             }

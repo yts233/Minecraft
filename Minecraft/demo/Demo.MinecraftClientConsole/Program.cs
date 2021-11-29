@@ -27,11 +27,20 @@ namespace Demo.MinecraftClientConsole
         private static MinecraftClient _client;
         private static readonly Logger<CmdLet> _cmdLetLogger = Logger.GetLogger<CmdLet>();
 
+        private static bool _autoReconnectFlag;
+
         public static void CreateClient(string userName)
         {
             //initalize client
             _client = new MinecraftClient(userName);
-            _client.Disconnected += (_, e) => Console.WriteLine($"Disconnected. Reason: {e}");
+            _client.Disconnected += (_, e) =>
+            {
+                Console.WriteLine($"Disconnected. Reason: {e}");
+                if (!_autoReconnectFlag)
+                    return;
+                Println("Reconnecting...", ConsoleColor.Yellow);
+                _client.Reconnect();
+            };
             _client.ChatReceived += (_, e) => Console.WriteLine(e);
         }
 
@@ -196,6 +205,15 @@ namespace Demo.MinecraftClientConsole
             {
                 _client.Reconnect();
             }, "重新连接到服务器");
+            AddCommand("autoreconnect", args =>
+            {
+                if (args.Length == 1 && bool.TryParse(args[0], out var flag))
+                {
+                    _autoReconnectFlag = flag;
+                    Println($"Set AutoReconnectFlag to {flag}", ConsoleColor.Magenta);
+                }
+                else ShowHelp("autoreconnect");
+            }, "<flag> 自动重新连接到服务器");
             AddCommand("send", args =>
             {
                 var msg = string.Join(' ', args);
