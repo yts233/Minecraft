@@ -10,10 +10,6 @@ namespace Demo.MinecraftClientConsole
 {
     class Shared
     {
-        private static Queue<(Action action, Action callback)> _graphicsThreadDelegates = new();
-        private static bool _graphicsThreadStarted = false;
-        private static Logger<Shared> _logger = Logger.GetLogger<Shared>();
-
         public static void Print(object obj, ConsoleColor? color = null)
         {
             var s = obj.ToString();
@@ -37,7 +33,5 @@ namespace Demo.MinecraftClientConsole
                 Console.ResetColor();
             }
         }
-
-        public static IThreadDispatcher RenderThread { get; } = ThreadHelper.CreateDispatcher("RenderThread");
     }
 }

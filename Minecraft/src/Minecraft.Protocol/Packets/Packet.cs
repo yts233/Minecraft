@@ -93,7 +93,7 @@ namespace Minecraft.Protocol.Packets
             Packet result;
             result = RegisteredPackets.FirstOrDefault(packet => packet.PacketId == packetId
                                                        && packet.BoundTo == boundTo
-                                                       && packet.State == state)?.CreateInstance();
+                                                       && (packet.State == state || packet.State == ProtocolState.Any))?.CreateInstance();
             if (result == null)
             {
 #if LogNotRegisteredPacketDebug
@@ -118,7 +118,7 @@ namespace Minecraft.Protocol.Packets
         {
             packet = RegisteredPackets.FirstOrDefault(packet => packet.PacketId == packetId
                                                        && packet.BoundTo == boundTo
-                                                       && packet.State == state)?.CreateInstance();
+                                                       && (packet.State == state || packet.State == ProtocolState.Any))?.CreateInstance();
 #if LogNotRegisteredPacketDebug
             if (packet == null)
             {
@@ -282,6 +282,11 @@ namespace Minecraft.Protocol.Packets
             public Packet CreateInstance()
             {
                 return _constructor();
+            }
+
+            public override string ToString()
+            {
+                return $"Id: {PacketId:X2}, BoundTo: {BoundTo}, State: {State}";
             }
         }
 

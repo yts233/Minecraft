@@ -11,7 +11,7 @@ namespace Minecraft.Protocol.Packets.Server
 
         public override PacketBoundTo BoundTo => PacketBoundTo.Client;
 
-        public override ProtocolState State => ProtocolState.Play;
+        public override ProtocolState State => ProtocolState.Any;
 
         /// <summary>
         /// The reason

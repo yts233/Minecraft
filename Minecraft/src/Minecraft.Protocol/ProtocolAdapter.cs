@@ -148,8 +148,10 @@ namespace Minecraft.Protocol
                         {
                             _logger.Warn("Get keep alive packet.");
                         }
-                        if (!(packet is DataPacket || packet is ChunkDataPacket))
-                            _logger.Debug($"Received packet 0x{Convert.ToString(packet.PacketId, 16).PadLeft(2, '0')}, {packet.GetType().FullName}");
+                        if (!(
+                            packet is DataPacket || 
+                            packet is ChunkDataPacket))
+                            _logger.Debug($"Received packet 0x{packet.PacketId:X2}, {packet.GetType().FullName}");
 #endif
                         if (_waitReceiveCount != 0)
                         {
@@ -278,10 +280,10 @@ namespace Minecraft.Protocol
             {
                 Start();
             }
-            if (State == ProtocolState.Any)
-            {
-                State = packet.State;
-            }
+            //if (State == ProtocolState.Any)
+            //{
+            //State = packet.State;
+            //}
 
             if (packet is null)
             {

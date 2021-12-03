@@ -36,7 +36,8 @@ namespace Minecraft.Protocol.Data
         {
             this.CheckStreamWritable(stream);
             var content = this.GetContent(stream);
-            content.Write((VarInt) Length);
+            content.Write((VarInt)Length);
+            //new BinaryWriter(content, System.Text.Encoding.UTF8, true).Write(_value.ToCharArray());
             new Utf8Writer(content).Write(_value);
         }
 

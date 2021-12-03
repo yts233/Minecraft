@@ -38,8 +38,13 @@ namespace Demo.MinecraftClientConsole
                 Console.WriteLine($"Disconnected. Reason: {e}");
                 if (!_autoReconnectFlag)
                     return;
-                Println("Reconnecting...", ConsoleColor.Yellow);
-                _client.Reconnect();
+                Println("Reconnecting in 5 seconds...", ConsoleColor.Yellow);
+                Task.Run(async () =>
+                {
+                    await Task.Delay(5000);
+                    if (!_client.IsConnected)
+                        _client.Reconnect();
+                });
             };
             _client.ChatReceived += (_, e) => Console.WriteLine(e);
         }
