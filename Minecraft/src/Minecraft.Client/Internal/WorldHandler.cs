@@ -6,12 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Minecraft.Client.Handlers
+namespace Minecraft.Client.Internal
 {
-    internal interface IEditableValidateHandler:IValidHandler
-    {
-
-    }
     internal class WorldHandler : IWorldHandler
     {
         private readonly MinecraftClientAdapter _adapter;
@@ -37,11 +33,10 @@ namespace Minecraft.Client.Handlers
 
         private void Adapter_EntitiesDestroyed(object sender, (int count, int[] entityIds) e)
         {
-            foreach (var id in e.entityIds)
+            lock (_entities)
             {
-                if (_entities.TryGetValue(id, out var handler))
+                foreach (var id in e.entityIds)
                 {
-                    //((EntityHandler)handler).IsValid = false;
                     _entities.Remove(id);
                 }
             }
@@ -49,9 +44,11 @@ namespace Minecraft.Client.Handlers
 
         private void Adapter_SpawnPlayer(object sender, (int entityId, Uuid playerUuid, Vector3d position, Rotation rotation) e)
         {
-            //for safety
-            if (!_entities.TryAdd(e.entityId, new PlayerEntityHandler(_adapter, e.entityId, e.playerUuid, e.position, e.rotation)))
-                Logger.GetLogger<WorldHandler>().Warn($"Failed to add player {e.playerUuid}, id {e.entityId}.");
+            lock (_entities)
+            {
+                if (!_entities.TryAdd(e.entityId, new PlayerEntityHandler(_adapter, e.entityId, e.playerUuid, e.position, e.rotation)))
+                    Logger.GetLogger<WorldHandler>().Warn($"Failed to add player {e.playerUuid}, id {e.entityId}.");
+            }
         }
 
         ~WorldHandler()

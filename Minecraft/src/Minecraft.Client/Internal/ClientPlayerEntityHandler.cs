@@ -1,7 +1,8 @@
-﻿using Minecraft.Numerics;
+﻿using Minecraft.Client.Handlers;
+using Minecraft.Numerics;
 using System.Threading.Tasks;
 
-namespace Minecraft.Client.Handlers
+namespace Minecraft.Client.Internal
 {
     internal class ClientPlayerEntityHandler : IClientPlayerHandler
     {
@@ -66,7 +67,7 @@ namespace Minecraft.Client.Handlers
 
         public bool OnGround => _positionHandler.OnGround;
 
-        public bool IsValid { get; set; } = false;
+        public bool IsValid { get; private set; } = false;
 
         public IControlablePositionHandler GetPositionHandler()
         {

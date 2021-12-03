@@ -38,7 +38,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
         private IElementArrayHandle _triangle;
         private VanillaResource _resource;
 
-        public MainWindow(string serverAddress = "localhost", ushort serverPort = 25566)
+        public MainWindow(string playerName = "MCCOpenGLTest", string serverAddress = "localhost", ushort serverPort = 25566)
         {
             _camera = new Eye();
             _viewMatrixProvider = _camera.GetViewTransformProvider();
@@ -50,7 +50,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
                 ViewDistance = 4
             };
             _clientThread = ThreadHelper.CreateDispatcher("ClientThread");
-            _client = new MinecraftClient("MCCOpenGLTest");
+            _client = new MinecraftClient(playerName);
             var cameraMotivator = new CameraMotivatorRenderer(_camera)
             {
                 Controlable = true,
@@ -214,12 +214,12 @@ namespace Test.MinecraftClientAndOpenGL.Test
                     _triangle.Render();
                 }
             }
-            _shader.Model = Matrix4.CreateTranslation((0, 0, 0));
-            _triangle.Render();
-            _shader.Model = Matrix4.CreateTranslation((10, 0, 0));
-            _triangle.Render();
-            _shader.Model = Matrix4.CreateTranslation((0, 0, 10));
-            _triangle.Render();
+            //_shader.Model = Matrix4.CreateTranslation((0, 0, 0));
+            //_triangle.Render();
+            //_shader.Model = Matrix4.CreateTranslation((10, 0, 0));
+            //_triangle.Render();
+            //_shader.Model = Matrix4.CreateTranslation((0, 0, 10));
+            //_triangle.Render();
 
             base.OnBeforeRenderers(sender, e);
         }

@@ -1,7 +1,8 @@
-﻿using Minecraft.Numerics;
+﻿using Minecraft.Client.Handlers;
+using Minecraft.Numerics;
 using System.Threading.Tasks;
 
-namespace Minecraft.Client.Handlers
+namespace Minecraft.Client.Internal
 {
     internal class ClientPositionHandler : IControlablePositionHandler
     {

@@ -1,6 +1,7 @@
-﻿using Minecraft.Numerics;
+﻿using Minecraft.Client.Handlers;
+using Minecraft.Numerics;
 
-namespace Minecraft.Client.Handlers
+namespace Minecraft.Client.Internal
 {
     internal class EntityPositionHandler : IPositionHandler
     {

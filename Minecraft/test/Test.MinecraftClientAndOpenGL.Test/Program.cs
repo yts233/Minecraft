@@ -8,10 +8,18 @@ namespace Test.MinecraftClientAndOpenGL.Test
     {
         static void Main(string[] args)
         {
-            Logger.GetLogger<Program>().HelloWorld();
-            var window = SimpleRenderWindowContainer.InvokeOnGlfwThread(() => new MainWindow());
-            while (true)
+            Logger.GetLogger<Program>().HelloWorld("MinecraftClientAndOpenGL");
+            var window = SimpleRenderWindowContainer.InvokeOnGlfwThread(() =>
+            {
+                Console.WriteLine("type player name below.");
+                return new MainWindow(Console.ReadLine());
+            });
+            while(true)
+            {
+                Console.WriteLine("the window was closed.");
+                Console.ReadKey();
                 window.Run();
+            }
         }
     }
 }

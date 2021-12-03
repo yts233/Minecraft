@@ -1,6 +1,8 @@
-﻿using Minecraft.Numerics;
+﻿using Minecraft.Client.Handlers;
+using Minecraft.Numerics;
+using System.Linq;
 
-namespace Minecraft.Client.Handlers
+namespace Minecraft.Client.Internal
 {
     internal class PlayerEntityHandler : IPlayerHandler
     {
@@ -14,11 +16,21 @@ namespace Minecraft.Client.Handlers
             EntityUuid = playerUuid;
             _positionHandler = new EntityPositionHandler(adapter, entityId, position, rotation);
             //TODO: add events
+            _adapter.EntitiesDestroyed += Adapter_EntitiesDestroyed;
+        }
+
+        private void Adapter_EntitiesDestroyed(object sender, (int count, int[] entityIds) e)
+        {
+            if (e.entityIds.Contains(EntityId))
+            {
+                IsValid = false;
+            }
         }
 
         ~PlayerEntityHandler()
         {
             //TODO: remove events
+            _adapter.EntitiesDestroyed -= Adapter_EntitiesDestroyed;
         }
 
         public int EntityId { get; }
@@ -31,7 +43,7 @@ namespace Minecraft.Client.Handlers
 
         public bool OnGround => _positionHandler.OnGround;
 
-        public bool IsValid { get; set; } = true;
+        public bool IsValid { get; private set; } = true;
 
         public IPositionHandler GetPositionHandler()
         {
