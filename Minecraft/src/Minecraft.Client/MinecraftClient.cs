@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Minecraft.Client.Handlers;
+using Minecraft.Client.Internal;
 using Minecraft.Extensions;
 using Minecraft.Protocol;
 using Minecraft.Protocol.Packets;
