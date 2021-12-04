@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,12 +19,12 @@ namespace Minecraft.Protocol.Packets.Client
 
         public long KeepAliveId { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            KeepAliveId = content.ReadLong();
+            KeepAliveId = content.ReadInt64();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             content.Write(KeepAliveId);
         }

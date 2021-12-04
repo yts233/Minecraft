@@ -1,10 +1,9 @@
 ﻿using Minecraft.Data.Nbt.Tags;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using String = Minecraft.Protocol.Data.String;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -102,18 +101,18 @@ namespace Minecraft.Protocol.Packets.Server
         /// <remarks>True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.</remarks>
         public bool IsFlat { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            EntityId = content.ReadInt();
+            EntityId = content.ReadInt32();
             IsHardcore = content.ReadBoolean();
-            Gamemode = (Gamemode)content.ReadUnsignedByte();
-            PreviousGamemode = (Gamemode)content.ReadByte();
+            Gamemode = content.ReadEnum<Gamemode>();
+            PreviousGamemode = content.ReadEnum<Gamemode>();
             WorldCount = content.ReadVarInt();
-            WorldNames = content.ReadArray<String>(WorldCount).Select(s => (NamedIdentifier)(string)s).ToArray();
-            DimensionCodec = content.ReadNbt<NbtCompound>();
-            Dimension = content.ReadNbt<NbtCompound>();
+            WorldNames = content.ReadIdentifiers(WorldCount);
+            DimensionCodec = content.ReadNbtTag<NbtCompound>();
+            Dimension = content.ReadNbtTag<NbtCompound>();
             WorldName = content.ReadString();
-            HashedSeed = content.ReadLong();
+            HashedSeed = content.ReadInt64();
             MaxPlayers = content.ReadVarInt();
             ViewDistance = content.ReadVarInt();
             ReducedDebugInfo = content.ReadBoolean();
@@ -122,24 +121,24 @@ namespace Minecraft.Protocol.Packets.Server
             IsFlat = content.ReadBoolean();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write(EntityId)
-                .Write(IsHardcore)
-                .Write((byte)Gamemode)
-                .Write((sbyte)PreviousGamemode)
-                .WriteVarInt(WorldCount)
-                .WriteArray(WorldNames.Select(id => (String)(string)id).ToArray())
-                .WriteNbt(DimensionCodec)
-                .WriteNbt(Dimension)
-                .Write(WorldName)
-                .Write(HashedSeed)
-                .WriteVarInt(MaxPlayers)
-                .Write(ViewDistance)
-                .Write(ReducedDebugInfo)
-                .Write(EnableRespawnScreen)
-                .Write(IsDebug)
-                .Write(IsFlat);
+            content.Write(EntityId);
+            content.Write(IsHardcore);
+            content.Write(Gamemode);
+            content.Write(PreviousGamemode);
+            content.WriteVarInt(WorldCount);
+            content.Write(WorldNames);
+            content.Write(DimensionCodec);
+            content.Write(Dimension);
+            content.Write(WorldName);
+            content.Write(HashedSeed);
+            content.WriteVarInt(MaxPlayers);
+            content.Write(ViewDistance);
+            content.Write(ReducedDebugInfo);
+            content.Write(EnableRespawnScreen);
+            content.Write(IsDebug);
+            content.Write(IsFlat);
         }
 
         protected override void VerifyValues()

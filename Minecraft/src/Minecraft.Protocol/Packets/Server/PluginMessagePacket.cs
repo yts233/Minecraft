@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,12 +14,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         public override ProtocolState State => ProtocolState.Play;
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
 
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
 
         }

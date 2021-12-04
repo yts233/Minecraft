@@ -1,5 +1,5 @@
 ﻿using System;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System.IO;
 
@@ -18,7 +18,7 @@ namespace Minecraft.Protocol.Packets
             State = state;
         }
 
-        internal DataPacket(int packetId, PacketBoundTo origin, ByteArray content,
+        internal DataPacket(int packetId, PacketBoundTo origin, IPacketCodec content,
             ProtocolState state = ProtocolState.Any)
         {
             _packetId = packetId;
@@ -30,7 +30,7 @@ namespace Minecraft.Protocol.Packets
         /// <summary>
         /// 数据包的内容
         /// </summary>
-        public ByteArray Content { get; private set; }
+        public IPacketCodec Content { get; private set; }
 
         public override int PacketId => _packetId;
         public override PacketBoundTo BoundTo { get; }
@@ -44,15 +44,15 @@ namespace Minecraft.Protocol.Packets
             Content?.Dispose();
         }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             _packetId = content.ReadVarInt();
-            Content = content.Read<ByteArray>();
+            Content = content.Read<IPacketCodec>();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            using var buffer = new ByteArray(0);
+            using var buffer = new IPacketCodec(0);
             Content.Position = 0;
             buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
@@ -62,15 +62,15 @@ namespace Minecraft.Protocol.Packets
         public void WriteCompressedToStream(Stream stream, int threshold)
         {
             var content = this.GetContent(stream); // get upload stream
-            using var buffer = new ByteArray(0); // uncompressed packetId and data
+            using var buffer = new IPacketCodec(0); // uncompressed packetId and data
             Content.Position = 0;
             buffer.WriteVarInt(_packetId).Write(Content);
             buffer.Position = 0;
             var dataLength = (int)buffer.Length;
-            using var buffer4 = new ByteArray(0);
+            using var buffer4 = new IPacketCodec(0);
             if (dataLength >= threshold)
             {
-                using var buffer2 = new ByteArray(0); // compressed packetId and data
+                using var buffer2 = new IPacketCodec(0); // compressed packetId and data
                 using var compressedStream = new DeflaterOutputStream(buffer2);
                 this.GetContent(compressedStream).Write(buffer);
                 compressedStream.Flush();

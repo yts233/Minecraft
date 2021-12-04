@@ -1,4 +1,4 @@
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +13,7 @@ namespace Minecraft.Protocol.Packets
         /// <param name="packet">总为null</param>
         /// <param name="stream">流</param>
         /// <returns></returns>
-        internal static ByteArray GetContent(this Packet packet, Stream stream)
+        internal static IPacketCodec GetContent(this Packet packet, Stream stream)
         {
             return DataTypeHelper.GetContent(null, stream);
         }

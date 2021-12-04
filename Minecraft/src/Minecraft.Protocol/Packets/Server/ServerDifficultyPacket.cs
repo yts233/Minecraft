@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -13,16 +13,16 @@ namespace Minecraft.Protocol.Packets.Server
         public Difficulty Difficulty { get; set; }
         public bool DifficultyLocked { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            Difficulty = (Difficulty)content.ReadUnsignedByte();
+            Difficulty = content.ReadEnum<Difficulty>();
             DifficultyLocked = content.ReadBoolean();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write((byte)Difficulty)
-                .Write(DifficultyLocked);
+            content.Write(Difficulty);
+            content.Write(DifficultyLocked);
         }
     }
 }

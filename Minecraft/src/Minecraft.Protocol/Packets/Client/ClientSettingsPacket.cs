@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -37,26 +37,26 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>Currently always true</remarks>
         public bool DisableTextFiltering { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             Locale = content.ReadString();
-            ViewDistance = content.ReadByte();
-            ChatMode = (ChatMode)content.ReadVarInt();
+            ViewDistance = content.ReadSByte();
+            ChatMode = content.ReadVarIntEnum<ChatMode>();
             ChatColors = content.ReadBoolean();
-            DisplayedSkinParts = (SkinPart)content.ReadUnsignedByte();
-            MainHand = (HandSide)content.ReadVarInt();
+            DisplayedSkinParts = content.ReadEnum<SkinPart>();
+            MainHand = content.ReadVarIntEnum<HandSide>();
             DisableTextFiltering = content.ReadBoolean();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write(Locale)
-                .Write(ViewDistance)
-                .WriteVarInt((int)ChatMode)
-                .Write(ChatColors)
-                .Write((byte)DisplayedSkinParts)
-                .WriteVarInt((int)MainHand)
-                .Write(DisableTextFiltering);
+            content.Write(Locale);
+            content.Write(ViewDistance);
+            content.WriteVarIntEnum(ChatMode);
+            content.Write(ChatColors);
+            content.Write(DisplayedSkinParts);
+            content.WriteVarIntEnum(MainHand);
+            content.Write(DisableTextFiltering);
         }
     }
 }

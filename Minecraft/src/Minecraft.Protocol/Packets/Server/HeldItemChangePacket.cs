@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -12,14 +12,14 @@ namespace Minecraft.Protocol.Packets.Server
 
         public HotbarSlot Slot { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            Slot = (HotbarSlot)content.ReadByte();
+            Slot = content.ReadEnum<HotbarSlot>();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write((sbyte)Slot);
+            content.Write(Slot);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Minecraft.Numerics;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -18,19 +18,18 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public bool OnGround { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             EntityId = content.ReadVarInt();
             Rotation = content.ReadAngleRotation();
             OnGround = content.ReadBoolean();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content
-                .WriteVarInt(EntityId)
-                .WriteAngleRotation(Rotation)
-                .Write(OnGround);
+            content.WriteVarInt(EntityId);
+            content.WriteAngleRotation(Rotation);
+            content.Write(OnGround);
         }
     }
 }

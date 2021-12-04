@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -17,12 +17,12 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public string Content { get; private set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            Content = content.Read<String>();
+            Content = content.ReadString();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             content.Write(Content);
         }

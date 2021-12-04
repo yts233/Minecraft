@@ -1,4 +1,4 @@
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -13,12 +13,12 @@ namespace Minecraft.Protocol.Packets.Server
         /// </summary>
         public int Threshold { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             Threshold = content.ReadVarInt();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             content.WriteVarInt(Threshold);
         }

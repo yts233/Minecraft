@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Client
 {
@@ -12,14 +12,14 @@ namespace Minecraft.Protocol.Packets.Client
 
         public ClientStatusAction ActionId { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
-            ActionId = (ClientStatusAction)content.ReadVarInt();
+            ActionId = content.ReadVarIntEnum<ClientStatusAction>();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.WriteVarInt((int)ActionId);
+            content.WriteVarIntEnum(ActionId);
         }
     }
 }

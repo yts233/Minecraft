@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -14,13 +14,13 @@ namespace Minecraft.Protocol.Packets.Server
         public int ChunkZ { get; set; }
         public bool[] PrimaryBitMask { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             
             //throw new System.NotImplementedException();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             //throw new System.NotImplementedException();
         }

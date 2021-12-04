@@ -1,5 +1,5 @@
 ﻿#define FixEndOfStream
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,14 +24,14 @@ namespace Minecraft.Protocol.Packets.Server
 
         public Uuid Sender { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
 
 #if FixEndOfStream
             try
             {
                 JsonData = content.ReadString();
-                Position = (ChatMessagePosition)content.ReadByte();
+                Position = content.ReadEnum<ChatMessagePosition>();
                 Sender = content.ReadUuid();
             }
             catch
@@ -40,16 +40,16 @@ namespace Minecraft.Protocol.Packets.Server
             }
 #else
             JsonData = content.ReadString();
-            Position = (ChatMessagePosition)content.ReadByte();
+            Position = content.ReadEnum<ChatMessagePosition>();
             Sender = content.ReadUuid();
 #endif
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write(JsonData)
-                .Write((sbyte)Position)
-                .Write(Sender);
+            content.Write(JsonData);
+            content.Write(Position);
+            content.Write(Sender);
         }
     }
 }

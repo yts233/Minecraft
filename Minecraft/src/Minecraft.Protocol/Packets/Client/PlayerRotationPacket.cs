@@ -1,5 +1,5 @@
 ﻿using Minecraft.Numerics;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Client
 {
@@ -22,16 +22,16 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>True if the client is on the ground, false otherwise.</remarks>
         public bool OnGround { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             Rotation = content.ReadRotation();
             OnGround = content.ReadBoolean();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write(Rotation)
-                .Write(OnGround);
+            content.Write(Rotation);
+            content.Write(OnGround);
         }
     }
 }

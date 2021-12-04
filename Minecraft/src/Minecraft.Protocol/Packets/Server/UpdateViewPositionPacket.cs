@@ -1,5 +1,5 @@
 ﻿#define FixEndOfStream
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -15,16 +15,16 @@ namespace Minecraft.Protocol.Packets.Server
 
         public int ChunkZ { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             ChunkX = content.ReadVarInt();
             ChunkZ = content.ReadVarInt();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.WriteVarInt(ChunkX)
-                .WriteVarInt(ChunkZ);
+            content.WriteVarInt(ChunkX);
+            content.WriteVarInt(ChunkZ);
         }
     }
 }

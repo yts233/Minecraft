@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,12 +15,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         public string Reason { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             Reason = content.ReadString();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             content.Write(Reason);
         }

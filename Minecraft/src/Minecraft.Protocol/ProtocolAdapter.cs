@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Minecraft.Extensions;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 using Minecraft.Protocol.Packets;
 using Minecraft.Protocol.Packets.Client;
 using Minecraft.Protocol.Packets.Server;
@@ -236,7 +236,7 @@ namespace Minecraft.Protocol
                         }
                         else
                         {
-                            var content = new ByteArray(0);
+                            var content = new IPacketCodec(0);
                             packet.WriteToStream(content);
                             WriteDataPacket(new DataPacket(packet.PacketId, packet.BoundTo, content, State));
                         }

@@ -8,7 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets
 {
@@ -150,7 +150,7 @@ namespace Minecraft.Protocol.Packets
             var packetLength = content.ReadVarInt();
             try
             {
-                var dataStream = new ByteArray(content, packetLength);
+                var dataStream = new IPacketCodec(content, packetLength);
                 var state_ = state();
                 var compressed_ = compressed();
                 var threshold_ = threshold();
@@ -162,7 +162,7 @@ namespace Minecraft.Protocol.Packets
                         if (dataLength < threshold_)
                             throw new ProtocolException($"invalid packet: dataLength: {dataLength} should be greater than threshold: {threshold}");
                         using var compressedStream = new InflaterInputStream(dataStream);
-                        using var buffer = new ByteArray(compressedStream, dataLength);
+                        using var buffer = new IPacketCodec(compressedStream, dataLength);
                         return (DataPacket)new DataPacket(boundTo, state_)
                               .ReadFromStream(buffer);
                     }
@@ -232,7 +232,7 @@ namespace Minecraft.Protocol.Packets
         /// 从流读入
         /// </summary>
         /// <param name="content">流</param>
-        protected abstract void ReadFromStream_(ByteArray content);
+        protected abstract void ReadFromStream_(IPacketCodec content);
 
         /// <summary>
         /// 从流读入
@@ -249,7 +249,7 @@ namespace Minecraft.Protocol.Packets
         /// 将此数据包写入到流
         /// </summary>
         /// <param name="content">流</param>
-        protected abstract void WriteToStream_(ByteArray content);
+        protected abstract void WriteToStream_(IPacketCodec content);
 
         /// <summary>
         /// 将此数据包写入到流

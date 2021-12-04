@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 #if false
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -11,12 +11,12 @@ namespace Minecraft.Protocol.Packets.Server
 
         public override ProtocolState State => ProtocolState.Play;
 
-        protected override void _ReadFromStream(ByteArray content)
+        protected override void _ReadFromStream(IPacketEncoder content)
         {
 
         }
 
-        protected override void _WriteToStream(ByteArray content)
+        protected override void _WriteToStream(IPacketEncoder content)
         {
 
         }

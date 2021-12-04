@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Client
 {
@@ -33,21 +33,20 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>只能是<see cref="ProtocolState.Status" />或<see cref="ProtocolState.Login" /></remarks>
         public ProtocolState NextState { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             ProtocolVersion = content.ReadVarInt();
             ServerAddress = content.ReadString();
-            ServerPort = content.ReadUnsignedShort();
+            ServerPort = content.ReadUInt16();
             NextState = content.ReadVarIntEnum<ProtocolState>();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content
-                .WriteVarInt(ProtocolVersion)
-                .Write(ServerAddress)
-                .Write(ServerPort)
-                .WriteVarIntEnum(NextState);
+            content.WriteVarInt(ProtocolVersion);
+            content.Write(ServerAddress);
+            content.Write(ServerPort);
+            content.WriteVarIntEnum(NextState);
         }
     }
 }

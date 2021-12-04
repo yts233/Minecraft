@@ -1,6 +1,6 @@
 ﻿#define FixEndOfStream
 using Minecraft.Numerics;
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Server
 {
@@ -27,7 +27,7 @@ namespace Minecraft.Protocol.Packets.Server
 
         public Rotation Rotation { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             EntityId = content.ReadVarInt();
             PlayerUuid = content.ReadUuid();
@@ -35,12 +35,12 @@ namespace Minecraft.Protocol.Packets.Server
             Rotation = content.ReadAngleRotation();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.WriteVarInt(EntityId)
-                .Write(PlayerUuid)
-                .Write(Position)
-                .WriteAngleRotation(Rotation);
+            content.WriteVarInt(EntityId);
+            content.Write(PlayerUuid);
+            content.Write(Position);
+            content.WriteAngleRotation(Rotation);
         }
     }
 }

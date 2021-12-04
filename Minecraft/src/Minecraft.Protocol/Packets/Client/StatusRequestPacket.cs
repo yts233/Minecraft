@@ -1,4 +1,4 @@
-using Minecraft.Protocol.Data;
+using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Client
 {
@@ -11,12 +11,12 @@ namespace Minecraft.Protocol.Packets.Client
         public override PacketBoundTo BoundTo => PacketBoundTo.Server;
         public override ProtocolState State => ProtocolState.Status;
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             //empty
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             //empty
         }

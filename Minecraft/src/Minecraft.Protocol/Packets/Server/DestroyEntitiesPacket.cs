@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 using System.Linq;
 
 namespace Minecraft.Protocol.Packets.Server
@@ -19,16 +19,16 @@ namespace Minecraft.Protocol.Packets.Server
 
         public int[] EntityIds { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             Count = content.ReadVarInt();
-            EntityIds = content.ReadArray<VarInt, int>(Count);
+            EntityIds = content.ReadVarInts(Count);
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
-            content.Write(Count)
-                .WriteArray(EntityIds.Select(ele => (VarInt)ele).ToArray());
+            content.Write(Count);
+            content.WriteVarInts(EntityIds);
         }
 
         protected override void VerifyValues()

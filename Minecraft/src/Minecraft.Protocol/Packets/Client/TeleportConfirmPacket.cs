@@ -1,4 +1,4 @@
-﻿using Minecraft.Protocol.Data;
+﻿using Minecraft.Protocol.Codecs;
 
 namespace Minecraft.Protocol.Packets.Client
 {
@@ -16,12 +16,12 @@ namespace Minecraft.Protocol.Packets.Client
         /// <remarks>The ID given by the <see cref="PlayerPositionAndLookPacket"/> packet.</remarks>
         public int TeleportId { get; set; }
 
-        protected override void ReadFromStream_(ByteArray content)
+        protected override void ReadFromStream_(IPacketCodec content)
         {
             TeleportId = content.ReadVarInt();
         }
 
-        protected override void WriteToStream_(ByteArray content)
+        protected override void WriteToStream_(IPacketCodec content)
         {
             content.WriteVarInt(TeleportId);
         }
