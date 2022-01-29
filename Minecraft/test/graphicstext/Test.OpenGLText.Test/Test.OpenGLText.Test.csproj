@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\res\Minecraft.Resources.Vanilla.VillageAndPillage\Minecraft.Resources.Vanilla.VillageAndPillage.csproj" />
+    <ProjectReference Include="..\..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
+    <ProjectReference Include="..\..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
+    <ProjectReference Include="..\..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
+  </ItemGroup>
+
+</Project>

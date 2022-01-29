@@ -10,11 +10,11 @@ namespace Minecraft.Graphics.Renderers.Environments.DayLight
     {
         private readonly IMatrixProvider<Matrix4,Vector4> _viewMatrix;
         private readonly IMatrixProvider<Matrix4,Vector4> _projectionMatrix;
-        private readonly Resource _resource;
-        private ITextureAtlas _textureAtlas;
+        private readonly IAssetProvider _resource;
+        private ITexture2DAtlas _textureAtlas;
         private int _dayTime;
 
-        public DayLightRenderer(IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix, Resource resource)
+        public DayLightRenderer(IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix, IAssetProvider resource)
         {
             _viewMatrix = viewMatrix;
             _projectionMatrix = projectionMatrix;
@@ -30,9 +30,9 @@ namespace Minecraft.Graphics.Renderers.Environments.DayLight
         public void Initialize()
         {
             var textureAtlasBuilder = new TextureAtlasBuilder();
-            using var moonStream = _resource.GetAsset(AssetType.Texture, "minecraft:environment/moon_phases.png")
+            using var moonStream = _resource[AssetType.Texture, "minecraft:environment/moon_phases.png"]
                 .OpenRead();
-            using var sunStream = _resource.GetAsset(AssetType.Texture, "minecraft:environment/sun.png").OpenRead();
+            using var sunStream = _resource[AssetType.Texture, "minecraft:environment/sun.png"].OpenRead();
             textureAtlasBuilder.Add("moon", new Image(moonStream));
             textureAtlasBuilder.Add("sun", new Image(sunStream));
             for (var i = 0; i < 8; i++)

@@ -2,7 +2,7 @@
 using Minecraft.Data;
 using Minecraft.Data.Vanilla;
 using Minecraft.Graphics.Arraying;
-using Minecraft.Graphics.Blocking;
+using Minecraft.Graphics.Renderers.Blocking;
 using Minecraft.Graphics.Renderers.Utils;
 using Minecraft.Graphics.Rendering;
 using Minecraft.Graphics.Texturing;
@@ -18,10 +18,9 @@ using System.Linq;
 
 namespace Test.OpenGL.ChunkRenderTest
 {
-    class MainWindow : SimpleRenderWindowContainer
+    class MainWindow : RenderWindow
     {
         private static Logger<MainWindow> _logger = Logger.GetLogger<MainWindow>();
-        private IElementArrayHandle _triangle;
         private SimpleShader _shader;
         private VanillaResource _resource;
         private readonly IEye _eye = new Eye();
@@ -31,7 +30,7 @@ namespace Test.OpenGL.ChunkRenderTest
         private readonly IPerspectiveTransformProvider _projectionTransform;
         private readonly WorldRenderer _worldRenderer;
         private readonly PerformanceWatcherRenderer _performanceWatcherRenderer = new();
-        private ITextureAtlas _atlases;
+        private ITexture2DAtlas _textureAtlas;
 
         public MainWindow()
         {
@@ -45,7 +44,7 @@ namespace Test.OpenGL.ChunkRenderTest
             _world.Fill(0, 11, 0, 31, 11, 31, VanillaBlocks.DiamondBlock);
             _viewTransform = _eye.GetViewTransformProvider();
             _projectionTransform = _eye.GetPerspectiveTransformProvider();
-            _worldRenderer = new WorldRenderer(_world, () => _atlases, _viewTransform, _projectionTransform)
+            _worldRenderer = new WorldRenderer(_world, () => _textureAtlas, _viewTransform, _projectionTransform)
             {
                 ViewDistance = 8,
                 CachedDistance = 8
@@ -118,36 +117,9 @@ namespace Test.OpenGL.ChunkRenderTest
                     break;
             }
 
-            _atlases = textureBuilder.Build();
+            _textureAtlas = textureBuilder.Build();
 
             _logger.Info("Finished building texture atlases.");
-
-            _triangle = new ElementArray(new VertexArray<float>(new[] {
-                -.5F,-.5F, 1F,0F,0F,
-                .5F,-.5F, 0F,1F,0F,
-                .5F,.5F, 0F,0F,1F,
-                -.5F,.5F, 0F,1F,0F
-            }, new VertexAttributePointer[] {
-                new()
-                {
-                    Index=0,
-                    Normalized=false,
-                    Offset=0,
-                    Size=2,
-                    Type=VertexAttribePointerType.Float
-                },
-                new ()
-                {
-                    Index=1,
-                    Normalized=false,
-                    Offset=2*sizeof(float),
-                    Size=3,
-                    Type=VertexAttribePointerType.Float
-                }
-            }).GetHandle(), new uint[] {
-                0,1,2,
-                0,2,3
-            }).GetHandle();
 
             _shader = new SimpleShader();
 
@@ -161,15 +133,6 @@ namespace Test.OpenGL.ChunkRenderTest
             _shader.Use();
             _shader.View = _viewTransform.GetMatrix();
             _shader.Projection = _projectionTransform.GetMatrix();
-
-            _triangle.Bind();
-
-            _shader.Model = Matrix4.CreateTranslation((0, 0, 0));
-            _triangle.Render();
-            _shader.Model = Matrix4.CreateTranslation((10, 0, 0));
-            _triangle.Render();
-            _shader.Model = Matrix4.CreateTranslation((0, 0, 10));
-            _triangle.Render();
 
             base.OnBeforeRenderers(sender, e);
         }

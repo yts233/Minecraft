@@ -55,7 +55,7 @@ namespace Minecraft
                         throw new ArgumentOutOfRangeException(nameof(level), level, null);
                 }
                 var @string = new StringBuilder();
-                @string.Append($"[{time:H:mm:ss}] [{senderType?.Name}]");
+                @string.Append($"[{time:H:mm:ss}] [{senderType?.FullName}]");
                 @string.Append(
                     $" [{threadName}/{level.ToString().ToUpper()}]");
                 @string.Append($": {log}");

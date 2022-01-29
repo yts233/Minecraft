@@ -8,15 +8,16 @@ namespace Minecraft.Graphics.Texturing
 {
     public class TextureAtlasBuilder
     {
-        private readonly bool[,] _spaceMap = new bool[64, 64];
+        internal const int MaxHeight = 1024;
+        private readonly bool[,] _spaceMap = new bool[MaxHeight, 64];
 
-        private readonly Dictionary<NamedIdentifier, (Box2i space, byte[] data, int width, int height)> _imageDictionary =
+        internal readonly Dictionary<NamedIdentifier, (Box2i space, byte[] data, int width, int height)> _imageDictionary =
             new Dictionary<NamedIdentifier, (Box2i space, byte[] data, int width, int height)>();
 
-        private readonly Dictionary<NamedIdentifier, (NamedIdentifier baseKey, Box2i space)> _extraDictionary =
+        internal readonly Dictionary<NamedIdentifier, (NamedIdentifier baseKey, Box2i space)> _extraDictionary =
             new Dictionary<NamedIdentifier, (NamedIdentifier baseKey, Box2i space)>();
 
-        private int _maxHeight = 1;
+        internal int _maxHeight = 1;
 
         public TextureAtlasBuilder Add(NamedIdentifier key, Image image)
         {
@@ -27,7 +28,7 @@ namespace Minecraft.Graphics.Texturing
             var bw = (w + 15) >> 4; // width in blocks
             var bh = (h + 15) >> 4; // height in blocks
 
-            for (var y = 0; y < 64; y++) // find the space
+            for (var y = 0; y < MaxHeight; y++) // find the space
             {
                 for (var x = 0; x < 64; x++)
                 {
@@ -37,7 +38,7 @@ namespace Minecraft.Graphics.Texturing
                     var ex = x + bw; // end x of block
                     var ey = y + bh; // end y of block
 
-                    if (ey > 64)
+                    if (ey > MaxHeight)
                         throw new TextureException("the map is unable to contain more images");
                     if (ex > 64) break;
 
@@ -120,7 +121,7 @@ namespace Minecraft.Graphics.Texturing
                 }
 
                 foreach (var key1 in _extraDictionary
-                    .Where(kvp => kvp.Value.baseKey == key)
+                    .Where(kvp => kvp.Value.baseKey.Equals(key))
                     .Select(kvp => kvp.Key))
                 {
                     _extraDictionary.Remove(key1);
@@ -133,9 +134,9 @@ namespace Minecraft.Graphics.Texturing
             return _imageDictionary.ContainsKey(key) || _extraDictionary.ContainsKey(key);
         }
 
-        public ITextureAtlas Build()
+        public ITexture2DAtlas Build()
         {
-            var textureAtlas = new TextureAtlas(_imageDictionary, _extraDictionary, 1 << _maxHeight.GetBitsCount());
+            var textureAtlas = new Texture2DAtlas(_imageDictionary, _extraDictionary, 1 << _maxHeight.GetBitsCount());
             textureAtlas.GenerateMipmaps2D();
             return textureAtlas;
         }

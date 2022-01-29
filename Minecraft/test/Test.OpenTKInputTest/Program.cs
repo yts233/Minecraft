@@ -133,7 +133,7 @@ void main(){
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            var window = new SimpleRenderWindowContainer
+            var window = new RenderWindow
             {
                 Size = (500, 500)
             };

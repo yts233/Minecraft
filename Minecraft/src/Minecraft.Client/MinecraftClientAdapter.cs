@@ -11,14 +11,13 @@ using Minecraft.Data.Nbt.Tags;
 using Minecraft.Numerics;
 using ClientChatMessagePacket = Minecraft.Protocol.Packets.Client.ChatMessagePacket;
 using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePacket;
-using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Client
 {
     /// <summary>
     /// Minecraft 客户端适配器
     /// </summary>
-    public class MinecraftClientAdapter
+    public class MinecraftClientAdapter : IMinecraftClientAdapter
     {
         private readonly string _hostname;
         private readonly ushort _port;

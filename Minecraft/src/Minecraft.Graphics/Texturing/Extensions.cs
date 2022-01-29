@@ -56,5 +56,17 @@ namespace Minecraft.Graphics.Texturing
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             return texture;
         }
+
+        /// <summary>
+        /// 生成纹理Mipmap
+        /// </summary>
+        /// <remarks>请确保纹理已被绑定</remarks>
+        /// <param name="texture">纹理</param>
+        /// <returns></returns>
+        public static ITexture GenerateMipmaps2DArray(this ITexture texture)
+        {
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+            return texture;
+        }
     }
 }

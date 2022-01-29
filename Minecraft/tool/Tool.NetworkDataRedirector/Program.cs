@@ -182,7 +182,7 @@ namespace Tool.NetworkDataRedirector
         {
             Console.WriteLine("Hello World!");
 
-            static async void LogPacket(Packet packet, bool isServer)
+            static async void LogPacket(IPacket packet, bool isServer)
             {
                 await Task.Yield();
                 lock (Console.Out)

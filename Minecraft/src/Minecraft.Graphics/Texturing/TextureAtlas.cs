@@ -4,11 +4,11 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Texturing
 {
-    internal class TextureAtlas : EmptyTexture, ITextureAtlas
+    internal class Texture2DAtlas : EmptyTexture2D, ITexture2DAtlas
     {
         private readonly IReadOnlyDictionary<NamedIdentifier, Box2> _spaces;
 
-        public TextureAtlas(IDictionary<NamedIdentifier, (Box2i space, byte[] data, int width, int height)> images,
+        public Texture2DAtlas(IDictionary<NamedIdentifier, (Box2i space, byte[] data, int width, int height)> images,
             IDictionary<NamedIdentifier, (NamedIdentifier baseKey, Box2i space)> extraImages, int heightInBlocks) : base(1024,
             heightInBlocks << 4)
         {

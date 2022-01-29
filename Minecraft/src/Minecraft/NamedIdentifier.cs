@@ -65,12 +65,22 @@ namespace Minecraft
 
         public bool Equals(NamedIdentifier other)
         {
-            return other != null && Namespace == other.Namespace && Name == other.Name;
+            return !(other is null) && Namespace == other.Namespace && Name == other.Name;
         }
 
         public bool Equals(string other)
         {
-            return other != null && (FullName == other || Namespace == "minecraft" && Name == other);
+            return !(other is null) && (FullName == other || Namespace == "minecraft" && Name == other);
+        }
+
+        public static bool operator ==(NamedIdentifier left, NamedIdentifier right)
+        {
+            return left is null ? right is null : !left.Equals(right);
+        }
+
+        public static bool operator !=(NamedIdentifier left, NamedIdentifier right)
+        {
+            return left is null ? !(right is null) : !left.Equals(right);
         }
 
         public static implicit operator NamedIdentifier(string id)

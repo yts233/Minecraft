@@ -2,7 +2,7 @@
 
 namespace Minecraft.Resources.Vanilla.WorldOfColorUpdate
 {
-    public class VanillaResource : ResourceDirectory
+    public class VanillaResource : DirectoryResource
     {
         private static readonly System.Resources.ResourceManager ResourceManager;
 
@@ -13,7 +13,7 @@ namespace Minecraft.Resources.Vanilla.WorldOfColorUpdate
         }
 
         public VanillaResource() : base(
-            new ComplexFilePath(new IFilePath[]
+            new FilePathMap(new IFilePath[]
             {
                 new HashFilePath(MinecraftPaths.AssetsObjects, MinecraftPaths.AssetsIndexes["1.12.json"]),
                 new ZipFilePath(ResourceManager.GetStream("Vanilla"))

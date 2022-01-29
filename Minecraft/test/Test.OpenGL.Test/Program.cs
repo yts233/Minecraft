@@ -4,7 +4,7 @@ using System.Timers;
 using Minecraft;
 using Minecraft.Data;
 using Minecraft.Graphics.Arraying;
-using Minecraft.Graphics.Blocking;
+using Minecraft.Graphics.Renderers.Blocking;
 using Minecraft.Graphics.Renderers.Debuggers.Axis;
 using Minecraft.Graphics.Renderers.Environments.Clouding;
 using Minecraft.Graphics.Rendering;
@@ -35,13 +35,12 @@ namespace Test.OpenGL.Test
 
             // 加载资源和窗体
             var resource = new VanillaResource();
-            var window = new SimpleRenderWindowContainer
+            var window = new RenderWindow
             {
                 IsFullScreen = false,
                 PointerGrabbed = true,
                 RenderFrequency = 60
             };
-            var windowViewportInvoker = new WindowViewportInvoker(window);
             IEye eye = new Eye
             {
                 Position = (-1, 0, -1),
@@ -53,13 +52,17 @@ namespace Test.OpenGL.Test
             var cloudRenderer = new CloudRenderer(eye, viewProvider, projectionProvider, resource);
             var axisRenderer = new AxisRenderer(viewProvider, projectionProvider);
             var chunk = new EmptyChunk();
-            ITextureAtlas atlases = null;
+            ITexture2DAtlas atlases = null;
             for (var i = 0; i < 16; i++)
                 chunk.SetBlock(i, 0, i, "structure_block_corner");
             var chunkRenderer = new ChunkRenderer(chunk, () => atlases, viewProvider, projectionProvider);
 
             // 设置视图
-            windowViewportInvoker.SizeChanged += e =>
+            window.RenderClientSizeChanged += (sender, e) =>
+            {
+                GL.Viewport(0, 0, e.X, e.Y);
+            };
+            window.ClientSizeChanged += (sender,e) =>
             {
                 var (width, height) = e;
                 eye.Aspect = (float)width / height;

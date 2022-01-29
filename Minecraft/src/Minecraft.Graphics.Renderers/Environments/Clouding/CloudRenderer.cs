@@ -20,12 +20,12 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         private IElementArrayHandle _cloudVertexArray;
 
         public CloudRenderer(IEye eye, IMatrixProvider<Matrix4,Vector4> viewMatrix, IMatrixProvider<Matrix4,Vector4> projectionMatrix,
-            Resource resource)
+            IAssetProvider resource)
         {
             _eye = eye;
             _viewMatrix = viewMatrix;
             _projectionMatrix = projectionMatrix;
-            using var stream = resource.GetAsset(AssetType.Texture, "minecraft:environment/clouds.png").OpenRead();
+            using var stream = resource[AssetType.Texture, "minecraft:environment/clouds.png"].OpenRead();
             var cloudData = new Image(stream).Data;
             for (var y = 0; y < 256; y++)
             {

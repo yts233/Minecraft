@@ -19,6 +19,10 @@ namespace Minecraft.Graphics.Shading
             BaseShader = shader;
         }
 
+        public Shader(int shaderProgram) : base(shaderProgram)
+        {
+        }
+
         /// <summary>
         /// 基着色器
         /// </summary>

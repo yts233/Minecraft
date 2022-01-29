@@ -48,7 +48,7 @@ namespace Minecraft.Graphics.Texturing
 
         public Image(byte[] data, int width, int height)
         {
-            CheckSize(width, height);
+            //CheckSize(width, height);
             Data = data;
             Width = width;
             Height = height;
@@ -58,7 +58,7 @@ namespace Minecraft.Graphics.Texturing
 
         public Image(int width, int height)
         {
-            CheckSize(width, height);
+            //CheckSize(width, height);
             /*
              * data struct
              * [Location] [Color]
@@ -75,8 +75,10 @@ namespace Minecraft.Graphics.Texturing
             FrameSize = (width * width) << 2;
         }
 
-        public Image(Stream stream) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream))
+        public Image(Stream stream,bool closeStream=false) : this(SixLabors.ImageSharp.Image.Load<Rgba32>(stream))
         {
+            if (closeStream)
+                stream.Close();
         }
 
         public Image(SixLabors.ImageSharp.Image<Rgba32> image)
@@ -84,7 +86,7 @@ namespace Minecraft.Graphics.Texturing
             //ImageSharp loads from the top-left pixel, whereas OpenGL loads from the bottom-left.
             image.Mutate(context => context.Flip(FlipMode.Vertical));
             image.TryGetSinglePixelSpan(out var span);
-            CheckSize(image.Width, image.Height);
+            //CheckSize(image.Width, image.Height);
             var pixels = new byte[(image.Width * image.Height) << 2];
             for (var i = 0; i < span.Length; i++)
             {
@@ -140,6 +142,7 @@ namespace Minecraft.Graphics.Texturing
 
         public Image GetFrame(int index)
         {
+            CheckSize(Width, Height);
             var buffer = new byte[FrameSize];
             Array.Copy(Data, FrameSize * index, buffer, 0, FrameSize);
             return new Image(buffer, Width, Width);

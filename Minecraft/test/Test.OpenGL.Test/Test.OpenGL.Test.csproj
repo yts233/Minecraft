@@ -10,7 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Minecraft.Graphics.Blocking\Minecraft.Graphics.Blocking.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Graphics\Minecraft.Graphics.csproj" />
       <ProjectReference Include="..\..\src\Minecraft.Input\Minecraft.Input.csproj" />

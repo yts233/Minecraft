@@ -5,9 +5,9 @@ namespace Minecraft.Graphics.Texturing
 {
     public interface ITexture : IHandle
     {
-        void IBindable.Bind()
-        {
-            GL.BindTexture(TextureTarget.Texture2D, Handle);
-        }
+        //void IBindable.Bind()
+        //{
+        //    GL.BindTexture(TextureTarget.Texture2D, Handle);
+        //}
     }
 }

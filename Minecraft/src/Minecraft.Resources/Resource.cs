@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Minecraft.Resources
 {
     /// <summary>
     /// 提供<see cref="Asset" />的资源
     /// </summary>
-    public abstract class Resource : IDisposable
+    public abstract class Resource : IDisposable, IAssetProvider
     {
         private static readonly Logger<Resource> _logger = Logger.GetLogger<Resource>();
 
@@ -52,6 +53,17 @@ namespace Minecraft.Resources
         /// <value>The count.</value>
         public abstract int Count { get; }
 
+        public Asset this[AssetType type, NamedIdentifier name]
+        {
+            get
+            {
+                var asset = GetAssets().FirstOrDefault(p => p.Type == type && p.NamedIdentifier.Equals(name));
+                if (asset == null)
+                    throw new ResourceException($"{type} asset {name} not found!");
+                return asset;
+            }
+        }
+
         public virtual void Dispose()
         {
         }
@@ -76,6 +88,12 @@ namespace Minecraft.Resources
         public override string ToString()
         {
             return $"{Name} - {Description} ({Count} assets)";
+        }
+
+        public bool TryGetAsset(AssetType type, NamedIdentifier name, out Asset asset)
+        {
+            asset = GetAssets().FirstOrDefault(p => p.Type == type && p.NamedIdentifier == name);
+            return asset != null;
         }
     }
 }

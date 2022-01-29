@@ -42,6 +42,8 @@ namespace Minecraft.Graphics.Rendering
         event EventHandler AfterUpdaters;
         event EventHandler ContainerStarted;
         event EventHandler ContainerClosed;
+        event EventHandler<Vector2i> ClientSizeChanged;
+        event EventHandler<Vector2i> RenderClientSizeChanged;
 
         #endregion
     }

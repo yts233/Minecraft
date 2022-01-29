@@ -6,9 +6,9 @@ using System.Text.Json;
 namespace Minecraft.Resources
 {
     /// <summary>
-    /// 资源目录
+    /// 储存在目录中的资源包
     /// </summary>
-    public class ResourceDirectory : Resource
+    public class DirectoryResource : Resource
     {
         private readonly List<Asset> _assets = new List<Asset>();
 
@@ -16,20 +16,20 @@ namespace Minecraft.Resources
         private IFilePath _filepath;
 
         /// <summary>
-        /// 从真实存在的路径创建<see cref="ResourceDirectory" />
+        /// 从真实存在的路径创建<see cref="DirectoryResource" />
         /// </summary>
         /// <param name="path"></param>
         /// <param name="name"></param>
-        public ResourceDirectory(string path, string name = null) : this(new FilePath(path), name)
+        public DirectoryResource(string path, string name = null) : this(new FilePath(path), name)
         {
         }
 
         /// <summary>
-        /// 从<see cref="IFilePath" />创建<see cref="ResourceDirectory" />
+        /// 从<see cref="IFilePath" />创建<see cref="DirectoryResource" />
         /// </summary>
         /// <param name="path"></param>
         /// <param name="name"></param>
-        public ResourceDirectory(IFilePath path, string name = null) : base(Uuid.NewUuid(), name ?? path.GetFileName(),
+        public DirectoryResource(IFilePath path, string name = null) : base(Uuid.NewUuid(), name ?? path.GetFileName(),
             null, path)
         {
         }

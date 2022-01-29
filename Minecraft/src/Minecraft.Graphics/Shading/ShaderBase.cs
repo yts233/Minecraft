@@ -12,6 +12,17 @@ namespace Minecraft.Graphics.Shading
         /// <summary>
         /// 创建着色器基类
         /// </summary>
+        /// <param name="shaderBuilder">空着色器</param>
+        protected ShaderBase(ShaderBuilder shaderBuilder)
+        {
+            if (!shaderBuilder.Linked)
+                shaderBuilder.Link();
+            ShaderProgram = shaderBuilder.ShaderProgram;
+        }
+
+        /// <summary>
+        /// 创建着色器基类
+        /// </summary>
         /// <param name="shaderProgram">着色器程序</param>
         protected ShaderBase(int shaderProgram)
         {

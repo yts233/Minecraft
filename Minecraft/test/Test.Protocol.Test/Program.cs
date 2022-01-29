@@ -2,49 +2,83 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Minecraft;
 using Minecraft.Extensions;
-using Minecraft.Protocol;
+using Minecraft.Protocol.MCVersions.MC1171;
+using Minecraft.Protocol.MCVersions.MC1171.Packets.Client;
 using Minecraft.Protocol.Packets;
-using Minecraft.Protocol.Packets.Client;
-using Minecraft.Protocol.Packets.Server;
-using ClientChatMessagePacket = Minecraft.Protocol.Packets.Client.ChatMessagePacket;
-using ServerChatMessagePacket = Minecraft.Protocol.Packets.Server.ChatMessagePacket;
-namespace Test.Protocol.Test
+
+Console.WriteLine("Hello World!");
+
+MC1171Client client = new("MCConsoleTest");
+
+client.Disconnected += (_, e) =>
 {
-    internal class Program
+    Logger.WaitForLogging();
+    Console.WriteLine($"\n\nDisconnected. Reason: {e}\n\n\n\n\n\n\n\n\n\n\n");
+    Println("Reconnecting in 5 seconds...", ConsoleColor.Yellow);
+    Task.Run(async () =>
     {
-        private static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-            static void TestPacket(Packet packet, bool compressed = false)
-            {
-                var stream = new MemoryStream();
-                Console.WriteLine(packet.GetPropertyInfoString());
-                var adapter = new ProtocolAdapter(stream, packet.BoundTo)
-                {
-                    Compressing = compressed,
-                    Threshold = 1,
-                    AutoHandleSpecialPacket = false
-                };
-                adapter.Start();
-                adapter.WritePacket(packet);
-                adapter.WaitUntilAllPacketsSent();
-                Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
-                adapter = new ProtocolAdapter(stream, adapter.RemoteBoundTo)
-                {
-                    State = packet.State,
-                    Compressing = compressed,
-                    Threshold = 1,
-                    AutoHandleSpecialPacket = false
-                };
-                adapter.Start();
-                stream.Position = 0;
-                packet = adapter.ReadPacket();
-                Console.WriteLine(packet.GetPropertyInfoString());
-                Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
-            }
-            TestPacket(new ServerChatMessagePacket { JsonData = "aaaaaaaaa啊啊啊啊啊" }, true);
-            TestPacket(new ClientChatMessagePacket { Message = "aaaaaaaaa啊啊啊啊啊" }, true);
-        }
+        await Task.Delay(5000);
+        if (!client.IsConnected)
+            client.Reconnect();
+    });
+};
+
+client.Connect("localhost", 25566);
+
+while (Console.ReadKey().Key != ConsoleKey.Escape) ;
+
+/*
+static void TestPacket(IPacket packet, bool compressed = false)
+{
+    var stream = new MemoryStream();
+    Console.WriteLine(packet.GetPropertyInfoString());
+    var adapter = new MCVer756ProtocolAdapter(stream, packet.BoundTo)
+    {
+        CompressThreshold = compressed ? 1 : 0
+    };
+    adapter.Start(receiveThread: false);
+    adapter.SendPacket(packet);
+    adapter.WaitUntilAllPacketsSent();
+    Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
+    adapter = new MCVer756ProtocolAdapter(stream, adapter.RemoteBoundTo)
+    {
+        State = packet.State,
+        CompressThreshold = compressed ? 1 : 0
+    };
+    stream.Position = 0;
+    adapter.Start(sendThread: false);
+    packet = adapter.ReceivePacket();
+    Console.WriteLine(packet.GetPropertyInfoString());
+    Console.WriteLine($"Position/Length: {stream.Position}/{stream.Length}");
+}
+TestPacket(new LoginStartPacket { Name = "aaaaaaaaa啊啊啊啊啊" }, true);
+
+*/
+
+Logger.WaitForLogging();
+
+void Print(object obj, ConsoleColor? color = null)
+{
+    var s = obj.ToString();
+    lock (Console.Out)
+    {
+        if (color != null)
+            Console.ForegroundColor = color.Value;
+        Console.Write(s);
+        Console.ResetColor();
+    }
+}
+
+void Println(object obj, ConsoleColor? color = null)
+{
+    var s = obj.ToString();
+    lock (Console.Out)
+    {
+        if (color != null)
+            Console.ForegroundColor = color.Value;
+        Console.WriteLine(s);
+        Console.ResetColor();
     }
 }

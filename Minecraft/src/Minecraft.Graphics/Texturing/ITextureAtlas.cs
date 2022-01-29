@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Texturing
 {
-    public interface ITextureAtlas : ITexture, IReadOnlyDictionary<NamedIdentifier, Box2>
+    public interface ITexture2DAtlas : ITexture2D, IReadOnlyDictionary<NamedIdentifier, Box2>
     {
     }
 }

@@ -7,13 +7,12 @@ using Minecraft.Client.Handlers;
 using Minecraft.Client.Internal;
 using Minecraft.Extensions;
 using Minecraft.Protocol;
-using Minecraft.Protocol.Packets;
-using Minecraft.Protocol.Packets.Client;
-using Minecraft.Protocol.Packets.Server;
+using Minecraft.Protocol.MCVersion.MC1171.Packets.Client;
+using Minecraft.Protocol.MCVersion.MC1171.Packets.Server;
 
 namespace Minecraft.Client
 {
-    public class MinecraftClient
+    public class MinecraftClient : IMinecraftClient
     {
         private static readonly Logger<MinecraftClient> _logger = Logger.GetLogger<MinecraftClient>();
         internal string _playerName;

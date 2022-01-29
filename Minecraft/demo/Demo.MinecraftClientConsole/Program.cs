@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Minecraft;
 using Minecraft.Numerics;
 using Minecraft.Extensions;
-using Minecraft.Client;
 using static Demo.MinecraftClientConsole.Shared;
-using Demo.MinecraftClientConsole.Graphics;
 using Minecraft.Graphics.Windowing;
+using Minecraft.Protocol.MCVersions.MC1171;
+using Minecraft.Protocol.Client;
 //test server: mc.oxygenstudio.cn
 // connect mc.oxygenstudio.cn
 // connect s1.zhaomc.net
+// connect 192.168.1.104 25566
 namespace Demo.MinecraftClientConsole
 {
-
     class Program
     {
         private delegate void Command(string[] args);
@@ -24,7 +24,7 @@ namespace Demo.MinecraftClientConsole
         private static readonly Dictionary<string, (Command command, string help)> Commands =
             new();
 
-        private static MinecraftClient _client;
+        private static IMinecraftClient _client;
         private static readonly Logger<CmdLet> _cmdLetLogger = Logger.GetLogger<CmdLet>();
 
         private static bool _autoReconnectFlag;
@@ -32,12 +32,13 @@ namespace Demo.MinecraftClientConsole
         public static void CreateClient(string userName)
         {
             //initalize client
-            _client = new MinecraftClient(userName);
+            _client = new MC1171Client(userName);
             _client.Disconnected += (_, e) =>
             {
                 Console.WriteLine($"Disconnected. Reason: {e}");
                 if (!_autoReconnectFlag)
                     return;
+                Logger.WaitForLogging();
                 Println("Reconnecting in 5 seconds...", ConsoleColor.Yellow);
                 Task.Run(async () =>
                 {
@@ -151,6 +152,7 @@ namespace Demo.MinecraftClientConsole
                 _client.Disconnect();
                 CreateClient(userName);
             }, "[username=MCConsoleTest] 重新创建MinecraftClient实例");
+            /*
             AddCommand("protocol", args =>
             {
                 if (args.Length != 1)
@@ -161,6 +163,7 @@ namespace Demo.MinecraftClientConsole
                 var protocolNumber = int.Parse(args[0]);
                 _client.SwitchProtocolVersion(protocolNumber);
             }, "<version_number> 改变协议版本号");
+             */
             AddCommand("ping", args =>
             {
                 var defaultPort = false;
@@ -315,20 +318,6 @@ namespace Demo.MinecraftClientConsole
                         return;
                 }
             }, "{<entityid> 攻击实体} | [target: x y z] <hand> 与实体交互");
-            #endregion
-
-            #region Graphics
-
-            AddCommand("graphicspositioncontroller", _ =>
-            {
-                static void GraphicsThread()
-                {
-                    SimpleRenderWindowContainer.InvokeOnGlfwThread(() => new ClientPositionController(_client)).Run();
-                }
-
-                ThreadHelper.StartThread(GraphicsThread, "GraphicsPositionControllerThread");
-            }, "创建图形化坐标控制器");
-
             #endregion
 
             AddCommand("clear", _ =>

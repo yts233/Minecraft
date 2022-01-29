@@ -9,7 +9,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
         static void Main(string[] args)
         {
             Logger.GetLogger<Program>().HelloWorld("MinecraftClientAndOpenGL");
-            var window = SimpleRenderWindowContainer.InvokeOnGlfwThread(() =>
+            var window = RenderWindow.InvokeOnGlfwThread(() =>
             {
                 Console.WriteLine("type player name below.");
                 return new MainWindow(Console.ReadLine());

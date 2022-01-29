@@ -8,21 +8,6 @@ namespace Minecraft.Resources
     /// </summary>
     public static class ResourceHelper
     {
-        /// <summary>
-        /// 从<see cref="Resource" />获取<see cref="Asset" />
-        /// </summary>
-        /// <param name="resource">资源</param>
-        /// <param name="type">类型</param>
-        /// <param name="fullname">全名</param>
-        /// <returns></returns>
-        public static Asset GetAsset(this Resource resource, AssetType type, NamedIdentifier fullname)
-        {
-            return resource
-                .GetAssets()
-                .Where(asset => asset.Type == type)
-                .FirstOrDefault(asset => asset.NamedIdentifier.Equals(fullname));
-        }
-
         public static Language GetLanguage(this Resource resource, string id)
         {
             return resource
@@ -40,6 +25,30 @@ namespace Minecraft.Resources
         {
             return translations.GetTranslation(fullname)
                 .Value;
+        }
+
+        public static Asset GetFile(this IAssetProvider assetProvider, NamedIdentifier name)
+        {
+            if (name.Name.IndexOf('/') == -1)
+                assetProvider.GetAssets().FirstOrDefault(p => p.NamedIdentifier.Equals(name));
+            var type = name.Name[..name.Name.IndexOf('/')] switch
+            {
+                "blockstates" => AssetType.Blockstate,
+                "font" => AssetType.Font,
+                "icons" => AssetType.Icon,
+                "lang" => AssetType.Lang,
+                "models" => AssetType.Model,
+                "shaders" => AssetType.Shader,
+                "sounds" => AssetType.Sound,
+                "texts" => AssetType.Text,
+                "textures" => AssetType.Texture,
+                _ => (AssetType)(-1)
+            };
+            if ((int)type == -1 || !assetProvider.TryGetAsset(type, new NamedIdentifier(name.Namespace, name.Name[(name.Name.IndexOf('/') + 1)..]), out var asset))
+            {
+                asset = assetProvider.GetAssets().FirstOrDefault(p => p.NamedIdentifier.Equals(name));
+            }
+            return asset;
         }
     }
 }

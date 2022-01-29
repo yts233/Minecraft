@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Minecraft.Data\Minecraft.Data.csproj" />
       <ProjectReference Include="..\Minecraft.Graphics\Minecraft.Graphics.csproj" />
       <ProjectReference Include="..\Minecraft.Input\Minecraft.Input.csproj" />
       <ProjectReference Include="..\Minecraft.Resources\Minecraft.Resources.csproj" />
@@ -13,17 +14,36 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Blocking\BlockShaders.Designer.cs">
+        <DependentUpon>BlockShaders.resx</DependentUpon>
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+      </Compile>
       <Compile Update="Shaders.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Shaders.resx</DependentUpon>
       </Compile>
+      <Compile Update="UI\UIShaders.Designer.cs">
+        <DependentUpon>UIShaders.resx</DependentUpon>
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Update="Blocking\BlockShaders.resx">
+        <LastGenOutput>BlockShaders.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
       <EmbeddedResource Update="Shaders.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>Shaders.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="UI\UIShaders.resx">
+        <SubType>Designer</SubType>
+        <LastGenOutput>UIShaders.Designer.cs</LastGenOutput>
+        <Generator>ResXFileCodeGenerator</Generator>
       </EmbeddedResource>
     </ItemGroup>
 

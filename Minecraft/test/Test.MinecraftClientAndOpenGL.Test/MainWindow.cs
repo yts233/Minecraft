@@ -9,7 +9,7 @@ using Minecraft.Graphics.Transforming;
 using Minecraft.Graphics.Windowing;
 using System;
 using OpenTK.Mathematics;
-using Minecraft.Graphics.Blocking;
+using Minecraft.Graphics.Renderers.Blocking;
 using Minecraft.Graphics.Texturing;
 using Minecraft.Resources;
 using OpenTK.Graphics.OpenGL4;
@@ -21,7 +21,7 @@ using Minecraft.Graphics.Arraying;
 
 namespace Test.MinecraftClientAndOpenGL.Test
 {
-    class MainWindow : SimpleRenderWindowContainer
+    class MainWindow : RenderWindow
     {
         private static readonly Logger<MainWindow> _logger = Logger.GetLogger<MainWindow>();
 
@@ -34,7 +34,7 @@ namespace Test.MinecraftClientAndOpenGL.Test
         private readonly MinecraftClient _client;
         private readonly string _serverAddress;
         private readonly ushort _serverPort;
-        private ITextureAtlas _atlases;
+        private ITexture2DAtlas _atlases;
         private IElementArrayHandle _triangle;
         private VanillaResource _resource;
 
