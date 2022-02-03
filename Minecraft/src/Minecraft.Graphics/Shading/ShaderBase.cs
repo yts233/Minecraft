@@ -18,6 +18,7 @@ namespace Minecraft.Graphics.Shading
             if (!shaderBuilder.Linked)
                 shaderBuilder.Link();
             ShaderProgram = shaderBuilder.ShaderProgram;
+            Use();
         }
 
         /// <summary>
@@ -27,6 +28,7 @@ namespace Minecraft.Graphics.Shading
         protected ShaderBase(int shaderProgram)
         {
             ShaderProgram = shaderProgram;
+            Use();
         }
 
         /// <summary>

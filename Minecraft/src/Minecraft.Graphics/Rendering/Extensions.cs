@@ -15,6 +15,13 @@ namespace Minecraft.Graphics.Rendering
             return renderContainer;
         }
 
+        public static IRenderContainer AddCompletedRenderer(this ICompletedContainer container, ICompletedRenderer renderer)
+        {
+            container.AddInitializer(renderer).AddUpdater(renderer).AddRenderer(renderer);
+            container.AddTicker(renderer);
+            return container;
+        }
+
         public static IRenderContainer AddInitializer(this IRenderContainer renderContainer, IInitializer initializer)
         {
             renderContainer.Initializers.Add(initializer);

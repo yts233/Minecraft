@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Minecraft.Graphics.Renderers.Blocking
 {
-    internal class ChunkVertexArrayProvider : IVertexArrayProvider<BlockVertex>, ICalculator
+    internal class ChunkVertexArrayProvider : IVertexArrayProvider<BlockVertex>
     {
         private static readonly float[] Vertices = new[] {
             //      顶点坐标        纹理坐标            法线
@@ -60,6 +60,14 @@ namespace Minecraft.Graphics.Renderers.Blocking
             _textDictionaryProvider = textDictionaryProvider;
         }
 
+        private bool _calcing = false;
+
+        public void StopCalculation()
+        {
+            if (!_calcing) return;
+            _calcing = false;
+        }
+
         private void AddVertices(int face, List<uint> indices, List<BlockVertex> vertices, int bx, int by, int bz, ref Box2 box, ref uint count)
         {
             var offset = face * 8 * 4;
@@ -84,8 +92,9 @@ namespace Minecraft.Graphics.Renderers.Blocking
             }
         }
 
-        public void Calculate()
+        public bool Calculate()
         {
+            _calcing = true;
             var texture = _textDictionaryProvider();
             var vertices = new List<BlockVertex>();
             var indices = new List<uint>();
@@ -96,6 +105,11 @@ namespace Minecraft.Graphics.Renderers.Blocking
                 {
                     for (var x = 0; x < 16; x++)
                     {
+                        if (!_calcing)
+                        {
+                            Logger.GetLogger<ChunkVertexArrayProvider>().Info($"Chunk {_chunk.X}, {_chunk.Z} Calculation aborted.");
+                            return false;
+                        }
                         var block = _chunk.GetBlock(x, y, z);
                         if (block.IsAir())
                             continue;
@@ -122,7 +136,9 @@ namespace Minecraft.Graphics.Renderers.Blocking
             }
             _vertices = vertices.ToArray();
             _indices = indices.ToArray();
+            _calcing = false;
             Logger.GetLogger<ChunkVertexArrayProvider>().Info($"Chunk {_chunk.X}, {_chunk.Z} Calculated.");
+            return true;
         }
 
         public IEnumerable<uint> GetIndices()

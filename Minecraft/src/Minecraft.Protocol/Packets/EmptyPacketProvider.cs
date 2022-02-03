@@ -15,12 +15,12 @@ namespace Minecraft.Protocol.Packets
             public Func<IPacket> Constructor;
 #if DEBUG
             public string PacketName;
-#endif
 
             public override string ToString()
             {
                 return $"0x{PacketId:X2}, {BoundTo}, {State}: {PacketName}";
             }
+#endif
         }
 
         private readonly List<PacketInfo> _packetInfo = new List<PacketInfo>();

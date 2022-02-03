@@ -7,6 +7,7 @@ using Minecraft.Graphics.Arraying;
 using Minecraft.Graphics.Renderers.Blocking;
 using Minecraft.Graphics.Renderers.Debuggers.Axis;
 using Minecraft.Graphics.Renderers.Environments.Clouding;
+using Minecraft.Graphics.Renderers.Utils;
 using Minecraft.Graphics.Rendering;
 using Minecraft.Graphics.Texturing;
 using Minecraft.Graphics.Transforming;
@@ -62,7 +63,7 @@ namespace Test.OpenGL.Test
             {
                 GL.Viewport(0, 0, e.X, e.Y);
             };
-            window.ClientSizeChanged += (sender,e) =>
+            window.ClientSizeChanged += (sender, e) =>
             {
                 var (width, height) = e;
                 eye.Aspect = (float)width / height;
@@ -120,13 +121,32 @@ namespace Test.OpenGL.Test
             window.AddRenderObject(new WindowInitializer());
 
             // 更新视图
-            window.AddRenderObject(windowViewportInvoker);
+            //window.AddRenderObject(windowViewportInvoker);
+            window.ClientSizeChanged += Window_ClientSizeChanged;
 
             TestShader testShader = null;
             IRenderable testRenderer = null;
             UvAnimation animation = null;
-            // 初始化着色器和纹理
+            IAxisInput keyInput = null;
+            IAxisInput pointerInput = null;
+            CameraMotivatorRenderer cameraMotivatorRenderer = new(eye)
+            {
+                Controlable = true,
+                Type = CameraType.Fps
+            };
+            window.AddUpdater(cameraMotivatorRenderer);
+
+            // 初始化输入设备
             window.AddInitializer(() =>
+            {
+                pointerInput = window.CreatePointerAxisInput(.05F, true).CreateSmoothAxisInput();
+                keyInput = window.CreateKeyAxisInput(Keys.D, Keys.Space, Keys.S, Keys.A, Keys.LeftShift, Keys.W, true)/*.CreateSmoothAxisInput()*/;
+                cameraMotivatorRenderer.RotationInput = pointerInput;
+                cameraMotivatorRenderer.PositionInput = keyInput;
+                cameraMotivatorRenderer.MovementSpeed = 1F;
+            })
+            // 初始化着色器和纹理
+            .AddInitializer(() =>
                 {
                     testShader = new TestShader();
                     //testRenderer.BaseRenderer = new TestVertexArrayProvider().ToVertexArray();
@@ -179,35 +199,15 @@ namespace Test.OpenGL.Test
                 .AddInitializer(axisRenderer)
                 .AddInitializer(chunkRenderer);
 
-            // 更新输入设备状态
+            window.AddIntervalTicker(1, () =>
+            {
+                Logger.GetLogger<Program>().Info(eye.Position);
+            });
+
             window.AddUpdater(() =>
-                {
-                    /* Mouse */
-                    var delta = window.PointerState.Delta;
-                    if (delta != Vector2.Zero)
-                        mouseDelta += delta * .1F;
-                    if (mouseDelta == Vector2.Zero)
-                        return;
-                    mouseDelta *= .5F;
-                    eye.Rotation += (mouseDelta.X, -mouseDelta.Y);
-                    if (Abs(mouseDelta.X) <= .5)
-                        mouseDelta.X = 0;
-                    if (Abs(mouseDelta.Y) <= .5)
-                        mouseDelta.Y = 0;
-                })
-                .AddUpdater(() =>
-                {
-                    const int movementSpeedDiv = 1;
-                    /* Keyboard */
-                    if (window.KeyboardState[Keys.W]) eye.Position += eye.Front / movementSpeedDiv;
-                    if (window.KeyboardState[Keys.S]) eye.Position -= eye.Front / movementSpeedDiv;
-                    if (window.KeyboardState[Keys.A]) eye.Position -= eye.Right / movementSpeedDiv;
-                    if (window.KeyboardState[Keys.D]) eye.Position += eye.Right / movementSpeedDiv;
-                })
-                .AddUpdater(() =>
-                {
-                    viewProvider.CalculateMatrix(); // very important
-                });
+            {
+                viewProvider.CalculateMatrix(); // very important
+            });
 
             // 渲染
             window.AddRenderObject(new ClearRenderer())
@@ -248,6 +248,11 @@ namespace Test.OpenGL.Test
             window.Run();
 
             Logger.WaitForLogging();
+        }
+
+        private static void Window_ClientSizeChanged(object sender, Vector2i e)
+        {
+            GL.Viewport(0, 0, e.X, e.Y);
         }
     }
 }

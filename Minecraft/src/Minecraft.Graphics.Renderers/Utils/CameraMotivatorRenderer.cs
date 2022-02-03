@@ -20,7 +20,7 @@ namespace Minecraft.Graphics.Renderers.Utils
         public bool Controlable { get; set; }
         public IAxisInput PositionInput { get; set; }
         public IAxisInput RotationInput { get; set; }
-        public float Speed { get; set; } = 0.025F;
+        public float MovementSpeed { get; set; } = 0.025F;
         public Vector3 GlobalVelocity
         {
             get => _global;
@@ -88,7 +88,7 @@ namespace Minecraft.Graphics.Renderers.Utils
                     _camera.Rotation += RotationInput.Value.Xy;
                 }
             }
-            _camera.Position += _resultant * Speed;
+            _camera.Position += _resultant * MovementSpeed;
         }
     }
 }

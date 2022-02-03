@@ -14,6 +14,6 @@ namespace Minecraft.Graphics.Transforming
 
         CameraType Type { get; set; }
 
-        float Speed { get; set; }
+        float MovementSpeed { get; set; }
     }
 }

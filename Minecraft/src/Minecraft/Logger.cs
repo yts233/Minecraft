@@ -190,6 +190,7 @@ namespace Minecraft
 
         private static void HandleException(Exception exception)
         {
+            WaitForLogging();
             _exceptLogger.Fatal($"Oops, the program crashes due to an unhanded exception. This could be an error, or you are not running the program correctly. Here are some details for the unhandled exception.\n\n{exception}\n\nYou called for help, but nobody comes. =)");
             WaitForLogging();
 #if !DEBUG //防止调试器的异常处理不起作用

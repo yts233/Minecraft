@@ -9,9 +9,13 @@ namespace Minecraft
 {
     public static class ThreadHelper
     {
-        public static IThreadDispatcher CreateDispatcher(string threadName = null)
+        public static IThreadDispatcher CreateDispatcher(string threadName = null, bool isBackground = false)
         {
-            return new ThreadDispatcher() { ThreadName = threadName };
+            return new ThreadDispatcher()
+            {
+                ThreadName = threadName,
+                IsBackground = isBackground
+            };
         }
 
         public static Thread StartThread(ThreadStart callback, string threadName = null, bool isBackground = false)

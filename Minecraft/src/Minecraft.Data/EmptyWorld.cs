@@ -1,6 +1,7 @@
 ﻿using Minecraft.Data.Common.Blocking;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Minecraft.Data
@@ -8,6 +9,8 @@ namespace Minecraft.Data
     public class EmptyWorld : IEditableWorld
     {
         private readonly List<IChunk> _chunks = new List<IChunk>();
+
+        public Func<int, int, IChunk> ChunkProvider { get; set; }
 
         public bool AddChunk(IChunk chunk)
         {
@@ -44,9 +47,18 @@ namespace Minecraft.Data
 
         public IChunk GetChunk(int x, int z)
         {
-            foreach (var chunk in _chunks)
-                if (chunk.X == x && chunk.Z == z)
-                    return chunk;
+            IChunk chunk;
+            lock (_chunks) // 同步
+                chunk = _chunks.FirstOrDefault(c => c.X == x && c.Z == z);
+            if (chunk != null)
+                return chunk;
+            if (!(ChunkProvider is null))
+            {
+                chunk = ChunkProvider(x, z);
+                lock (_chunks) // 同步
+                    _chunks.Add(chunk);
+                return chunk;
+            }
             return null;
         }
 
@@ -71,7 +83,10 @@ namespace Minecraft.Data
         {
             if (y < 0x00 || y > 0xff)
                 return false;
-            return (GetChunk(x >> 4, z >> 4) is IBlockEditor editor) && editor.SetBlock(x & 0x0F, y, z & 0x0F, block);
+            return (GetChunk(x >> 4, z >> 4) is IChunk chunk && !(chunk is null)
+                        || AddChunk(chunk = ChunkProvider(x, z)))
+                    && chunk is IBlockEditor editor
+                    && editor.SetBlock(x & 0x0F, y, z & 0x0F, block);
         }
     }
 }

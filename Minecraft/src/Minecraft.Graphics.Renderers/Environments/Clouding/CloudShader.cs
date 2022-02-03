@@ -13,8 +13,8 @@ namespace Minecraft.Graphics.Renderers.Environments.Clouding
         private readonly int _centerPositionLocation;
 
         public CloudShader() : base(new ShaderBuilder()
-            .AttachVertexShader(Shaders.CloudVertexShaderSource)
-            .AttachFragmentShader(Shaders.CloudFragmentShaderSource)
+            .AttachVertexShader(EnvironmentShaders.CloudVertexShaderSource)
+            .AttachFragmentShader(EnvironmentShaders.CloudFragmentShaderSource)
             .Link())
         {
             _colorLocation = GetLocation("color");

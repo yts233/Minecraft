@@ -43,7 +43,7 @@ namespace Minecraft.Input
             ny = NegativeYKey.HasValue && _keyboardContainer.KeyboardState[NegativeYKey.Value];
             nz = NegativeZKey.HasValue && _keyboardContainer.KeyboardState[NegativeZKey.Value];
             var value = new Vector3(Convert.ToInt32(px) - Convert.ToInt32(nx), Convert.ToInt32(py) - Convert.ToInt32(ny), Convert.ToInt32(pz) - Convert.ToInt32(nz));
-            if (_isOctagon && value.LengthSquared < 0.0000001F)
+            if (_isOctagon && value.LengthSquared > 0.0000001F)
                 Value = value.Normalized();
             else Value = value;
         }

@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Windowing
 {
-    public interface IRenderWindowContainer : IRenderContainer, IPointerContainer, IKeyboardContainer, IGameTickContainer, IDisposable
+    public interface IRenderWindowContainer : ICompletedContainer, IPointerContainer, IKeyboardContainer, IDisposable
     {
         Vector2i Location { get; }
         Vector2i Size { get; set; }

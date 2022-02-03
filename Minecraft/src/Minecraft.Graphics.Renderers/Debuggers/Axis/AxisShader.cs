@@ -8,8 +8,8 @@ namespace Minecraft.Graphics.Renderers.Debuggers.Axis
         private readonly int _projectionLocation;
         private readonly int _viewLocation;
 
-        public AxisShader() : base(new ShaderBuilder().AttachVertexShader(Shaders.AxisVertexShaderSource)
-            .AttachFragmentShader(Shaders.AxisFragmentShaderSource).Link())
+        public AxisShader() : base(new ShaderBuilder().AttachVertexShader(DebuggerShaders.AxisVertexShaderSource)
+            .AttachFragmentShader(DebuggerShaders.AxisFragmentShaderSource).Link())
         {
             _viewLocation = GetLocation("view");
             _projectionLocation = GetLocation("projection");

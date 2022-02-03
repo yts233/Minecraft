@@ -19,10 +19,15 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
       </Compile>
-      <Compile Update="Shaders.Designer.cs">
+      <Compile Update="Debuggers\DebuggerShaders.Designer.cs">
+        <DependentUpon>DebuggerShaders.resx</DependentUpon>
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
-        <DependentUpon>Shaders.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Environments\EnvironmentShaders.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>EnvironmentShaders.resx</DependentUpon>
       </Compile>
       <Compile Update="UI\UIShaders.Designer.cs">
         <DependentUpon>UIShaders.resx</DependentUpon>
@@ -36,9 +41,14 @@
         <LastGenOutput>BlockShaders.Designer.cs</LastGenOutput>
         <Generator>ResXFileCodeGenerator</Generator>
       </EmbeddedResource>
-      <EmbeddedResource Update="Shaders.resx">
+      <EmbeddedResource Update="Debuggers\DebuggerShaders.resx">
+        <SubType>Designer</SubType>
+        <LastGenOutput>DebuggerShaders.Designer.cs</LastGenOutput>
         <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Shaders.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Environments\EnvironmentShaders.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>EnvironmentShaders.Designer.cs</LastGenOutput>
       </EmbeddedResource>
       <EmbeddedResource Update="UI\UIShaders.resx">
         <SubType>Designer</SubType>

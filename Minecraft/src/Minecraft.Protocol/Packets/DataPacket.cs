@@ -41,18 +41,20 @@ namespace Minecraft.Protocol.Packets
             PacketLength = length;
             var threshold = compressThresholdCallback();
             int dataLength;
-            if (threshold == 0 || (dataLength = rawCodec.ReadVarInt()) < threshold)
+            using var recvStream = new MemoryStream(); //no extra bytes read
+            rawCodec.CopyTo(recvStream, length);
+            var recvCodec = rawCodec.Clone(recvStream);
+            recvStream.Position = 0;
+            if (threshold == 0 || (dataLength = recvCodec.ReadVarInt()) < threshold)
             {
                 DataLength = length;
-                rawCodec.CopyTo(BaseStream, length);
+                recvCodec.CopyTo(BaseStream, length);
                 BaseStream.Position = 0;
                 PacketId = Content.ReadVarInt();
                 return;
             }
             DataLength = dataLength;
-            //using var recvStream = new MemoryStream();
-            //TODO: buffer
-            using var compressedStream = new InflaterInputStream(rawCodec.BaseStream) { IsStreamOwner = false };
+            using var compressedStream = new InflaterInputStream(recvStream) { IsStreamOwner = false };
             rawCodec.Clone(compressedStream).CopyTo(BaseStream, dataLength);
             compressedStream.Dispose();
             BaseStream.Position = 0;

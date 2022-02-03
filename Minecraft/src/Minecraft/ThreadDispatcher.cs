@@ -13,6 +13,16 @@ namespace Minecraft
         public bool IsRunning => _thread?.IsAlive ?? false;
         private bool _running;
         private bool _disposedValue;
+        private bool _isBackground;
+
+        public bool IsBackground
+        {
+            get => _isBackground;
+            set
+            {
+                _isBackground = value;
+            }
+        }
 
         public string ThreadName
         {
@@ -30,16 +40,17 @@ namespace Minecraft
             }
         }
 
+        private readonly object _invokeLock = new object();
+
         public void Invoke(Action action, bool async = false)
         {
             if (_thread == null)
                 Start();
             lock (_executeQueue)
-            {
                 _executeQueue.Enqueue((action, !async));
-                if (!async)
-                    Monitor.Wait(_executeQueue);
-            }
+            if (!async)
+                lock (_invokeLock)
+                    Monitor.Wait(_invokeLock);
         }
 
         private void DispatcherLoop()
@@ -47,21 +58,19 @@ namespace Minecraft
             _logger.Info("Thread started.");
             while (true) //execute loop
             {
-                lock (_executeQueue)
-                {
-                    if (!_executeQueue.TryDequeue(out var value))
-                        if (_running)
-                        {
-                            Thread.CurrentThread.IsBackground = true;
-                            Thread.Sleep(1); // cpu break
-                            continue;
-                        }
-                        else break; // exit the thread when all callbacks are invoked
-                    Thread.CurrentThread.IsBackground = false;
-                    value.action?.Invoke(); // invoke
-                    if (value.wait)
-                        Monitor.Pulse(_executeQueue);
-                }
+                if (!_executeQueue.TryDequeue(out var value))
+                    if (_running)
+                    {
+                        Thread.CurrentThread.IsBackground = true;
+                        Thread.Sleep(1); // cpu break
+                        continue;
+                    }
+                    else break; // exit the thread when all callbacks are invoked
+                Thread.CurrentThread.IsBackground = IsBackground;
+                value.action?.Invoke(); // invoke
+                if (value.wait)
+                    lock (_invokeLock)
+                        Monitor.Pulse(_invokeLock);
             }
 
             // stop
