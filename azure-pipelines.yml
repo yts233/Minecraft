@@ -1,0 +1,30 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: windows-2022
+
+steps:
+- script: echo Hello, world!
+  displayName: '你好，世界！'
+
+- task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: 
+  displayName: '安装Nuget'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    arguments: '-c Release'
+    workingDirectory: 'Minecraft'
+  displayName: '构建项目'
+
+- script: tree /f /a .
+  displayName: '输出目录树'
+  
