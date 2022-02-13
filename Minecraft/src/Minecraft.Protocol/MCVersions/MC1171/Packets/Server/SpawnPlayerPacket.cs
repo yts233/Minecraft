@@ -1,5 +1,5 @@
 ﻿#define FixEndOfStream
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
@@ -25,7 +25,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
 
         public Vector3d Position { get; set; }
 
-        public Rotation Rotation { get; set; }
+        public Vector2 Rotation { get; set; }
 
         public void ReadFromStream(IPacketCodec content)
         {

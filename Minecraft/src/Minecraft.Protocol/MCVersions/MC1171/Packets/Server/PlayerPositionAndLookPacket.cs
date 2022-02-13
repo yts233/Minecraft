@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
@@ -19,7 +19,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
         /// <summary>
         /// The rotation in degrees
         /// </summary>
-        public Rotation Rotation { get; set; }
+        public Vector2 Rotation { get; set; }
 
         /// <summary>
         /// Absolute or relative position, depending on <see cref="CoordKind"/>. 

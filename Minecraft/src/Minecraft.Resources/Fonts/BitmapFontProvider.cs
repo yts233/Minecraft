@@ -21,7 +21,7 @@ namespace Minecraft.Resources.Fonts
             Column = Chars[0].Length;
             Row = Chars.Count;
             if (!Chars.All(p => p.Length == Column))
-                throw new ResourceException("Failed to load font provider.");
+                throw new ResourceException("Failed to load bitmap provider.");
             Height = height;
         }
 

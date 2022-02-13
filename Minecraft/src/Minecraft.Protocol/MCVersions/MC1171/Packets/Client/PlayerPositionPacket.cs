@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client

@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client
@@ -19,7 +19,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client
         /// <summary>
         /// Absolute rotation, in degrees.
         /// </summary>
-        public Rotation Rotation { get; set; }
+        public Vector2 Rotation { get; set; }
 
         public void ReadFromStream(IPacketCodec content)
         {

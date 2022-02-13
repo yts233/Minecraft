@@ -53,10 +53,5 @@ namespace Minecraft.Data
         /// <returns></returns>
         IEnumerable<(int x, int y, int z, BlockState block)> EnumerateChunkSection(int x, int y, int z);
 #endif
-        /// <summary>
-        /// Enumerate the chunks
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<IChunk> EnumerateChunks();
     }
 }

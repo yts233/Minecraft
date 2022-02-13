@@ -63,6 +63,53 @@ namespace Minecraft.Graphics.Renderers.UI {
         /// <summary>
         ///   查找类似 #version 330 core
         ///
+        ///in vec4 outColor;
+        ///out vec4 FragColor;
+        ///
+        ///void main()
+        ///{
+        ///    FragColor = outColor;
+        ///} 的本地化字符串。
+        /// </summary>
+        internal static string BoxFragmentShaderSource {
+            get {
+                return ResourceManager.GetString("BoxFragmentShaderSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 #version 330 core
+        ///layout (location = 0) in ivec3 aPos;
+        ///
+        ///out vec4 outColor;
+        ///
+        ///uniform mat4 model;
+        ///uniform mat4 view;
+        ///uniform mat4 projection;
+        ///uniform vec3 point[2];
+        ///uniform vec4 color;
+        ///
+        ///void main()
+        ///{
+        ///    vec3 outPos;
+        ///    for (int i=0;i&lt;3;i++){
+        ///        outPos[i]=point[aPos[i]][i];
+        ///    }
+        ///
+        ///    gl_Position = projection * view * model * vec4(outPos, 1.0F);
+        ///
+        ///    outColor=color;
+        ///} 的本地化字符串。
+        /// </summary>
+        internal static string BoxVertexShaderSource {
+            get {
+                return ResourceManager.GetString("BoxVertexShaderSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 #version 330 core
+        ///
         ///in vec4 color;
         ///in vec2 texCoord;
         ///out vec4 FragColor;
@@ -70,7 +117,10 @@ namespace Minecraft.Graphics.Renderers.UI {
         ///
         ///void main()
         ///{
-        ///    FragColor = texture(texture1, texCoord) * color;
+        ///	vec4 outColor = texture(texture1, texCoord) * color;
+        ///	if(outColor.w&lt;.0001F)
+        ///		discard;
+        ///    FragColor = outColor;
         ///} 的本地化字符串。
         /// </summary>
         internal static string HudFragmentShaderSource {

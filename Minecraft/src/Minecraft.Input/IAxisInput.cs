@@ -2,11 +2,9 @@
 
 namespace Minecraft.Input
 {
-    public interface IAxisInput
+    public interface IAxisInput : IUpdatable
     {
         AxisRange Range { get; }
         Vector3 Value { get; }
-
-        void Update();
     }
 }

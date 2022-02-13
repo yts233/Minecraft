@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Minecraft.Data.Nbt;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using System;
 
 namespace Minecraft.Protocol.Packets
@@ -83,20 +83,20 @@ namespace Minecraft.Protocol.Packets
         Vector3i ReadPosition();
         float ReadAngle();
         Uuid ReadUuid();
-        Vector3f ReadVector3f()
+        Vector3 ReadVector3()
         {
             var x = ReadSingle();
             var y = ReadSingle();
             var z = ReadSingle();
             return (x, y, z);
         }
-        Rotation ReadRotation()
+        Vector2 ReadRotation()
         {
             var x = ReadSingle();
             var y = ReadSingle();
             return (x, y);
         }
-        Rotation ReadAngleRotation()
+        Vector2 ReadAngleRotation()
         {
             return (ReadAngle(), ReadAngle());
         }
@@ -266,7 +266,7 @@ namespace Minecraft.Protocol.Packets
         void WritePosition(Vector3i value);
         void WriteAngle(float value);
         void Write(Uuid value);
-        void Write(Vector3f value)
+        void Write(Vector3 value)
         {
             Write(value.X);
             Write(value.Y);
@@ -278,15 +278,15 @@ namespace Minecraft.Protocol.Packets
             Write(value.Y);
             Write(value.Z);
         }
-        void Write(Rotation value)
+        void Write(Vector2 value)
         {
-            Write(value.Yaw);
-            Write(value.Pitch);
+            Write(value.X);
+            Write(value.Y);
         }
-        void WriteAngleRotation(Rotation value)
+        void WriteAngleRotation(Vector2 value)
         {
-            WriteAngle(value.Yaw);
-            WriteAngle(value.Pitch);
+            WriteAngle(value.X);
+            WriteAngle(value.Y);
         }
         void Write<TEnum>(TEnum value) where TEnum : Enum
         {

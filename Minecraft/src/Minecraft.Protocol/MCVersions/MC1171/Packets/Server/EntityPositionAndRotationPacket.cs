@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 using System;
 
@@ -14,7 +14,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
 
         public Vector3d Delta { get; set; }
 
-        public Rotation Rotation { get; set; }
+        public Vector2 Rotation { get; set; }
 
         /// <summary>
         /// 实体是否在地面上
@@ -25,7 +25,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Server
         {
             EntityId = content.ReadVarInt();
             var delta = new Vector3d { X = content.ReadInt16(), Y = content.ReadInt16(), Z = content.ReadInt16() };
-            delta.Scale(0.000244140625/* 1/4096 */);
+            delta*=0.000244140625/* 1/4096 */;
             Delta = delta;
             Rotation = content.ReadAngleRotation();
             OnGround = content.ReadBoolean();

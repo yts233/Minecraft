@@ -2,7 +2,7 @@
 using System.IO;
 using Kermalis.EndianBinaryIO;
 using Minecraft.Data.Nbt;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 
 namespace Minecraft.Protocol.Packets
 {

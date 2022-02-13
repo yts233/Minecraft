@@ -1,10 +1,11 @@
-﻿using Minecraft.Numerics;
+﻿using Minecraft.Extensions;
+using OpenTK.Mathematics;
 
 namespace Minecraft.Protocol.Client.Handlers
 {
     public interface IBlockBasedRotationEntityHandler : IEntityHandler
     {
-        Rotation IEntityHandler.Rotation => Rotation.FromDirection(Direction);
+        Vector2 IEntityHandler.Rotation => Direction.ToRotation();
         Direction Direction { get; }
     }
 }

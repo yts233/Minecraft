@@ -2,6 +2,14 @@
 {
     public static class Extensions
     {
+        public static IScaledAxisInput CreateScaledAxisInput(this IAxisInput input, float scale = 1F)
+        {
+            return new ScaledAxisInput(input)
+            {
+                Scale = scale
+            };
+        }
+
         public static ISmoothAxisInput CreateSmoothAxisInput(this IAxisInput input, float speed = 0.125F)
         {
             return new SmoothAxisInput(input)

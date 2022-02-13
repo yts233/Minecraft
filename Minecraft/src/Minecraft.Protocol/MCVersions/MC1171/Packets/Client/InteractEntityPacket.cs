@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using Minecraft.Protocol.Packets;
 
 namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client
@@ -19,7 +19,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client
         /// The interact target
         /// </summary>
         /// <remarks>Only if <see cref="Type"/> is <see cref="InteractType.InteractAt"/></remarks>
-        public Vector3f Target { get; set; }
+        public Vector3 Target { get; set; }
 
         /// <summary>
         /// The interact hand
@@ -34,7 +34,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171.Packets.Client
             EntityId = content.ReadVarInt();
             Type = content.ReadVarIntEnum<InteractType>();
             if (Type == InteractType.InteractAt)
-                Target = content.ReadVector3f();
+                Target = content.ReadVector3();
             if (Type == InteractType.Interact || Type == InteractType.InteractAt)
                 Hand = content.ReadVarIntEnum<Hand>();
             Sneaking = content.ReadBoolean();

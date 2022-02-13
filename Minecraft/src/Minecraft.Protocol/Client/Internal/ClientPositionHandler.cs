@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Client.Handlers;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using System.Threading.Tasks;
 
 namespace Minecraft.Protocol.Client.Internal
@@ -9,11 +9,11 @@ namespace Minecraft.Protocol.Client.Internal
         private readonly IMinecraftClientAdapter _adapter;
         // 可能有性能问题，故使用field
         private Vector3d _position;
-        private Rotation _rotation;
+        private Vector2 _rotation;
         private bool _onGround;
 
         public Vector3d Position => _position;
-        public Rotation Rotation => _rotation;
+        public Vector2 Rotation => _rotation;
         public bool OnGround => _onGround;
 
         public ClientPositionHandler(IMinecraftClientAdapter adapter)
@@ -37,11 +37,11 @@ namespace Minecraft.Protocol.Client.Internal
             _position.Z = zKind == CoordKind.Relative ? _position.Z + position.Z : position.Z;
         }
 
-        private void Adapter_PlayerLook(object sender, (Rotation rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId) e)
+        private void Adapter_PlayerLook(object sender, (Vector2 rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId) e)
         {
-            (Rotation rotation, CoordKind yRotKind, CoordKind xRotKind, _) = e;
-            _rotation.Yaw = xRotKind == CoordKind.Relative ? _rotation.Yaw + rotation.Yaw : rotation.Yaw;
-            _rotation.Pitch = yRotKind == CoordKind.Relative ? _rotation.Pitch + rotation.Pitch : rotation.Pitch;
+            (Vector2 rotation, CoordKind yRotKind, CoordKind xRotKind, _) = e;
+            _rotation.X = xRotKind == CoordKind.Relative ? _rotation.X + rotation.X : rotation.X;
+            _rotation.Y = yRotKind == CoordKind.Relative ? _rotation.Y + rotation.Y : rotation.Y;
             _rotation.Normalize();
         }
 
@@ -58,7 +58,7 @@ namespace Minecraft.Protocol.Client.Internal
             _onGround = onGround;
         }
 
-        public void SetRotation(Rotation rotation, bool onGround)
+        public void SetRotation(Vector2 rotation, bool onGround)
         {
             rotation.Normalize();
             _adapter.SendPlayerRotationPacket(rotation, onGround);
@@ -66,7 +66,7 @@ namespace Minecraft.Protocol.Client.Internal
             _onGround = onGround;
         }
 
-        public void SetPositionAndRotation(Vector3d position, Rotation rotation, bool onGround)
+        public void SetPositionAndRotation(Vector3d position, Vector2 rotation, bool onGround)
         {
             rotation.Normalize();
             _adapter.SendPlayerPositionAndRotationPacket(position, rotation, onGround);

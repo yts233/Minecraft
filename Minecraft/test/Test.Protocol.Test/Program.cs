@@ -1,14 +1,25 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Minecraft;
 using Minecraft.Extensions;
 using Minecraft.Protocol.MCVersions.MC1171;
 using Minecraft.Protocol.MCVersions.MC1171.Packets.Client;
 using Minecraft.Protocol.Packets;
+using OpenTK.Mathematics;
 
 Console.WriteLine("Hello World!");
+
+var box = new Box2d(-.3D, 0D, .3D, 1.75D);
+Console.WriteLine(box.Translated((1D, 1D)));
+
+box.Max += (1, 1);
+box.Min += (1, 1);
+Console.WriteLine(box);
+
+return;
 
 MC1171Client client = new("MCConsoleTest");
 

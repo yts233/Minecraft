@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Client.Handlers;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +41,7 @@ namespace Minecraft.Protocol.Client.Internal
             }
         }
 
-        private void Adapter_SpawnPlayer(object sender, (int entityId, Uuid playerUuid, Vector3d position, Rotation rotation) e)
+        private void Adapter_SpawnPlayer(object sender, (int entityId, Uuid playerUuid, Vector3d position, Vector2 rotation) e)
         {
             lock (_entities)
             {

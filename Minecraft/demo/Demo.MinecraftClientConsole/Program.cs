@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Minecraft;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using Minecraft.Extensions;
 using static Demo.MinecraftClientConsole.Shared;
 using Minecraft.Graphics.Windowing;

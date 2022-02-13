@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Client.Handlers;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using System.Threading.Tasks;
 
 namespace Minecraft.Protocol.Client.Internal
@@ -60,7 +60,7 @@ namespace Minecraft.Protocol.Client.Internal
 
         public Vector3d Position => _positionHandler.Position;
 
-        public Rotation Rotation => _positionHandler.Rotation;
+        public Vector2 Rotation => _positionHandler.Rotation;
 
         public int ServerChunkX => _serverChunkX;
         public int ServerChunkZ => _serverChunkZ;
@@ -84,7 +84,7 @@ namespace Minecraft.Protocol.Client.Internal
             _adapter.SendInteractEntityPacket(entity.EntityId, hand, sneaking);
         }
 
-        public void Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking)
+        public void Interact(IEntityHandler entity, Vector3 target, Hand hand, bool sneaking)
         {
             _adapter.SendInteractEntityPacket(entity.EntityId, target, hand, sneaking);
         }

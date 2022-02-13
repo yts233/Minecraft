@@ -13,13 +13,18 @@ namespace Minecraft.Resources.Vanilla.WorldOfColorUpdate
         }
 
         public VanillaResource() : base(
-            new FilePathMap(new IFilePath[]
+            GetFilePath(),
+            "Minecraft World of Color Update Resource Pack")
+        {
+        }
+
+        public static IFilePath GetFilePath()
+        {
+            return new FilePathMap(new IFilePath[]
             {
                 new HashFilePath(MinecraftPaths.AssetsObjects, MinecraftPaths.AssetsIndexes["1.12.json"]),
                 new ZipFilePath(ResourceManager.GetStream("Vanilla"))
-            }),
-            "Minecraft World of Color Update Resource Pack")
-        {
+            });
         }
     }
 }

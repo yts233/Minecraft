@@ -43,7 +43,7 @@ namespace Minecraft.Graphics.Arraying
         public static IVertexArrayHandle VertexSubData<T>(this IVertexArrayHandle handle, int offset, int size,
             T[] data) where T : struct
         {
-            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr) offset, size, data);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)offset, size, data);
             return handle;
         }
 
@@ -59,7 +59,7 @@ namespace Minecraft.Graphics.Arraying
         public static IElementArrayHandle ElementSubData(this IElementArrayHandle handle, int offset, int size,
             uint[] data)
         {
-            GL.BufferSubData(BufferTarget.ElementArrayBuffer, (IntPtr) offset, size, data);
+            GL.BufferSubData(BufferTarget.ElementArrayBuffer, (IntPtr)offset, size, data);
             return handle;
         }
 

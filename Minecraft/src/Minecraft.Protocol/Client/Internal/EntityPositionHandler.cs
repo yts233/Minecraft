@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Client.Handlers;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 
 namespace Minecraft.Protocol.Client.Internal
 {
@@ -8,10 +8,10 @@ namespace Minecraft.Protocol.Client.Internal
         private readonly IMinecraftClientAdapter _adapter;
         private readonly int _entityId;
         private Vector3d _position;
-        private Rotation _rotation;
+        private Vector2 _rotation;
         private bool _onGround;
 
-        public EntityPositionHandler(IMinecraftClientAdapter adapter, int entityId, Vector3d position, Rotation rotation)
+        public EntityPositionHandler(IMinecraftClientAdapter adapter, int entityId, Vector3d position, Vector2 rotation)
         {
             _adapter = adapter;
             _entityId = entityId;
@@ -22,7 +22,7 @@ namespace Minecraft.Protocol.Client.Internal
             _adapter.EntityTeleport += Adapter_EntityTeleport;
         }
 
-        private void Adapter_EntityTeleport(object sender, (int entityId, Vector3d position, Rotation rotation, bool onGround) e)
+        private void Adapter_EntityTeleport(object sender, (int entityId, Vector3d position, Vector2 rotation, bool onGround) e)
         {
             if (e.entityId != _entityId) return;
             _position = e.position;
@@ -30,7 +30,7 @@ namespace Minecraft.Protocol.Client.Internal
             _onGround = OnGround;
         }
 
-        private void Adapter_EntityRotation(object sender, (int entityId, Rotation rotation, bool onGround) e)
+        private void Adapter_EntityRotation(object sender, (int entityId, Vector2 rotation, bool onGround) e)
         {
             if (e.entityId != _entityId) return;
             _rotation = e.rotation;
@@ -40,7 +40,7 @@ namespace Minecraft.Protocol.Client.Internal
         private void Adapter_EntityDeltaMove(object sender, (int entityId, Vector3d delta, bool onGround) e)
         {
             if (e.entityId != _entityId) return;
-            _position.Add(e.delta);
+            _position += e.delta;
             _onGround = OnGround;
         }
 
@@ -53,7 +53,7 @@ namespace Minecraft.Protocol.Client.Internal
 
         public Vector3d Position => _position;
 
-        public Rotation Rotation => _rotation;
+        public Vector2 Rotation => _rotation;
 
         public bool OnGround => _onGround;
     }

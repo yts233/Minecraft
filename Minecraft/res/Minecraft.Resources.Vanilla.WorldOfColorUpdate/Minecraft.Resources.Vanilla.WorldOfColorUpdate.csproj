@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Resources.resources" />
-    </ItemGroup>
-
-    <ItemGroup>
       <EmbeddedResource Include="Resources.resources" />
     </ItemGroup>
     

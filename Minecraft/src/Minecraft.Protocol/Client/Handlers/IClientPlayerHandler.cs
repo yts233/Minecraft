@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using System.Threading.Tasks;
 
 namespace Minecraft.Protocol.Client.Handlers
@@ -16,6 +16,6 @@ namespace Minecraft.Protocol.Client.Handlers
 
         void Attack(IEntityHandler entity, bool sneaking);
         void Interact(IEntityHandler entity, Hand hand, bool sneaking);
-        void Interact(IEntityHandler entity, Vector3f target, Hand hand, bool sneaking);
+        void Interact(IEntityHandler entity, Vector3 target, Hand hand, bool sneaking);
     }
 }

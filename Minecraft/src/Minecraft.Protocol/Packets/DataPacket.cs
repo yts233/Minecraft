@@ -36,8 +36,8 @@ namespace Minecraft.Protocol.Packets
         public void ReadFromStream(IPacketCodec rawCodec, PacketBoundTo boundTo, Func<int> compressThresholdCallback, Func<ProtocolState> stateCallback)
         {
             BoundTo = boundTo;
-            var length = rawCodec.ReadVarInt(); // Length of Packet ID + Data
             State = stateCallback();
+            var length = rawCodec.ReadVarInt(); // Length of Packet ID + Data
             PacketLength = length;
             var threshold = compressThresholdCallback();
             int dataLength;
@@ -56,7 +56,6 @@ namespace Minecraft.Protocol.Packets
             DataLength = dataLength;
             using var compressedStream = new InflaterInputStream(recvStream) { IsStreamOwner = false };
             rawCodec.Clone(compressedStream).CopyTo(BaseStream, dataLength);
-            compressedStream.Dispose();
             BaseStream.Position = 0;
             PacketId = Content.ReadVarInt();
         }

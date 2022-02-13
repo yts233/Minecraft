@@ -28,11 +28,6 @@ namespace Minecraft.Data
             }
         }
 
-        public IEnumerable<IChunk> EnumerateChunks()
-        {
-            yield return this;
-        }
-
         public BlockState GetBlock(int x, int y, int z)
         {
             if (y < 0x00 || y > 0xff)

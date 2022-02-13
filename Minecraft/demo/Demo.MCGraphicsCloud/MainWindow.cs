@@ -14,6 +14,8 @@ using System.Linq;
 using Minecraft.Resources;
 using Minecraft.Data;
 using Minecraft.Graphics.Renderers.Blocking;
+using Minecraft.Physics;
+using Minecraft.Graphics.Renderers.UI;
 
 namespace Demo.MCGraphicsCloud
 {
@@ -23,24 +25,26 @@ namespace Demo.MCGraphicsCloud
         private readonly IEye _eye;
         private readonly IViewTransformProvider _viewTransformProvider;
         private readonly IPerspectiveTransformProvider _projectionTransformProvider;
-        private readonly CameraMotivatorRenderer _cameraMotivatorRenderer;
-        private readonly IAxisInput _eyeInput;
-        private readonly IAxisInput _moveInput;
+        //private readonly CameraMotivatorRenderer _cameraMotivatorRenderer;
+        private readonly ISmoothAxisInput _eyeInput;
+        private readonly ISmoothAxisInput _moveInput;
         private readonly EmptyWorld _world;
         private ITexture2DAtlas _atlases;
+        private readonly PhysicsObject _playerObject;
+        private readonly IBlockCollisionObject _floorObject;
+        private readonly BoxRenderer _boxRenderer;
 
         public MainWindow()
         {
             _resource = new VanillaResource();
             _eye = new Eye
             {
-                DepthFar = 512F,
-                Position = (0, 15, 256)
+                DepthFar = 1024F,
             };
             _viewTransformProvider = _eye.GetViewTransformProvider();
             _projectionTransformProvider = _eye.GetPerspectiveTransformProvider();
             _eyeInput = this.CreatePointerAxisInput(.5F, true).CreateSmoothAxisInput();
-            _moveInput = this.CreateKeyAxisInput(Keys.D, Keys.Space, Keys.S, Keys.A, Keys.LeftShift, Keys.W, true).CreateSmoothAxisInput();
+            _moveInput = this.CreateKeyAxisInput(Keys.D, Keys.Space, Keys.S, Keys.A, Keys.LeftShift, Keys.W, true).CreateScaledAxisInput(10F).CreateSmoothAxisInput();
             _world = new EmptyWorld
             {
                 ChunkProvider = (x, z) => new EmptyChunk { X = x, Z = z, World = _world }
@@ -49,17 +53,25 @@ namespace Demo.MCGraphicsCloud
             _world.FillFast(0, 1, 0, 256, 10, 256, "iron_block");
             _world.FillFast(0, 11, 0, 256, 11, 256, "diamond_block");
 
-            _cameraMotivatorRenderer = new CameraMotivatorRenderer(_eye)
+            _world.Fill(15, 12, 14, 16, 13, 17, "gold_block");
+            _world.Fill(3, 12, 3, 5, 13, 5, "gold_block");
+
+
+            _playerObject = new() { OriginalAABB = new Box3d(-.5D, -.5D, -.5D, .5D, .5D, .5D), GravityScale = 1D, Position = (0D, 15D, 0) };
+            _floorObject = new BlockCollisionObject(_world);
+
+            _boxRenderer = new(_viewTransformProvider, _projectionTransformProvider) { Color = Color4.Blue };
+            /*_cameraMotivatorRenderer = new CameraMotivatorRenderer(_eye)
             {
                 RotationInput = _eyeInput,
                 PositionInput = _moveInput,
                 MovementSpeed = 1F,
                 Type = CameraType.Fps,
                 Controlable = true
-            };
-            this.AddUpdater(_cameraMotivatorRenderer);
+            };*/
             this.AddCompletedRenderer(new CloudRenderer(_eye, _viewTransformProvider, _projectionTransformProvider, _resource));
             this.AddCompletedRenderer(new WorldRenderer(_world, () => _atlases, _viewTransformProvider, _projectionTransformProvider) { Camera = _eye, AutoSetCenterChunk = true });
+            this.AddRenderObject(_boxRenderer);
             PointerGrabbed = true;
         }
 
@@ -96,11 +108,15 @@ namespace Demo.MCGraphicsCloud
 
             GL.ClearColor(Color4.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
+            GL.LineWidth(2F);
             base.OnBeforeInitalizers(sender, e);
         }
 
         protected override void OnBeforeRenderers(object sender, EventArgs e)
         {
+            _eye.Position = (Vector3)_playerObject.Position - _eye.Front * 2F;
+            _boxRenderer.Box = new Box3((Vector3)_playerObject.TranslatedAABBB.BoundBox.Min, (Vector3)_playerObject.TranslatedAABBB.BoundBox.Max);
+
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
             _viewTransformProvider.Calculate();
             _projectionTransformProvider.Calculate();
@@ -112,9 +128,36 @@ namespace Demo.MCGraphicsCloud
             _eyeInput.Update();
             _moveInput.Update();
 
-            /*_eye.Position += _moveInput.Value * .005F;*/
-            /*_eye.Rotation += _eyeInput.Value.Xy * .0025F;*/
+            _eye.Rotation += _eyeInput.Value.Xy;
+            var tmp = Matrix2.CreateRotation(MathHelper.DegreesToRadians(_eye.Rotation.X)) * new Vector2(_moveInput.Value.X, -_moveInput.Value.Z);
+            _playerObject.Velocity = new Vector3d(tmp.X, Math.Min(5D, _playerObject.Velocity.Y + _moveInput.BaseInput.Value.Y * .25), -tmp.Y);
+
+            PlayerMovement();
+            Title = _playerObject.Velocity.ToString();
+
             base.OnBeforeUpdaters(sender, e);
+
+        }
+
+        private void PlayerMovement()
+        {
+            var pos0 = _playerObject.Position;
+            var pos1 = _playerObject.Position;
+            _playerObject.Update();
+            const int checkCount = 4;
+            var step = (_playerObject.Position - pos1) / checkCount;
+            _playerObject.Position = pos1;
+            for (int i = 0; i < checkCount; i++)
+            {
+                pos1 = _playerObject.Position;
+                _playerObject.Position += step;
+                if (_floorObject.CollisionTest(_playerObject.TranslatedAABBB).IsCollision)
+                {
+                    _playerObject.Position = pos1;
+                    _playerObject.Velocity = (pos1 - pos0) * 60D;
+                    return;
+                }
+            }
         }
 
         protected override void OnRenderClientSizeChanged(object sender, Vector2i e)

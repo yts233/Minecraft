@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 
 namespace Minecraft.Protocol.Client.Handlers
 {

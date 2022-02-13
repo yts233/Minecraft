@@ -1,5 +1,5 @@
 ﻿using Minecraft.Protocol.Client.Handlers;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using System.Linq;
 
 namespace Minecraft.Protocol.Client.Internal
@@ -9,7 +9,7 @@ namespace Minecraft.Protocol.Client.Internal
         private readonly IMinecraftClientAdapter _adapter;
         private readonly IPositionHandler _positionHandler;
 
-        public PlayerEntityHandler(IMinecraftClientAdapter adapter, int entityId, Uuid playerUuid, Vector3d position, Rotation rotation)
+        public PlayerEntityHandler(IMinecraftClientAdapter adapter, int entityId, Uuid playerUuid, Vector3d position, Vector2 rotation)
         {
             _adapter = adapter;
             EntityId = entityId;
@@ -39,7 +39,7 @@ namespace Minecraft.Protocol.Client.Internal
 
         public Vector3d Position => _positionHandler.Position;
 
-        public Rotation Rotation => _positionHandler.Rotation;
+        public Vector2 Rotation => _positionHandler.Rotation;
 
         public bool OnGround => _positionHandler.OnGround;
 

@@ -3,7 +3,7 @@ using Minecraft.Protocol.MCVersions.MC1171.Packets.Server;
 using System;
 using System.Net.Sockets;
 using Minecraft.Data.Nbt.Tags;
-using Minecraft.Numerics;
+using OpenTK.Mathematics;
 using ClientChatMessagePacket = Minecraft.Protocol.MCVersions.MC1171.Packets.Client.ChatMessagePacket;
 using ServerChatMessagePacket = Minecraft.Protocol.MCVersions.MC1171.Packets.Server.ChatMessagePacket;
 using Minecraft.Protocol.Client;
@@ -74,11 +74,11 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// <summary>
         /// 玩家朝向变化
         /// </summary>
-        public event EventHandler<(Rotation rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId)> PlayerLook;
+        public event EventHandler<(Vector2 rotation, CoordKind yRotKind, CoordKind xRotKind, int teleportId)> PlayerLook;
         /// <summary>
         /// 玩家生成
         /// </summary>
-        public event EventHandler<(int entityId, Uuid playerUuid, Vector3d position, Rotation rotation)> SpawnPlayer;
+        public event EventHandler<(int entityId, Uuid playerUuid, Vector3d position, Vector2 rotation)> SpawnPlayer;
         /// <summary>
         /// 接收聊天
         /// </summary>
@@ -90,11 +90,11 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// <summary>
         /// 实体朝向改变
         /// </summary>
-        public event EventHandler<(int entityId, Rotation rotation, bool onGround)> EntityRotation;
+        public event EventHandler<(int entityId, Vector2 rotation, bool onGround)> EntityRotation;
         /// <summary>
         /// 实体移动8格以外距离
         /// </summary>
-        public event EventHandler<(int entityId, Vector3d position, Rotation rotation, bool onGround)> EntityTeleport;
+        public event EventHandler<(int entityId, Vector3d position, Vector2 rotation, bool onGround)> EntityTeleport;
         /// <summary>
         /// 实体在客户端中被移除
         /// </summary>
@@ -161,7 +161,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// <param name="position"></param>
         /// <param name="rotation"></param>
         /// <returns></returns>
-        public void SendVehicleMovePacket(Vector3d position, Rotation rotation)
+        public void SendVehicleMovePacket(Vector3d position, Vector2 rotation)
         {
             _protocolAdapter.SendPacket(new VehicleMovePacket { Position = position, Rotation = rotation });
         }
@@ -183,7 +183,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// </summary>
         /// <param name="rotation"></param>
         /// <returns></returns>
-        public void SendPlayerRotationPacket(Rotation rotation, bool onGround)
+        public void SendPlayerRotationPacket(Vector2 rotation, bool onGround)
         {
             _protocolAdapter.SendPacket(new PlayerRotationPacket { Rotation = rotation, OnGround = onGround });
         }
@@ -195,7 +195,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// <param name="rotation"></param>
         /// <param name="onGround"></param>
         /// <returns></returns>
-        public void SendPlayerPositionAndRotationPacket(Vector3d position, Rotation rotation, bool onGround)
+        public void SendPlayerPositionAndRotationPacket(Vector3d position, Vector2 rotation, bool onGround)
         {
             _protocolAdapter.SendPacket(new PlayerPositionAndRotationPacket { Position = position, Rotation = rotation, OnGround = onGround });
         }
@@ -242,7 +242,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171
         /// <param name="hand"></param>
         /// <param name="sneaking"></param>
         /// <returns></returns>
-        public void SendInteractEntityPacket(int entityId, Vector3f target, Hand hand, bool sneaking)
+        public void SendInteractEntityPacket(int entityId, Vector3 target, Hand hand, bool sneaking)
         {
             _protocolAdapter.SendPacket(new InteractEntityPacket { EntityId = entityId, Type = InteractType.InteractAt, Target = target, Hand = hand, Sneaking = sneaking });
         }

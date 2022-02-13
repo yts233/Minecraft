@@ -1,4 +1,4 @@
-﻿using Minecraft.Numerics;
+﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +10,7 @@ namespace Minecraft.Protocol.Client.Handlers
         int EntityId { get; }
         Uuid EntityUuid { get; }
         Vector3d Position { get; }
-        Rotation Rotation { get; }
+        Vector2 Rotation { get; }
         bool OnGround { get; }
         IPositionHandler GetPositionHandler();
     }

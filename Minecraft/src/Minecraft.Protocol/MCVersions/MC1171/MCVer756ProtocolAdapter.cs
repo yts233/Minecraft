@@ -61,7 +61,7 @@ namespace Minecraft.Protocol.MCVersions.MC1171
                     _logger.Debug($"Change protocol state: {State}");
                     break;
             }
-            _logger.Info(packet.GetPropertyInfoString());
+            _logger.Info(packet.GetType().FullName);
             return base.OnSendingPacket(packet);
         }
 

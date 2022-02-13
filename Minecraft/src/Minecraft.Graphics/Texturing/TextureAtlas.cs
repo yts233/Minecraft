@@ -14,13 +14,14 @@ namespace Minecraft.Graphics.Texturing
         {
             var spaces = new Dictionary<NamedIdentifier, Box2>();
             float height = heightInBlocks << 4;
+            const float offset = .0001F;
             Box2 TranslateBox(Box2i value)
             {
                 return new Box2(
-                    value.Min.X / 1024F,
-                    value.Min.Y / height,
-                    value.Max.X / 1024F,
-                    value.Max.Y / height);
+                    value.Min.X / 1024F + offset,
+                    (value.Min.Y + offset * 1024F) / height,
+                    value.Max.X / 1024F - offset,
+                    (value.Max.Y - offset * 1024F) / height);
             }
 
             foreach (var (key, value) in images)

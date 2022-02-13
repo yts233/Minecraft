@@ -42,7 +42,7 @@ namespace Minecraft.Data
         {
             if (y < 0x00 || y > 0xff)
                 return "void_air";
-            return GetChunk(x >> 4, z >> 4)?.GetBlock(x & 0x03, y, z & 0x03) ?? "void_air";
+            return GetChunk(x >> 4, z >> 4)?.GetBlock(x & 0x0F, y, z & 0x0F) ?? "void_air";
         }
 
         public IChunk GetChunk(int x, int z)
@@ -52,9 +52,8 @@ namespace Minecraft.Data
                 chunk = _chunks.FirstOrDefault(c => c.X == x && c.Z == z);
             if (chunk != null)
                 return chunk;
-            if (!(ChunkProvider is null))
+            if (!(ChunkProvider is null) && (chunk = ChunkProvider(x, z)) != null)
             {
-                chunk = ChunkProvider(x, z);
                 lock (_chunks) // 同步
                     _chunks.Add(chunk);
                 return chunk;

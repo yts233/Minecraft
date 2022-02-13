@@ -1,5 +1,4 @@
-﻿using Minecraft.Graphics.Rendering;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace Minecraft.Graphics.Transforming
 {

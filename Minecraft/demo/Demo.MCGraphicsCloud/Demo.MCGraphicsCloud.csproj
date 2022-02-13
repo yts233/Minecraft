@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\Minecraft.Graphics.Renderers\Minecraft.Graphics.Renderers.csproj" />
     <ProjectReference Include="..\..\src\Minecraft.Graphics.Windowing\Minecraft.Graphics.Windowing.csproj" />
     <ProjectReference Include="..\..\src\Minecraft.Input\Minecraft.Input.csproj" />
+    <ProjectReference Include="..\..\src\Minecraft.Physics\Minecraft.Physics.csproj" />
   </ItemGroup>
 
 </Project>

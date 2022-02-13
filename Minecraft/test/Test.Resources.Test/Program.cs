@@ -4,7 +4,7 @@ using System.Linq;
 using Minecraft;
 using Minecraft.Extensions;
 using Minecraft.Resources.Fonts;
-using Minecraft.Resources.Vanilla.VillageAndPillage;
+using Minecraft.Resources.Vanilla.MC117Resource;
 
 namespace Test.Resources.Test
 {
@@ -12,12 +12,25 @@ namespace Test.Resources.Test
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Loading resource and font...");
             using var resource = new VanillaResource();
             Logger.WaitForLogging();
 
             Console.WriteLine("Finished.");
 
+            foreach (var file in VanillaResource.GetFilePath()["assets"]["minecraft"]["shaders"]["core"].GetChildren())
+            {
+                Console.WriteLine(file.PathName);
+            }
+            foreach (var asset in resource.GetAssets().Where(a => a.Type == Minecraft.Resources.AssetType.Shader && a.NamedIdentifier.Name.IndexOf("block") != -1))
+            {
+                Console.WriteLine($@"{asset.NamedIdentifier}:
+{asset.OpenText().ReadToEnd()}
+---------------------------------------
+");
+            }
+
+
+#if FontHelper
             var font = new Font(resource, "default");
 
             while (true)
@@ -31,6 +44,7 @@ namespace Test.Resources.Test
                 Console.WriteLine("--------------------------------");
             }
 
+#endif
             //Console.ReadKey();
         }
     }

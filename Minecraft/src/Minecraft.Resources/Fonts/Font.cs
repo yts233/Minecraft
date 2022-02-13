@@ -34,31 +34,38 @@ namespace Minecraft.Resources.Fonts
             var providers = fontJson.RootElement.GetProperty("providers");
             foreach (var provider in providers.EnumerateArray())
             {
-                var type = provider.GetProperty("type").GetString();
-                if (forceUnicodeFont && type != "legacy_unicode")
-                    continue;
-                switch (type)
+                try
                 {
-                    case "bitmap":
-                        provider.TryGetProperty("height", out var height);
-                        _providers.Add(
-                            new BitmapFontProvider(provider.GetProperty("file").GetString(),
-                                provider.GetProperty("ascent").GetInt32(),
-                                provider.GetProperty("chars").EnumerateArray().Select(p => p.GetString()),
-                                height.ValueKind == JsonValueKind.Number ? height.GetInt32() : 16)
-                        );
-                        break;
-                    case "legacy_unicode":
-                        var sizes = provider.GetProperty("sizes").GetString();
-                        var template = provider.GetProperty("template").GetString();
-                        _providers.Add(new UnicodeFontProvider(_assetProvider.GetFile(sizes), template));
-                        break;
-                    case "ttf":
-                        Logger.GetLogger<Font>().Warn("Unsupported TrueType font provider.");
-                        break;
-                    default:
-                        Logger.GetLogger<Font>().Warn($"Unknown font provider type: {type}");
-                        break;
+                    var type = provider.GetProperty("type").GetString();
+                    if (forceUnicodeFont && type != "legacy_unicode")
+                        continue;
+                    switch (type)
+                    {
+                        case "bitmap":
+                            provider.TryGetProperty("height", out var height);
+                            _providers.Add(
+                                new BitmapFontProvider(provider.GetProperty("file").GetString(),
+                                    provider.GetProperty("ascent").GetInt32(),
+                                    provider.GetProperty("chars").EnumerateArray().Select(p => p.GetString()),
+                                    height.ValueKind == JsonValueKind.Number ? height.GetInt32() : 16)
+                            );
+                            break;
+                        case "legacy_unicode":
+                            var sizes = provider.GetProperty("sizes").GetString();
+                            var template = provider.GetProperty("template").GetString();
+                            _providers.Add(new UnicodeFontProvider(_assetProvider.GetFile(sizes), template));
+                            break;
+                        case "ttf":
+                            Logger.GetLogger<Font>().Warn("Unsupported TrueType font provider.");
+                            break;
+                        default:
+                            Logger.GetLogger<Font>().Warn($"Unknown font provider type: {type}");
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.GetLogger<Font>().Warn(ex);
                 }
             }
         }

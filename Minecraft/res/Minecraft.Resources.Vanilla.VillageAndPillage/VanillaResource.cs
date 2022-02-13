@@ -16,13 +16,18 @@ namespace Minecraft.Resources.Vanilla.VillageAndPillage
         }
 
         public VanillaResource() : base(
-            new FilePathMap(new IFilePath[]
+            GetFilePath(),
+            "Minecraft Village & Pillage Resource Pack")
+        {
+        }
+
+        public static IFilePath GetFilePath()
+        {
+            return new FilePathMap(new IFilePath[]
             {
                 new HashFilePath(MinecraftPaths.AssetsObjects, MinecraftPaths.AssetsIndexes["1.14.json"]),
                 new ZipFilePath(ResourceManager.GetStream("Vanilla"))
-            }),
-            "Minecraft Village & Pillage Resource Pack")
-        {
+            });
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Minecraft.Graphics.Rendering;
-using Minecraft.Graphics.Transforming;
+﻿using Minecraft.Graphics.Transforming;
 using Minecraft.Input;
 using OpenTK.Mathematics;
 
