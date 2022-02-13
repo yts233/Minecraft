@@ -13,6 +13,14 @@ steps:
 - script: echo Hello, world!
   displayName: '你好，世界！'
 
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'Minecraft'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/src.zip'
+    replaceExistingArchive: true
+
 - task: NuGetToolInstaller@1
   inputs:
     versionSpec: 
@@ -21,10 +29,20 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    arguments: '-c Release'
+    arguments: '-c Release -o $(Build.BinariesDirectory)'
     workingDirectory: 'Minecraft'
   displayName: '构建项目'
 
-- script: tree /f /a .
-  displayName: '输出目录树'
-  
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
