@@ -20,6 +20,7 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/src.zip'
     replaceExistingArchive: true
+  displayName: '打包源代码'
 
 - task: NuGetToolInstaller@1
   inputs:
@@ -38,11 +39,13 @@ steps:
     rootFolderOrFile: '$(Build.BinariesDirectory)'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/Build_$(Build.BuildId).zip'
     replaceExistingArchive: true
+  displayName: '打包构建文件'
 
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+  displayName: '上传所有包'
