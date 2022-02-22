@@ -5,51 +5,53 @@ pool:
   vmImage: windows-2022
 
 steps:
- - task: Bash@3
-   displayName: Initialize And Sync with Github
-   inputs:
-     targetType: inline
-     script: |
-       mkdir $(Build.ArtifactStagingDirectory)/Archive
-       cd $(Build.sourcesdirectory)
-       git remote add github https://$(github.pat)@github.com/yts233/Minecraft
-       git push -u github HEAD:master
- - task: CopyFiles@2
-   displayName: Copy Source
-   inputs:
-     Contents: $(Build.sourcesdirectory)/Minecraft/**
-     TargetFolder: $(Build.ArtifactStagingDirectory)/Source
- - task: ArchiveFiles@2
-   displayName: Archive Source.zip
-   inputs:
-     rootFolderOrFile: $(Build.ArtifactStagingDirectory)/Source/
-     includeRootFolder: false
-     archiveFile: $(Build.ArtifactStagingDirectory)/Archive/Source.zip
- - task: PublishPipelineArtifact@1
-   displayName: Publish Source
-   inputs:
-     path: $(Build.ArtifactStagingDirectory)/Source
-     artifactName: Source
- - task: NuGetToolInstaller@1
-   displayName: 'Use NuGet '
- - task: DotNetCoreCLI@2
-   displayName: Build
-   inputs:
-     projects: '**/*.sln'
-     arguments: -c Release -o $(Build.ArtifactStagingDirectory)/Bin
- - task: ArchiveFiles@2
-   displayName: Archive Build.zip
-   inputs:
-     rootFolderOrFile: $(Build.ArtifactStagingDirectory)/Bin/
-     includeRootFolder: false
-     archiveFile: $(Build.ArtifactStagingDirectory)/Archive/Build.zip
- - task: PublishPipelineArtifact@1
-   displayName: Publish Build
-   inputs:
-     path: $(Build.ArtifactStagingDirectory)/Bin
-     artifactName: Build
- - task: PublishPipelineArtifact@1
-   displayName: Publish Archive
-   inputs:
-     path: $(Build.ArtifactStagingDirectory)/Archive
-     artifactName: Archives
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      mkdir $(Build.ArtifactStagingDirectory)\Archive
+      cd $(Build.sourcesdirectory)
+      git remote add github https://$(github.pat)@github.com/yts233/Minecraft
+      git push -u github HEAD:master
+
+- task: CopyFiles@2
+  displayName: Copy Source
+  inputs:
+    Contents: $(Build.sourcesdirectory)/Minecraft/**
+    TargetFolder: $(Build.ArtifactStagingDirectory)/Source
+    
+- task: ArchiveFiles@2
+  displayName: Archive Source.zip
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/Source/
+    includeRootFolder: false
+    archiveFile: $(Build.ArtifactStagingDirectory)/Archive/Source.zip
+
+- task: PublishPipelineArtifact@1
+  displayName: Publish Source
+  inputs:
+    path: $(Build.ArtifactStagingDirectory)/Source
+    artifactName: Source
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet '
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '**/*.sln'
+    arguments: -c Release -o $(Build.ArtifactStagingDirectory)/Bin
+- task: ArchiveFiles@2
+  displayName: Archive Build.zip
+  inputs:
+    rootFolderOrFile: $(Build.ArtifactStagingDirectory)/Bin/
+    includeRootFolder: false
+    archiveFile: $(Build.ArtifactStagingDirectory)/Archive/Build.zip
+- task: PublishPipelineArtifact@1
+  displayName: Publish Build
+  inputs:
+    path: $(Build.ArtifactStagingDirectory)/Bin
+    artifactName: Build
+- task: PublishPipelineArtifact@1
+  displayName: Publish Archive
+  inputs:
+    path: $(Build.ArtifactStagingDirectory)/Archive
+    artifactName: Archives
